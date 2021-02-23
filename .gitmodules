@@ -1,0 +1,4 @@
+[submodule "lib/TFT_ST7735"]
+	path = lib/TFT_ST7735
+	url = https://github.com/sumotoy/TFT_ST7735.git
+	branch = 1.0p1
