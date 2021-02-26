@@ -1,7 +1,8 @@
 #ifndef INPUT_MANAGER_H
 #define INPUT_MANAGER_H
                         
-#include <Arduino.h>
+#include <stdint.h>
+
 
 class InputManager{
 public:
@@ -14,39 +15,11 @@ public:
         B     =  0x20
     };
 
-    void processInput() {
-        mPrevMask = mMask;
-        mMask = 0;
-        //arduino nano's A0-A5 pins can be used also as digital pins
-        if(digitalRead(A0))
-            mMask |= Button::LEFT;
-        if(digitalRead(A1))
-            mMask |= Button::DOWN;
-        if(digitalRead(A2))
-            mMask |= Button::UP;
-        if(digitalRead(A3))
-            mMask |= Button::RIGHT;
-        if(digitalRead(A4))
-            mMask |= Button::A;
-        if(digitalRead(A5))
-            mMask |= Button::B; 
-    }
-
-    bool isButtonPressed(Button button) {
-        return (bool)(mMask & button);
-    }
-
-    bool isButtonHeldDown(Button button) {
-        return (mPrevMask & button) && (mMask & button);
-    }
-
-    bool isButtonReleased(Button button) {
-        return (mPrevMask & button) && !(mMask & button);
-    }
-
-    uint8_t getMask() {
-        return mMask;
-    }
+    void processInput();
+    bool isButtonPressed(Button button);
+    bool isButtonHeldDown(Button button);
+    bool isButtonReleased(Button button);
+    uint8_t getMask();
 
 private:
     uint8_t mMask = 0;
