@@ -1,4 +1,27 @@
 #include "main_game.h"
+#include "data.h"
+
+#if defined (ARDUINO) || defined (__AVR_ATmega328P__)
+    #define LOOP_CONDITION 1
+
+    #define BEGIN_DRAW
+    #define END_DRAW
+
+    #define LOG(msg) Serial.println(msg)
+
+#else
+    #include "../pc_version/logging.h"
+
+    #define LOOP_CONDITION !mInputManager.isButtonPressed(InputManager::Button::ESC)
+
+    #define min(a,b) ((a)<(b)?(a):(b))
+    #define max(a,b) ((a)>(b)?(a):(b))
+    #define millis() mGraphics.getElapsedTime();
+    #define delay(ms) mGraphics.sleep(ms);
+
+    #define BEGIN_DRAW  mGraphics.getWindow()->clear();mGraphics.drawLevel();
+    #define END_DRAW mGraphics.getWindow()->display();
+#endif
 
 #define SIZE                8
 #define WALK_SPEED       1.5f
@@ -18,10 +41,10 @@ void MainGame::run() {
 }
 
 void MainGame::init() {
-    Serial.begin(9600);
-
+    BEGIN_DRAW
     mGraphics.fillScreen();
     mGraphics.drawLevel();
+    END_DRAW
 }
 
 //the game loop seems a bit meh, works for now
@@ -36,7 +59,7 @@ void MainGame::loop() {
     float delta;
 
     prevTicks = millis();
-    while(1) {
+    while(LOOP_CONDITION) {
         newTicks = millis();
         frameTicks = newTicks - prevTicks;
         prevTicks = newTicks;
@@ -53,8 +76,10 @@ void MainGame::loop() {
 }
 
 void MainGame::draw() {
+    BEGIN_DRAW
     mGraphics.drawFillRect(oldPosX, oldPosY, SIZE, SIZE, COLOR_BROWN_DARKER);
     mGraphics.drawTile(animFrame>>2, posX, posY, SIZE, flipSprite);
+    END_DRAW
 }
 
 void MainGame::update(float dt) {
@@ -86,12 +111,12 @@ void MainGame::update(float dt) {
     posY = min(posY, 120);
 
     if(velX <= 0) {
-        if(mGraphics.getTileAt(posX + 0.0f, oldPosY + 0.0f) != 29 || mGraphics.getTileAt(posX + 0.0f, oldPosY + SIZE-1 /*0.9f*/) != 29) {
+        if(Data::getTileByPosition(posX + 0.0f, oldPosY + 0.0f) != 29 || Data::getTileByPosition(posX + 0.0f, oldPosY + SIZE-1 /*0.9f*/) != 29) {
             posX = (((uint16_t)posX >> 3) + 1) << 3;
             velX = 0.0f;
         }
     } else {
-        if(mGraphics.getTileAt(posX + SIZE /*1.0f*/, oldPosY + 0.0f) != 29 || mGraphics.getTileAt(posX + SIZE /*1.0f*/, oldPosY + SIZE-1 /*0.9f*/) != 29) {
+        if(Data::getTileByPosition(posX + SIZE /*1.0f*/, oldPosY + 0.0f) != 29 || Data::getTileByPosition(posX + SIZE /*1.0f*/, oldPosY + SIZE-1 /*0.9f*/) != 29) {
             posX = ((uint16_t)posX >> 3) << 3;
             velX = 0.0f;
         }
@@ -99,12 +124,12 @@ void MainGame::update(float dt) {
 
     onGround = false;
     if(velY <= 0) {
-        if(mGraphics.getTileAt(posX + 0.0f, posY) != 29 || mGraphics.getTileAt(posX + SIZE-1 /*0.9f*/, posY) != 29) {
+        if(Data::getTileByPosition(posX + 0.0f, posY) != 29 || Data::getTileByPosition(posX + SIZE-1 /*0.9f*/, posY) != 29) {
             posY = (((uint16_t)posY >> 3) + 1) << 3;
             velY = 0.0f;
         }
     } else {
-        if(mGraphics.getTileAt(posX + 0.0f, posY + SIZE /*1.0f*/) != 29 || mGraphics.getTileAt(posX + SIZE-1 /*0.9f*/, posY + SIZE/*1.0f*/) != 29) {
+        if(Data::getTileByPosition(posX + 0.0f, posY + SIZE /*1.0f*/) != 29 || Data::getTileByPosition(posX + SIZE-1 /*0.9f*/, posY + SIZE/*1.0f*/) != 29) {
             posY = ((uint16_t)posY >> 3) << 3;
             velY = 0.0f;
             onGround = true;

@@ -4,3 +4,4 @@
 .vscode/launch.json
 .vscode/ipch
 pc_version/build/
+pc_version/deps/

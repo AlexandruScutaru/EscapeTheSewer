@@ -1,5 +1,5 @@
-#ifndef INPUT_MANAGER_H
-#define INPUT_MANAGER_H
+#ifndef INPUT_MANAGER_PC_H
+#define INPUT_MANAGER_PC_H
 
 #include <stdint.h>
 
@@ -12,7 +12,8 @@ public:
         DOWN  =  0x04,
         UP    =  0x08,
         A     =  0x10,
-        B     =  0x20
+        B     =  0x20,
+        ESC   =  0x40
     };
 
     void processInput();

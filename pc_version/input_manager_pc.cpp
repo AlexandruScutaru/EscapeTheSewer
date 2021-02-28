@@ -1,24 +1,26 @@
-#include "input_manager.h"
+#include "input_manager_pc.h"
 
-#include <Arduino.h>
+#include <SFML/Window.hpp>
 
 
 void InputManager::processInput() {
     mPrevMask = mMask;
     mMask = 0;
     //arduino nano's A0-A5 pins can be used also as digital pins
-    if(digitalRead(A0))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
         mMask |= Button::LEFT;
-    if(digitalRead(A1))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
         mMask |= Button::DOWN;
-    if(digitalRead(A2))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
         mMask |= Button::UP;
-    if(digitalRead(A3))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
         mMask |= Button::RIGHT;
-    if(digitalRead(A4))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
         mMask |= Button::A;
-    if(digitalRead(A5))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::X))
         mMask |= Button::B;
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+        mMask |= Button::ESC;
 }
 
 bool InputManager::isButtonPressed(Button button) {

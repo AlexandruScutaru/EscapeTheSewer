@@ -1,8 +1,13 @@
 #ifndef MAIN_GAME_H
 #define MAIN_GAME_H
 
-#include "input_manager.h"
-#include "graphics.h"
+#if defined (ARDUINO) || defined (__AVR_ATmega328P__)
+    #include "input_manager.h"
+    #include "graphics.h"
+#else
+    #include "../pc_version/input_manager_pc.h"
+    #include "../pc_version/graphics_pc.h"
+#endif
 
 
 class MainGame {
