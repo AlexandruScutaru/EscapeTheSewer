@@ -9,6 +9,18 @@
 
 #include <stdint.h>
 
+#define TILE_SIZE  8
+
+#define ANIM_IDLE_START    4
+#define ANIM_WALK_START    0
+#define ANIM_JUMP_START   10
+#define ANIM_FALL_START    8
+
+#define ANIM_IDLE_FRAMES   4
+#define ANIM_WALK_FRAMES   4
+#define ANIM_JUMP_FRAMES   2
+#define ANIM_FALL_FRAMES   2
+
 
 class Data {
 public:

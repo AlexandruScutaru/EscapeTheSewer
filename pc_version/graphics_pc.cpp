@@ -5,7 +5,7 @@
 #include "data.h"
 
 
-#define ROW(x, y, i, j) pixel.setFillColor(RGB565toSfColor(Data::colors[r.row.col ## i ]));pixel.setPosition(x + (j-1)*1, y);window->draw(pixel);
+#define ROW(x, y, i, j) pixel.setFillColor(RGB565toSfColor(Data::colors[r.row.col ## i ]));pixel.setPosition(x + (j-1), y);window->draw(pixel);
 
 #define DRAW_ROW(x, y) ROW(x, y, 1, 1)\
                        ROW(x, y, 2, 2)\
@@ -44,7 +44,7 @@ void Graphics::fillScreen(uint16_t color) {
 void Graphics::drawLevel() {
     for (int i = 0; i < Data::levelH; i++) {
         for(int j = 0; j < Data::levelW; j++) {
-            drawTile(Data::getTileByIndex(i, j),  j*8*1, i*8*1, 8);
+            drawTile(Data::getTileByIndex(i, j),  j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE);
         }
     }
 }
@@ -54,9 +54,9 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, boo
     for (int i = 0; i < 8; i++) {
         Data::tile_row_t r = Data::getTileRow(index, i);
         if (flip) {
-            DRAW_ROW_FLIP(x, y + i*1)
+            DRAW_ROW_FLIP(x, y + i)
         } else {
-            DRAW_ROW(x, y + i*1)
+            DRAW_ROW(x, y + i)
         }
     }
 }
@@ -86,4 +86,12 @@ uint32_t Graphics::getElapsedTime() {
 
 void Graphics::sleep(uint32_t ms) {
     sf::sleep(sf::milliseconds(ms));
+}
+
+void Graphics::pollEvents() {
+    sf::Event event;
+    while (window->pollEvent(event)) {
+        if (event.type == sf::Event::Closed)
+            window->close();
+    }
 }

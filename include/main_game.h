@@ -9,6 +9,8 @@
     #include "../pc_version/graphics_pc.h"
 #endif
 
+#include "player.h"
+
 
 class MainGame {
 public:
@@ -27,15 +29,7 @@ private:
     InputManager mInputManager;
     Graphics mGraphics;
 
-    float posX = 0.0f;
-    float posY = 0.0f;
-    float oldPosX = -1.0f;
-    float oldPosY = -1.0f;
-    float velX = 0.0f;
-    float velY = 0.0f;
-    uint8_t animFrame = 0;
-    bool onGround = false;
-    bool flipSprite = false;
+    Player mPlayer;
 
 };
 
