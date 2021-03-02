@@ -1,3 +1,4 @@
+@echo off
 REM simple build script, out of laziness but this does it for my needs
 
 REM get developer command prompt context

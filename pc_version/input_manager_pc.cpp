@@ -6,7 +6,7 @@
 void InputManager::processInput() {
     mPrevMask = mMask;
     mMask = 0;
-    //arduino nano's A0-A5 pins can be used also as digital pins
+
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
         mMask |= Button::LEFT;
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))

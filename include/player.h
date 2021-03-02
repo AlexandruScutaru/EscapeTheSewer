@@ -46,6 +46,7 @@ private:
     uint8_t animFrameStart = 0;
     uint8_t animFrameCurrent = 0;
     uint8_t animFramesNumber = 4;
+    uint8_t ticksPerAnimFrame = 0;
 
 };
 

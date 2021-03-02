@@ -15,7 +15,7 @@
     #define max(a,b) ((a)>(b)?(a):(b))
 #endif
 
-#define WALK_SPEED       1.5f
+#define WALK_SPEED       1.2f
 #define GRAVITY          1.2f
 #define JUMP_FORCE       8.0f
 
@@ -63,16 +63,20 @@ void Player::update(InputManager& input, float dt) {
     //implement proper animation handling
     //  decoupled from framerate
     //  time based, anim frame rate configurable
-    //  change animation based on eventual player FSM    
-    animFrameCurrent++;
-    if(animFrameCurrent >> (animFramesNumber >> 1) >= animFramesNumber)
-        animFrameCurrent = 0;
+    //  change animation based on eventual player FSM
+    ticksPerAnimFrame++;
+    if (ticksPerAnimFrame > 4) {
+        ticksPerAnimFrame = 0;
+        animFrameCurrent++;
+        if(animFrameCurrent >= animFramesNumber)
+            animFrameCurrent = 0;
+    }
 
 }
 
 void Player::draw(Graphics& graphics) {
     graphics.drawFillRect(oldPos.x, oldPos.y, TILE_SIZE, TILE_SIZE, COLOR_BROWN_DARKER);
-    graphics.drawTile((animFrameCurrent >> (animFramesNumber >> 1)) + animFrameStart, pos.x, pos.y, TILE_SIZE, flipSprite);
+    graphics.drawTile(animFrameCurrent + animFrameStart, pos.x, pos.y, TILE_SIZE, flipSprite);
 }
 
 void Player::checkCollision() {
