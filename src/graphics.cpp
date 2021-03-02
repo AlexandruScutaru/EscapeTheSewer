@@ -24,7 +24,8 @@ void Graphics::fillScreen(uint16_t color) {
 void Graphics::drawLevel() {
     for (int i = 0; i < Data::levelH; i++) {
         for(int j = 0; j < Data::levelW; j++) {
-            drawTile(Data::getTileByIndex(i, j),  j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE);
+            const auto& tile_index = Data::getTileByIndex(i, j);
+            drawTile(tile_index.tile_index.index,  j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
         }
     }
 }

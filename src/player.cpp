@@ -21,8 +21,8 @@
 
 
 Player::Player() 
-    : pos(Vector2(0.0f))
-    , oldPos(Vector2(0.0f))
+    : pos(Vector2(0.0f, 16.0f))
+    , oldPos(Vector2(0.0f, 16.0f))
     , velocity(Vector2(-1.0f))
 {}
 
@@ -32,7 +32,7 @@ Player::~Player() {}
 void Player::update(InputManager& input, float dt) {
     oldPos = pos;
 
-    if(input.isButtonPressed(InputManager::Button::A) && onGround){
+    if(input.isButtonPressed(InputManager::Button::A) && onGround) {
         velocity.y = -JUMP_FORCE;
     }
 
@@ -44,6 +44,13 @@ void Player::update(InputManager& input, float dt) {
         flipSprite = false;
     } else {
         velocity.x = 0.0f;
+    }
+
+    if (input.isButtonPressed(InputManager::Button::B)) {
+        mAnimState = AnimState::ATTACK;
+        animFrameCurrent = 1;
+        animFrameStart = ANIM_ATTACK_START;
+        animFramesNumber = ANIM_ATTACK_FRAMES;
     }
 
     velocity.y = min(2*GRAVITY, velocity.y + GRAVITY * dt);
@@ -81,12 +88,12 @@ void Player::draw(Graphics& graphics) {
 
 void Player::checkCollision() {
     if(velocity.x <= 0.0f) {
-        if(Data::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f) != 29 || Data::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1) != 29) {
+        if(Data::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f) != 44 || Data::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1) != 44) {
             pos.x = (((uint16_t)pos.x >> 3) + 1) << 3;
             velocity.x = 0.0f;
         }
     } else {
-        if(Data::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f) != 29 || Data::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1) != 29) {
+        if(Data::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f) != 44 || Data::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1) != 44) {
             pos.x = ((uint16_t)pos.x >> 3) << 3;
             velocity.x = 0.0f;
         }
@@ -94,12 +101,12 @@ void Player::checkCollision() {
 
     onGround = false;
     if(velocity.y <= 0.0f) {
-        if(Data::getTileByPosition(pos.x + 0.0f, pos.y) != 29 || Data::getTileByPosition(pos.x + TILE_SIZE-1, pos.y) != 29) {
+        if(Data::getTileByPosition(pos.x + 0.0f, pos.y) != 44 || Data::getTileByPosition(pos.x + TILE_SIZE-1, pos.y) != 44) {
             pos.y = (((uint16_t)pos.y >> 3) + 1) << 3;
             velocity.y = 0.0f;
         }
     } else {
-        if(Data::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE) != 29 || Data::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE) != 29) {
+        if(Data::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE) != 44 || Data::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE) != 44) {
             pos.y = ((uint16_t)pos.y >> 3) << 3;
             velocity.y = 0.0f;
             onGround = true;
@@ -136,8 +143,15 @@ void Player::updateAnimation() {
     //this really should be handled by a sort of proper FSM
     MovDir md = getMovingDirection();
 
+    if (mAnimState == AnimState::ATTACK && animFrameCurrent == 0) {
+        mAnimState = AnimState::IDLE;
+        animFrameCurrent = 0;
+        animFrameStart = ANIM_IDLE_START;
+        animFramesNumber = ANIM_IDLE_FRAMES;
+    }
+
     //save on some duplicate checks
-    if (mAnimState != AnimState::IDLE && md == MovDir::NONE) {
+    if (mAnimState != AnimState::ATTACK && mAnimState != AnimState::IDLE && md == MovDir::NONE) {
         mAnimState = AnimState::IDLE;
         animFrameCurrent = 0;
         animFrameStart = ANIM_IDLE_START;

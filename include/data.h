@@ -15,11 +15,13 @@
 #define ANIM_WALK_START    0
 #define ANIM_JUMP_START   10
 #define ANIM_FALL_START    8
+#define ANIM_ATTACK_START 14
 
 #define ANIM_IDLE_FRAMES   4
 #define ANIM_WALK_FRAMES   4
 #define ANIM_JUMP_FRAMES   2
 #define ANIM_FALL_FRAMES   2
+#define ANIM_ATTACK_FRAMES 2
 
 
 class Data {
@@ -56,7 +58,7 @@ public:
     };
 
     static uint8_t getTileByPosition(uint16_t x, uint16_t y);
-    static uint8_t getTileByIndex(uint8_t i, uint8_t j);
+    static tile_index_t getTileByIndex(uint8_t i, uint8_t j);
     static tile_row_t getTileRow(uint8_t tileIndex, uint8_t rowIndex);
 
     const static uint8_t levelW = 20;

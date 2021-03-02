@@ -22,7 +22,8 @@ private:
         IDLE,
         WALK,
         JUMP,
-        FALL
+        FALL,
+        ATTACK
     };
     enum class MovDir {
         NONE,
