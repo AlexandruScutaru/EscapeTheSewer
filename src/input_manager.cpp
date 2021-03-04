@@ -33,6 +33,10 @@ bool InputManager::isButtonReleased(Button button) {
     return (mPrevMask & button) && !(mMask & button);
 }
 
+bool InputManager::wasButtonPressedNow(Button button) {
+    return (mMask & button) && !(mPrevMask & button);
+}
+
 uint8_t InputManager::getMask() {
     return mMask;
 }

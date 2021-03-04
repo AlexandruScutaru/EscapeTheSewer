@@ -23,7 +23,7 @@ public:
 
     RenderWindowPtr getWindow() {return window;}
     void pollEvents();
-    uint32_t getElapsedTime();
+    static uint32_t getElapsedTime();
     void sleep(uint32_t ms);
 
 private:
@@ -33,7 +33,7 @@ private:
     int h = 512;
     RenderWindowPtr window;
 
-    sf::Clock clock;
+    static sf::Clock clock;
 };
 
 

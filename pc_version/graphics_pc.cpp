@@ -26,6 +26,8 @@
                             ROW(x, y, 1, 8)
 
 
+sf::Clock Graphics::clock;
+
 Graphics::Graphics() 
     : window(std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(w, h), "Escape The Sewer")))
 {
@@ -92,7 +94,8 @@ void Graphics::sleep(uint32_t ms) {
 void Graphics::pollEvents() {
     sf::Event event;
     while (window->pollEvent(event)) {
-        if (event.type == sf::Event::Closed)
+        if (event.type == sf::Event::Closed) {
             window->close();
+        }
     }
 }

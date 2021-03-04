@@ -36,6 +36,7 @@ private:
     void checkCollision();
     MovDir getMovingDirection();
     void updateAnimation();
+    void changeAnimation(AnimState state);
 
     Vector2 pos;
     Vector2 oldPos;
@@ -47,7 +48,7 @@ private:
     uint8_t animFrameStart = 0;
     uint8_t animFrameCurrent = 0;
     uint8_t animFramesNumber = 4;
-    uint8_t ticksPerAnimFrame = 0;
+    uint32_t lastFrameUpdate = 0;
 
 };
 

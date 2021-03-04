@@ -13,18 +13,24 @@
 
     #define min(a,b) ((a)<(b)?(a):(b))
     #define max(a,b) ((a)>(b)?(a):(b))
+
+    #define millis() Graphics::getElapsedTime()
 #endif
 
 #define WALK_SPEED       1.2f
 #define GRAVITY          1.2f
 #define JUMP_FORCE       8.0f
 
+#define ANIM_FRAME_TIME  100
+
 
 Player::Player() 
     : pos(Vector2(0.0f, 16.0f))
     , oldPos(Vector2(0.0f, 16.0f))
-    , velocity(Vector2(-1.0f))
-{}
+    , velocity(Vector2(0.0f))
+{
+    changeAnimation(AnimState::IDLE);
+}
 
 Player::~Player() {}
 
@@ -32,7 +38,7 @@ Player::~Player() {}
 void Player::update(InputManager& input, float dt) {
     oldPos = pos;
 
-    if(input.isButtonPressed(InputManager::Button::A) && onGround) {
+    if(input.wasButtonPressedNow(InputManager::Button::A) && onGround) {
         velocity.y = -JUMP_FORCE;
     }
 
@@ -46,11 +52,8 @@ void Player::update(InputManager& input, float dt) {
         velocity.x = 0.0f;
     }
 
-    if (input.isButtonPressed(InputManager::Button::B)) {
-        mAnimState = AnimState::ATTACK;
-        animFrameCurrent = 1;
-        animFrameStart = ANIM_ATTACK_START;
-        animFramesNumber = ANIM_ATTACK_FRAMES;
+    if (input.wasButtonPressedNow(InputManager::Button::B) && mAnimState != AnimState::ATTACK) {
+        changeAnimation(AnimState::ATTACK);
     }
 
     velocity.y = min(2*GRAVITY, velocity.y + GRAVITY * dt);
@@ -66,24 +69,24 @@ void Player::update(InputManager& input, float dt) {
     checkCollision();
     
     updateAnimation();
-    
-    //implement proper animation handling
-    //  decoupled from framerate
-    //  time based, anim frame rate configurable
-    //  change animation based on eventual player FSM
-    ticksPerAnimFrame++;
-    if (ticksPerAnimFrame > 4) {
-        ticksPerAnimFrame = 0;
-        animFrameCurrent++;
-        if(animFrameCurrent >= animFramesNumber)
-            animFrameCurrent = 0;
-    }
-
 }
 
 void Player::draw(Graphics& graphics) {
     graphics.drawFillRect(oldPos.x, oldPos.y, TILE_SIZE, TILE_SIZE, COLOR_BROWN_DARKER);
     graphics.drawTile(animFrameCurrent + animFrameStart, pos.x, pos.y, TILE_SIZE, flipSprite);
+
+    //add proper Timer implementation to be reused across app, with a callback as to avoid constant polling
+    if(lastFrameUpdate + ANIM_FRAME_TIME <= millis()) {
+        //jeezuhs.. damn this animation handling is bad
+        //can't call it code smell.. it is an overwhelming stench
+        if (mAnimState == AnimState::ATTACK && animFrameCurrent == 1) {
+            changeAnimation(AnimState::IDLE);
+        } else {
+            animFrameCurrent = animFrameCurrent + 1 == animFramesNumber ? 0 : animFrameCurrent + 1;
+        }
+        lastFrameUpdate = millis();
+    }
+
 }
 
 void Player::checkCollision() {
@@ -140,22 +143,12 @@ Player::MovDir Player::getMovingDirection() {
 }
 
 void Player::updateAnimation() {
-    //this really should be handled by a sort of proper FSM
     MovDir md = getMovingDirection();
 
-    if (mAnimState == AnimState::ATTACK && animFrameCurrent == 0) {
-        mAnimState = AnimState::IDLE;
-        animFrameCurrent = 0;
-        animFrameStart = ANIM_IDLE_START;
-        animFramesNumber = ANIM_IDLE_FRAMES;
-    }
-
+    //this really should be handled by a sort of proper FSM
     //save on some duplicate checks
     if (mAnimState != AnimState::ATTACK && mAnimState != AnimState::IDLE && md == MovDir::NONE) {
-        mAnimState = AnimState::IDLE;
-        animFrameCurrent = 0;
-        animFrameStart = ANIM_IDLE_START;
-        animFramesNumber = ANIM_IDLE_FRAMES;
+        changeAnimation(AnimState::IDLE);
         return;
     }
 
@@ -163,63 +156,74 @@ void Player::updateAnimation() {
     case AnimState::IDLE:
         if(md != MovDir::NONE) {
             if (md == MovDir::N) {
-                mAnimState = AnimState::JUMP;
-                animFrameCurrent = 0;
-                animFrameStart = ANIM_JUMP_START;
-                animFramesNumber = ANIM_JUMP_FRAMES;
+                changeAnimation(AnimState::JUMP);
             } else if (md == MovDir::S) {
-                mAnimState = AnimState::FALL;
-                animFrameCurrent = 0;
-                animFrameStart = ANIM_FALL_START;
-                animFramesNumber = ANIM_FALL_FRAMES;
+                changeAnimation(AnimState::FALL);
             } else {
-                mAnimState = AnimState::WALK;
-                animFrameCurrent = 0;
-                animFrameStart = ANIM_WALK_START;
-                animFramesNumber = ANIM_WALK_FRAMES;
+                changeAnimation(AnimState::WALK);
             }
         }
         break;
     case AnimState::WALK:
         if (md != MovDir::W && md != MovDir::E) {
             if (md == MovDir::N) {
-                mAnimState = AnimState::JUMP;
-                animFrameCurrent = 0;
-                animFrameStart = ANIM_JUMP_START;
-                animFramesNumber = ANIM_JUMP_FRAMES;
+                changeAnimation(AnimState::JUMP);
             } else {
-                mAnimState = AnimState::FALL;
-                animFrameCurrent = 0;
-                animFrameStart = ANIM_FALL_START;
-                animFramesNumber = ANIM_FALL_FRAMES;
+                changeAnimation(AnimState::FALL);
             }
         }
         break;
     case AnimState::JUMP:
         if (md != MovDir::N) {
             if (md == MovDir::S) {
-                mAnimState = AnimState::FALL;
-                animFrameCurrent = 0;
-                animFrameStart = ANIM_FALL_START;
-                animFramesNumber = ANIM_FALL_FRAMES;
+                changeAnimation(AnimState::FALL);
             } else {
-                mAnimState = AnimState::WALK;
-                animFrameCurrent = 0;
-                animFrameStart = ANIM_WALK_START;
-                animFramesNumber = ANIM_WALK_FRAMES;
+                changeAnimation(AnimState::WALK);
             }
         }
         break;
     case AnimState::FALL:
         if (md != MovDir::N && md != MovDir::S) {
-            mAnimState = AnimState::WALK;
-            animFrameCurrent = 0;
-            animFrameStart = ANIM_WALK_START;
-            animFramesNumber = ANIM_WALK_FRAMES;
+            changeAnimation(AnimState::WALK);
         }
         break;
     default:
         //execution shouldn't reach this
         break;
     }
+}
+
+void Player::changeAnimation(AnimState state) {
+    switch (state) {
+    case AnimState::IDLE:
+        mAnimState = AnimState::IDLE;
+        animFrameStart = ANIM_IDLE_START;
+        animFramesNumber = ANIM_IDLE_FRAMES;
+        break;
+    case AnimState::WALK:
+        mAnimState = AnimState::WALK;
+        animFrameStart = ANIM_WALK_START;
+        animFramesNumber = ANIM_WALK_FRAMES;
+        break;
+    case AnimState::JUMP:
+        mAnimState = AnimState::JUMP;
+        animFrameStart = ANIM_JUMP_START;
+        animFramesNumber = ANIM_JUMP_FRAMES;
+        break;
+    case AnimState::FALL:
+        mAnimState = AnimState::FALL;
+        animFrameStart = ANIM_FALL_START;
+        animFramesNumber = ANIM_FALL_FRAMES; 
+        break;
+    case AnimState::ATTACK:
+        mAnimState = AnimState::ATTACK;
+        animFrameStart = ANIM_ATTACK_START;
+        animFramesNumber = ANIM_ATTACK_FRAMES;
+        break;
+    default:
+        break;
+    }
+    //lets suppose default will not be reached and a state change is always guaranteed -> saves some repeating lines
+    animFrameCurrent = 0;
+    lastFrameUpdate = millis();
 }

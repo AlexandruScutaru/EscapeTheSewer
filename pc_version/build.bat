@@ -23,9 +23,11 @@ graphics_pc.cpp ^
 input_manager_pc.cpp ^
 ../src/data.cpp ^
 ../src/main_game.cpp ^
-../src/player.cpp
+../src/player.cpp ^
+../src/slime.cpp ^
+../src/coin.cpp
 
-REM call VC++ compiler, dummy file names for the time being
+REM call VC++ compiler
 cl %debug% /I "%include_dir%" /I "%include_dir2%" /EHsc /GA /MT %src% /Fo"%build_folder%/" /link /LIBPATH:"%lib_dir%" %libs% /out:%out_file%
 
 IF errorlevel 1 (

@@ -12,10 +12,10 @@
 #else
     #include "../pc_version/logging.h"
 
-    #define LOOP_CONDITION !(mInputManager.isButtonPressed(InputManager::Button::ESC) && (mGraphics.getWindow()->isOpen()))
+    #define LOOP_CONDITION (!mInputManager.isButtonPressed(InputManager::Button::ESC) && mGraphics.getWindow()->isOpen())
 
-    #define millis() mGraphics.getElapsedTime();
-    #define delay(ms) mGraphics.sleep(ms);
+    #define millis() Graphics::getElapsedTime()
+    #define delay(ms) mGraphics.sleep(ms)
 
     #define BEGIN_DRAW  mGraphics.getWindow()->clear();mGraphics.drawLevel();
     #define END_DRAW mGraphics.getWindow()->display();
@@ -72,10 +72,14 @@ void MainGame::loop() {
 
 void MainGame::draw() {
     BEGIN_DRAW
+    mCoin.draw(mGraphics);
+    mSlime.draw(mGraphics);
     mPlayer.draw(mGraphics);
     END_DRAW
 }
 
 void MainGame::update(float dt) {
+    mCoin.update(dt);
+    mSlime.update(dt);
     mPlayer.update(mInputManager, dt);
 }

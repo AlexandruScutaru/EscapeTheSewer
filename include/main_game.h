@@ -10,6 +10,8 @@
 #endif
 
 #include "player.h"
+#include "slime.h"
+#include "coin.h"
 
 
 class MainGame {
@@ -29,7 +31,11 @@ private:
     InputManager mInputManager;
     Graphics mGraphics;
 
+    //these can be updated to have a common interface but I'm not sure I want to make them polymorphic and add vtable overhead on arduino...
+    //maybe some experiments with CRTP? or plain inheritance and non virtual overriding? mneah
     Player mPlayer;
+    Slime mSlime;
+    Coin mCoin;
 
 };
 

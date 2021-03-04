@@ -19,6 +19,8 @@ public:
     bool isButtonPressed(Button button);
     bool isButtonHeldDown(Button button);
     bool isButtonReleased(Button button);
+    bool wasButtonPressedNow(Button button);
+
     uint8_t getMask();
 
 private:
