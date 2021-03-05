@@ -30,11 +30,17 @@ void Graphics::drawLevel() {
     }
 }
 
-void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, bool flip) {
+void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip) {
     mTFT.setArea(x, y, x+size-1, y+size-1);
     for (int i = 0; i < 8; i++) {
-        Data::tile_row_t r = Data::getTileRow(index, i);
-        if (flip) {
+        Data::tile_row_t r;
+        if (flip & (1 << 1)) {
+            r = Data::getTileRow(index, 7-i);
+        } else {
+            r = Data::getTileRow(index, i);
+        }
+
+        if (flip & 1) {
             mTFT.pushColor(Data::colors[r.row.col8]);
             mTFT.pushColor(Data::colors[r.row.col7]);
             mTFT.pushColor(Data::colors[r.row.col6]);
