@@ -58,13 +58,13 @@ void Slime::draw(Graphics& graphics) {
 
 void Slime::checkCollision() {
     if(velocity.x <= 0.0f) {
-        if(Data::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f) != 44 || Data::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1) != 44) {
+        if(Data::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f) != 63 || Data::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1) != 63) {
             pos.x = (((uint16_t)pos.x >> 3) + 1) << 3;
             velocity.x = WALK_SPEED;
             flipSprite = false;
         }
     } else {
-        if(Data::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f) != 44 || Data::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1) != 44) {
+        if(Data::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f) != 63 || Data::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1) != 63) {
             pos.x = ((uint16_t)pos.x >> 3) << 3;
             velocity.x = -WALK_SPEED;
             flipSprite = true;
@@ -72,12 +72,12 @@ void Slime::checkCollision() {
     }
 
     if(velocity.y <= 0.0f) {
-        if(Data::getTileByPosition(pos.x + 0.0f, pos.y) != 44 || Data::getTileByPosition(pos.x + TILE_SIZE-1, pos.y) != 44) {
+        if(Data::getTileByPosition(pos.x + 0.0f, pos.y) != 63 || Data::getTileByPosition(pos.x + TILE_SIZE-1, pos.y) != 63) {
             pos.y = (((uint16_t)pos.y >> 3) + 1) << 3;
             velocity.y = 0.0f;
         }
     } else {
-        if(Data::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE) != 44 || Data::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE) != 44) {
+        if(Data::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE) != 63 || Data::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE) != 63) {
             pos.y = ((uint16_t)pos.y >> 3) << 3;
             velocity.y = 0.0f;
             if(pos.y >= 120) {
