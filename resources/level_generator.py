@@ -36,8 +36,6 @@ def tiledArray2CarrayStr(tiles):
     for row in range(LEVEL_H):
         arrStr = "    { "
         for col in range(LEVEL_W):
-            if LEVEL_W * row + col == 53:
-                print(tiles[LEVEL_W * row + col])
             tileStr = getTileStr(tiles[LEVEL_W * row + col])
             arrStr += tileStr
         arrStr += " },\n"
