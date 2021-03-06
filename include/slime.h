@@ -1,7 +1,7 @@
 #ifndef SLIME_H
 #define SLIME_H
 
-#include "vector2.h"
+#include "vec2.h"
 
 #include <stdint.h>
 
@@ -11,6 +11,7 @@ class Graphics;
 class Slime {
 public:
     Slime();
+    Slime(float x, float y);
     ~Slime();
 
     void update(float dt);
@@ -19,9 +20,9 @@ public:
 private:
     void checkCollision();
 
-    Vector2 pos;
-    Vector2 oldPos;
-    Vector2 velocity;
+    vec2 pos;
+    vec2 oldPos;
+    vec2 velocity;
     bool flipSprite = false;
     uint8_t animFrameStart = 48;
     uint8_t animFrameCurrent = 0;

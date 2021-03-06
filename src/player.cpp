@@ -1,6 +1,6 @@
 #include "player.h"
-#include "data.h"
-#include "vector2.inl"
+#include "level.h"
+#include "vec2.inl"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "input_manager.h"
@@ -25,15 +25,27 @@
 
 
 Player::Player() 
-    : pos(Vector2(0.0f, 16.0f))
-    , oldPos(Vector2(0.0f, 16.0f))
-    , velocity(Vector2(0.0f))
+    : pos(vec2(0.0f, 16.0f))
+    , oldPos(vec2(0.0f, 16.0f))
+    , velocity(vec2(0.0f))
+{
+    changeAnimation(AnimState::IDLE);
+}
+
+Player::Player(float x, float y)
+    : pos(vec2(x, y))
+    , oldPos(vec2(x, y))
+    , velocity(vec2(0.0f))
 {
     changeAnimation(AnimState::IDLE);
 }
 
 Player::~Player() {}
 
+
+void Player::setPos(const vec2& pos) {
+    this->pos = pos;
+}
 
 void Player::update(InputManager& input, float dt) {
     oldPos = pos;
@@ -91,12 +103,12 @@ void Player::draw(Graphics& graphics) {
 
 void Player::checkCollision() {
     if(velocity.x <= 0.0f) {
-        if(Data::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f) != 63 || Data::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1) != 63) {
+        if(Level::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f) != 63 || Level::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1) != 63) {
             pos.x = (((uint16_t)pos.x >> 3) + 1) << 3;
             velocity.x = 0.0f;
         }
     } else {
-        if(Data::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f) != 63 || Data::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1) != 63) {
+        if(Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f) != 63 || Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1) != 63) {
             pos.x = ((uint16_t)pos.x >> 3) << 3;
             velocity.x = 0.0f;
         }
@@ -104,12 +116,12 @@ void Player::checkCollision() {
 
     onGround = false;
     if(velocity.y <= 0.0f) {
-        if(Data::getTileByPosition(pos.x + 0.0f, pos.y) != 63 || Data::getTileByPosition(pos.x + TILE_SIZE-1, pos.y) != 63) {
+        if(Level::getTileByPosition(pos.x + 0.0f, pos.y) != 63 || Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y) != 63) {
             pos.y = (((uint16_t)pos.y >> 3) + 1) << 3;
             velocity.y = 0.0f;
         }
     } else {
-        if(Data::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE) != 63 || Data::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE) != 63) {
+        if(Level::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE) != 63 || Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE) != 63) {
             pos.y = ((uint16_t)pos.y >> 3) << 3;
             velocity.y = 0.0f;
             onGround = true;

@@ -4,7 +4,7 @@
 /*** NOTE: file auto-generated based on f24.bmp tileset ***/
 
 //define a list of 8x8 tiles of colors from the above array -> a tile will have a size of 32 bytes -> 6bits indexable -> max 2048 bytes
-const Data::tile_t Data::tiles[] PROGMEM = {
+const Level::tile_t Level::tiles[] PROGMEM = {
     {
         {0, 0, 15, 15, 15, 15, 0, 0},
         {0, 15, 5, 5, 5, 5, 15, 0},

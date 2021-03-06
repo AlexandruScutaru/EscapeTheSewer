@@ -2,10 +2,10 @@
 #include "input_manager_pc.h"
 #include "logging.h"
 
-#include "data.h"
+#include "level.h"
 
 
-#define ROW(x, y, i, j) pixel.setFillColor(RGB565toSfColor(Data::colors[r.row.col ## i ]));pixel.setPosition(x + (j-1), y);window->draw(pixel);
+#define ROW(x, y, i, j) pixel.setFillColor(RGB565toSfColor(Level::colors[r.row.col ## i ]));pixel.setPosition(x + (j-1), y);window->draw(pixel);
 
 #define DRAW_ROW(x, y) ROW(x, y, 1, 1)\
                        ROW(x, y, 2, 2)\
@@ -43,23 +43,14 @@ void Graphics::fillScreen(uint16_t color) {
     window->clear(RGB565toSfColor(color));
 }
 
-void Graphics::drawLevel() {
-    for (int i = 0; i < Data::levelH; i++) {
-        for(int j = 0; j < Data::levelW; j++) {
-            const auto& tile_index = Data::getTileByIndex(i, j);
-            drawTile(tile_index.tile_index.index,  j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
-        }
-    }
-}
-
 void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip) {
     sf::RectangleShape pixel(sf::Vector2f(1, 1));
     for (int i = 0; i < 8; i++) {
-        Data::tile_row_t r;
+        Level::tile_row_t r;
         if (flip & (1 << 1)) {
-            r = Data::getTileRow(index, 7-i);
+            r = Level::getTileRow(index, 7-i);
         } else {
-            r = Data::getTileRow(index, i);
+            r = Level::getTileRow(index, i);
         }
 
         if (flip & 1) {

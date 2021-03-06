@@ -1,6 +1,6 @@
 #include "coin.h"
-#include "data.h"
-#include "vector2.inl"
+#include "level.h"
+#include "vec2.inl"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "graphics.h"
@@ -15,7 +15,11 @@
 #define ANIM_FRAME_TIME  100
 
 Coin::Coin() 
-    : pos(Vector2(40.0f, 16.0f))
+    : pos(vec2(40.0f, 16.0f))
+{}
+
+Coin::Coin(float x, float y)
+    : pos(vec2(x, y))
 {}
 
 Coin::~Coin() {}

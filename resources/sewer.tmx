@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="20" height="16" tilewidth="8" tileheight="8" infinite="0" nextlayerid="7" nextobjectid="9">
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="20" height="16" tilewidth="8" tileheight="8" infinite="0" nextlayerid="8" nextobjectid="13">
  <editorsettings>
   <export target="sewer.json" format="json"/>
  </editorsettings>
@@ -24,10 +24,14 @@
 17,17,17,17,17,17,17,17,17,17,17,17,22,19,40,2147483667,64,64,64,64
 </data>
  </layer>
- <objectgroup id="6" name="spawns" visible="0">
-  <object id="5" name="player_start" type="0" gid="1" x="0" y="32" width="8" height="8"/>
-  <object id="6" name="slime" type="2" gid="49" x="80" y="24" width="8" height="8"/>
-  <object id="7" name="coin_pickup" type="1" gid="33" x="0" y="120" width="8" height="8"/>
-  <object id="8" name="coin_pickup" type="1" gid="33" x="40" y="24" width="8" height="8"/>
+ <objectgroup id="6" name="special">
+  <object id="5" name="Start" type="0" gid="1" x="0" y="32" width="8" height="8"/>
+  <object id="6" name="Slime" type="2" gid="49" x="80" y="24" width="8" height="8"/>
+  <object id="7" name="Coin" type="1" gid="33" x="0" y="56" width="8" height="8"/>
+  <object id="8" name="Coin" type="1" gid="33" x="40" y="24" width="8" height="8"/>
+  <object id="9" name="Ladder" type="3" gid="64" x="48" y="24" width="8" height="8"/>
+  <object id="10" name="Ladder" type="3" gid="64" x="112" y="112" width="8" height="8"/>
+  <object id="11" name="End" type="4" gid="64" x="0" y="120" width="8" height="8"/>
+  <object id="12" name="Slime" type="2" gid="49" x="72" y="64" width="8" height="8"/>
  </objectgroup>
 </map>

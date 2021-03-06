@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "vector2.h"
+#include "vec2.h"
 
 #include <stdint.h>
 
@@ -12,10 +12,13 @@ class Graphics;
 class Player {
 public:
     Player();
+    Player(float x, float y);
     ~Player();
 
     void update(InputManager& input, float dt);
     void draw(Graphics& graphics);
+
+    void setPos(const vec2& pos);
 
 private:
     enum class AnimState {
@@ -38,9 +41,9 @@ private:
     void updateAnimation();
     void changeAnimation(AnimState state);
 
-    Vector2 pos;
-    Vector2 oldPos;
-    Vector2 velocity;
+    vec2 pos;
+    vec2 oldPos;
+    vec2 velocity;
     bool onGround = false;
     bool flipSprite = false;
     AnimState mAnimState = AnimState::WALK;

@@ -1,5 +1,5 @@
 #include "main_game.h"
-#include "data.h"
+#include "level.h"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #define LOOP_CONDITION 1
@@ -17,7 +17,7 @@
     #define millis() Graphics::getElapsedTime()
     #define delay(ms) mGraphics.sleep(ms)
 
-    #define BEGIN_DRAW  mGraphics.getWindow()->clear();mGraphics.drawLevel();
+    #define BEGIN_DRAW  mGraphics.getWindow()->clear();Level::drawEntireLevel();
     #define END_DRAW mGraphics.getWindow()->display();
     #define POLL_EVENTS mGraphics.pollEvents();
 #endif
@@ -35,9 +35,13 @@ void MainGame::run() {
 }
 
 void MainGame::init() {
+    Level::init();
+    Level::setGraphics(&mGraphics);
+    mPlayer.setPos(Level::mStartCoords);
+
     BEGIN_DRAW
     mGraphics.fillScreen();
-    mGraphics.drawLevel();
+    Level::drawEntireLevel();
     END_DRAW
 }
 
@@ -72,14 +76,12 @@ void MainGame::loop() {
 
 void MainGame::draw() {
     BEGIN_DRAW
-    mCoin.draw(mGraphics);
-    mSlime.draw(mGraphics);
+    Level::draw();
     mPlayer.draw(mGraphics);
     END_DRAW
 }
 
 void MainGame::update(float dt) {
-    mCoin.update(dt);
-    mSlime.update(dt);
+    Level::update(dt);
     mPlayer.update(mInputManager, dt);
 }

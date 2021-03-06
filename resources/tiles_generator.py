@@ -72,7 +72,7 @@ def indexMatrix2tilesArrayHeaderStr(rows, cols, indexMatrix):
                   "#define TILES_H\n\n" \
                   "/*** NOTE: file auto-generated based on " + str(sys.argv[1]) + " tileset ***/\n\n" \
                   "//define a list of 8x8 tiles of colors from the above array -> a tile will have a size of 32 bytes -> 6bits indexable -> max 2048 bytes\n" \
-                  "const Data::tile_t Data::tiles[] PROGMEM = {\n" #\
+                  "const Level::tile_t Level::tiles[] PROGMEM = {\n" #\
                   #"    {\n" + tile_row * TILE_SIZE + "    },\n"
     
     for row in range(rows):
@@ -98,4 +98,4 @@ if __name__ == "__main__":
     TILE_SIZE = int(sys.argv[2])
     w, h, img_data = bitmap2pixelList(sys.argv[1])
     indexMatrix = getTilesetAsIndexMatrix(img_data)
-    writeToFile('../include/tiles.h', indexMatrix2tilesArrayHeaderStr(h // TILE_SIZE, w // TILE_SIZE, indexMatrix))
+    writeToFile('../include/tiles_data.h', indexMatrix2tilesArrayHeaderStr(h // TILE_SIZE, w // TILE_SIZE, indexMatrix))

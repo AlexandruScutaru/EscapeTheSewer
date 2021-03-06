@@ -21,7 +21,7 @@ IF NOT EXIST "%build_folder%" MKDIR %build_folder%
 SET src= main.cpp ^
 graphics_pc.cpp ^
 input_manager_pc.cpp ^
-../src/data.cpp ^
+../src/level.cpp ^
 ../src/main_game.cpp ^
 ../src/player.cpp ^
 ../src/slime.cpp ^
