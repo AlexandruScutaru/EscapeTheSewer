@@ -36,3 +36,7 @@ void Coin::draw(Graphics& graphics) {
         lastFrameUpdate = millis();
     }
 }
+
+const vec2& Coin::getPos() {
+    return pos;
+}

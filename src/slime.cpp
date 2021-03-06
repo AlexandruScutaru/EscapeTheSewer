@@ -62,6 +62,10 @@ void Slime::draw(Graphics& graphics) {
     }
 }
 
+const vec2& Slime::getPos() {
+    return pos;
+}
+
 void Slime::checkCollision() {
     if(velocity.x <= 0.0f) {
         if(Level::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f) != 63 || Level::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1) != 63) {

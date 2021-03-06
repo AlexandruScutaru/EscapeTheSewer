@@ -5,7 +5,7 @@ REM get developer command prompt context
 CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\Tools\VsDevCmd.bat"
 
 REM in my case debug simply means to print the instrumentation logs
-IF "%1" == "debug" (SET debug="/DDEBUG") ELSE (SET debug=)
+IF "%2" == "log" (SET log="/DSHOULD_LOG") ELSE (SET log=)
 
 SET include_dir=deps/include
 SET include_dir2=../include
@@ -28,7 +28,11 @@ input_manager_pc.cpp ^
 ../src/coin.cpp
 
 REM call VC++ compiler
-cl %debug% /I "%include_dir%" /I "%include_dir2%" /EHsc /GA /MT %src% /Fo"%build_folder%/" /link /LIBPATH:"%lib_dir%" %libs% /out:%out_file%
+IF "%1" == "debug" (
+    cl %log% /I "%include_dir%" /I "%include_dir2%" /EHsc /Zi /Fd"%build_folder%/" /MT %src% /Fo"%build_folder%/" /link /DEBUG /LIBPATH:"%lib_dir%" %libs% /out:%out_file%
+) ELSE (
+    cl %log% /I "%include_dir%" /I "%include_dir2%" /EHsc /MT %src% /Fo"%build_folder%/" /link /LIBPATH:"%lib_dir%" %libs% /out:%out_file%
+)
 
 IF errorlevel 1 (
     ECHO compilation failed

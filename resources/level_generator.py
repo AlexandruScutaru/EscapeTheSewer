@@ -54,12 +54,12 @@ def getSpecialObjectsAsStr(specialObjects):
     specialsStr = "void Level::populateSpecialObjects() {\n"
     for name, positions in specialObjects.items():
         if name == "Start":
-            specialsStr += "    mStartCoords = Vector2({}, {});\n".format(positions[0][0], positions[0][1])
+            specialsStr += "    mStartCoords = vec2({}, {});\n".format(positions[0][0], positions[0][1])
         elif name == "End":
-            specialsStr += "    mEndCoords = Vector2({}, {});\n".format(positions[0][0], positions[0][1])
+            specialsStr += "    mEndCoords = vec2({}, {});\n".format(positions[0][0], positions[0][1])
         elif name == "Ladder":
             for pos in positions:
-                specialsStr += "    m{}s.push_back({}({}, {}));\n".format(name, "Vector2", pos[0], pos[1])
+                specialsStr += "    m{}s.push_back({}({}, {}));\n".format(name, "vec2", pos[0], pos[1])
         else:
             for pos in positions:
                 specialsStr += "    m{}s.push_back({}({}, {}));\n".format(name, name, pos[0], pos[1])

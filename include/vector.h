@@ -46,6 +46,15 @@ public:
         mData[mSize++] = x; 
     };
 
+    //order doesn't matter for my purposes, swapping once with the last one is fine by me
+    void erase(size_t idx) {
+        if(idx >= mSize)
+            return;
+        const auto temp = mData[idx];
+        mData[idx] = mData[--mSize];
+        mData[mSize] = temp;
+    }
+
     size_t size() const { 
         return mSize; 
 	}

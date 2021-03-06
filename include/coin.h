@@ -17,6 +17,8 @@ public:
     void update(float dt);
     void draw(Graphics& graphics);
 
+    const vec2& getPos();
+
 private:
     vec2 pos;
     uint8_t animFrameStart = 32;

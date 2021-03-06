@@ -8,7 +8,7 @@
     #define END_DRAW
     #define POLL_EVENTS
 
-    #define LOG(msg) Serial.println(msg)
+    #define LOG(msg)
 #else
     #include "../pc_version/logging.h"
 
@@ -49,28 +49,28 @@ void MainGame::init() {
 //maybe implement a more proper one, handle multiple "physics steps" before redrawing again
 //not sure if a fixed timestep is really needed but could be a nice experiment
 void MainGame::loop() {
-    int targetFrameTicks = 1000 / 30;
+    uint32_t targetFrameTicks = 1000 / 30;
     uint32_t prevTicks = 0;
     uint32_t newTicks = 0;
     uint32_t frameTicks = 0;
-    int32_t difference;
-    float delta;
+    int32_t difference = 0;
+    float delta = 0.0f;
 
     prevTicks = millis();
     while(LOOP_CONDITION) {
-        newTicks = millis();
-        frameTicks = newTicks - prevTicks;
-        prevTicks = newTicks;
-        delta = frameTicks / (float)targetFrameTicks;
+		newTicks = millis();
+		frameTicks = newTicks - prevTicks;
+		prevTicks = newTicks;
+		delta = frameTicks / (float)targetFrameTicks;
 
-        POLL_EVENTS
+		POLL_EVENTS
         mInputManager.processInput();
         update(delta);
         draw();
 
-        difference = targetFrameTicks - frameTicks;
-        if(difference > 0)
-            delay(difference);
+        difference = targetFrameTicks - (millis() - newTicks);
+		if(difference > 0)
+			delay(difference);
     }
 }
 

@@ -6,6 +6,8 @@
     #include "input_manager.h"
     #include "graphics.h"
     #include <Arduino.h>
+
+    #define LOG(msg)
 #else
     #include "../pc_version/input_manager_pc.h"
     #include "../pc_version/graphics_pc.h"
@@ -19,7 +21,7 @@
 
 #define WALK_SPEED       1.2f
 #define GRAVITY          1.2f
-#define JUMP_FORCE       8.0f
+#define JUMP_FORCE       9.0f
 
 #define ANIM_FRAME_TIME  100
 
@@ -45,6 +47,7 @@ Player::~Player() {}
 
 void Player::setPos(const vec2& pos) {
     this->pos = pos;
+    oldPos = pos;
 }
 
 void Player::update(InputManager& input, float dt) {
@@ -64,12 +67,12 @@ void Player::update(InputManager& input, float dt) {
         velocity.x = 0.0f;
     }
 
-    if (input.wasButtonPressedNow(InputManager::Button::B) && mAnimState != AnimState::ATTACK) {
+    if (input.wasButtonPressedNow(InputManager::Button::B) && (mAnimState == AnimState::IDLE || mAnimState == AnimState::WALK || mAnimState == AnimState::JUMP || mAnimState == AnimState::FALL)) {
         changeAnimation(AnimState::ATTACK);
     }
 
     velocity.y = min(2*GRAVITY, velocity.y + GRAVITY * dt);
-    
+
     pos.x = min(max(0, pos.x + velocity.x * dt), 152);
     pos.y += velocity.y * dt;
     if(pos.y <= 0.0f) {
@@ -94,7 +97,7 @@ void Player::draw(Graphics& graphics) {
         if (mAnimState == AnimState::ATTACK && animFrameCurrent == 1) {
             changeAnimation(AnimState::IDLE);
         } else {
-            animFrameCurrent = animFrameCurrent + 1 == animFramesNumber ? 0 : animFrameCurrent + 1;
+                animFrameCurrent = animFrameCurrent + 1 == animFramesNumber ? 0 : animFrameCurrent + 1;
         }
         lastFrameUpdate = millis();
     }
@@ -132,6 +135,25 @@ void Player::checkCollision() {
             }
         }
     }
+
+    size_t idx = 0;
+    Level::EntityType entt = Level::getCollidedEntity(pos, idx);
+    switch (entt) {
+    case Level::EntityType::NONE:
+        break;
+    case Level::EntityType::SLIME:
+        LOG("you got hit by a slime");
+        break;
+    case Level::EntityType::COIN:
+        Level::removeEntity(entt, idx);
+        break;
+    case Level::EntityType::LADDER:
+        break;
+    case Level::EntityType::END:
+        break;
+    default:
+        break;
+    }
 }
 
 Player::MovDir Player::getMovingDirection() {
@@ -159,7 +181,7 @@ void Player::updateAnimation() {
 
     //this really should be handled by a sort of proper FSM
     //save on some duplicate checks
-    if (mAnimState != AnimState::ATTACK && mAnimState != AnimState::IDLE && md == MovDir::NONE) {
+    if (md == MovDir::NONE && (mAnimState == AnimState::WALK || mAnimState == AnimState::JUMP || mAnimState == AnimState::FALL)) {
         changeAnimation(AnimState::IDLE);
         return;
     }
@@ -208,27 +230,22 @@ void Player::updateAnimation() {
 void Player::changeAnimation(AnimState state) {
     switch (state) {
     case AnimState::IDLE:
-        mAnimState = AnimState::IDLE;
         animFrameStart = ANIM_IDLE_START;
         animFramesNumber = ANIM_IDLE_FRAMES;
         break;
     case AnimState::WALK:
-        mAnimState = AnimState::WALK;
         animFrameStart = ANIM_WALK_START;
         animFramesNumber = ANIM_WALK_FRAMES;
         break;
     case AnimState::JUMP:
-        mAnimState = AnimState::JUMP;
         animFrameStart = ANIM_JUMP_START;
         animFramesNumber = ANIM_JUMP_FRAMES;
         break;
     case AnimState::FALL:
-        mAnimState = AnimState::FALL;
         animFrameStart = ANIM_FALL_START;
         animFramesNumber = ANIM_FALL_FRAMES; 
         break;
     case AnimState::ATTACK:
-        mAnimState = AnimState::ATTACK;
         animFrameStart = ANIM_ATTACK_START;
         animFramesNumber = ANIM_ATTACK_FRAMES;
         break;
@@ -236,6 +253,7 @@ void Player::changeAnimation(AnimState state) {
         break;
     }
     //lets suppose default will not be reached and a state change is always guaranteed -> saves some repeating lines
+    mAnimState = state;
     animFrameCurrent = 0;
     lastFrameUpdate = millis();
 }
