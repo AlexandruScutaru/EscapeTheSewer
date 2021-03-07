@@ -26,7 +26,9 @@ private:
         WALK,
         JUMP,
         FALL,
-        ATTACK
+        ATTACK,
+        CLIMB_IDLE,
+        CLIMBING,
     };
     enum class MovDir {
         NONE,
@@ -46,6 +48,8 @@ private:
     vec2 velocity;
     bool onGround = false;
     bool flipSprite = false;
+    bool attackSuccesful = false;
+    uint16_t ladderXpos = 0;
     AnimState mAnimState = AnimState::WALK;
     MovDir mMovingDirection = MovDir::NONE;
     uint8_t animFrameStart = 0;

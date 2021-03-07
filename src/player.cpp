@@ -20,10 +20,15 @@
 #endif
 
 #define WALK_SPEED       1.2f
-#define GRAVITY          1.2f
-#define JUMP_FORCE       9.0f
+#define CLIMB_SPEED      0.7f
+#define GRAVITY          0.9f
+#define JUMP_FORCE       7.0f
 
 #define ANIM_FRAME_TIME  100
+
+#define SWORD_REACH 3
+#define SWORD_DMG 3
+#define SWORD_KNOCKBACK_FORCE 2
 
 
 Player::Player() 
@@ -69,9 +74,22 @@ void Player::update(InputManager& input, float dt) {
 
     if (input.wasButtonPressedNow(InputManager::Button::B) && (mAnimState == AnimState::IDLE || mAnimState == AnimState::WALK || mAnimState == AnimState::JUMP || mAnimState == AnimState::FALL)) {
         changeAnimation(AnimState::ATTACK);
+        attackSuccesful = false;
     }
 
-    velocity.y = min(2*GRAVITY, velocity.y + GRAVITY * dt);
+    if(mAnimState == AnimState::CLIMBING || mAnimState == AnimState::CLIMB_IDLE) {
+        if (input.isButtonPressed(InputManager::Button::UP)) {
+            velocity.y = -CLIMB_SPEED;
+            pos.x = ladderXpos;
+        } else if (input.isButtonPressed(InputManager::Button::DOWN)) {
+            velocity.y = CLIMB_SPEED;
+            pos.x = ladderXpos;
+        } else {
+            velocity.y = 0.0f;
+        }
+    } else {
+        velocity.y = min(2*GRAVITY, velocity.y + GRAVITY * dt);
+    }
 
     pos.x = min(max(0, pos.x + velocity.x * dt), 152);
     pos.y += velocity.y * dt;
@@ -97,6 +115,9 @@ void Player::draw(Graphics& graphics) {
         if (mAnimState == AnimState::ATTACK && animFrameCurrent == 1) {
             changeAnimation(AnimState::IDLE);
         } else {
+            if(mAnimState == AnimState::CLIMB_IDLE)
+                animFrameCurrent = 0;
+            else
                 animFrameCurrent = animFrameCurrent + 1 == animFramesNumber ? 0 : animFrameCurrent + 1;
         }
         lastFrameUpdate = millis();
@@ -105,49 +126,79 @@ void Player::draw(Graphics& graphics) {
 }
 
 void Player::checkCollision() {
+    //if(velocity == vec2(0.0f))
+    //    return;
+    uint8_t leftUp    = Level::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f);
+    uint8_t leftDown  = Level::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1);
+    uint8_t rightUp   = Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f);
+    uint8_t rightDown = Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1);
     if(velocity.x <= 0.0f) {
-        if(Level::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f) != 63 || Level::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1) != 63) {
+        if((leftUp != 63 && leftUp != 39) || (leftDown != 63 && leftDown != 39)) {
             pos.x = (((uint16_t)pos.x >> 3) + 1) << 3;
             velocity.x = 0.0f;
         }
     } else {
-        if(Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f) != 63 || Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1) != 63) {
+        if((rightUp != 63 && rightUp != 39) || (rightDown != 63 && rightDown != 39)) {
             pos.x = ((uint16_t)pos.x >> 3) << 3;
             velocity.x = 0.0f;
         }
     }
 
     onGround = false;
+    uint8_t upLeft    = Level::getTileByPosition(pos.x + 0.0f, pos.y);
+    uint8_t upRight   = Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y);
+    uint8_t downLeft  = Level::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE);
+    uint8_t downRight = Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE);
     if(velocity.y <= 0.0f) {
-        if(Level::getTileByPosition(pos.x + 0.0f, pos.y) != 63 || Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y) != 63) {
+        if ((upLeft != 63 && upLeft != 39) || (upRight != 63 && upRight != 39)) {
             pos.y = (((uint16_t)pos.y >> 3) + 1) << 3;
             velocity.y = 0.0f;
         }
     } else {
-        if(Level::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE) != 63 || Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE) != 63) {
-            pos.y = ((uint16_t)pos.y >> 3) << 3;
+        if ((downLeft != 63 && downLeft != 39) || (downRight != 63 && downRight != 39)) {
+            pos.y = min(((uint16_t)pos.y >> 3) << 3, 120);
             velocity.y = 0.0f;
             onGround = true;
-            if(pos.y >= 120) {
-                velocity.y = 0.0f;
-                pos.y = 120;
-                onGround = true;
-            }
         }
     }
 
+    if (leftUp    == 39 ||
+        leftDown  == 39 ||
+        rightUp   == 39 ||
+        rightDown == 39 ||
+        upLeft    == 39 ||
+        upRight   == 39 ||
+        downLeft  == 39 ||
+        downRight == 39)
+    {
+        if(mAnimState != AnimState::CLIMBING && mAnimState != AnimState::CLIMB_IDLE) {
+            changeAnimation(AnimState::CLIMB_IDLE);
+        }
+        if (leftUp == 39 || leftDown == 39 || upLeft == 39 || downLeft == 39)
+            ladderXpos = (((uint16_t)pos.x >> 3) + 0) << 3;
+        else
+            ladderXpos = (((uint16_t)pos.x >> 3) + 1) << 3;
+    } else if(mAnimState == AnimState::CLIMBING || mAnimState == AnimState::CLIMB_IDLE) {
+        changeAnimation(AnimState::IDLE);
+    }
+
     size_t idx = 0;
+    if (mAnimState == AnimState::ATTACK && !attackSuccesful && 
+        Level::EntityType::SLIME == Level::getCollidedEntity(vec2(flipSprite ? pos.x - SWORD_REACH : pos.x + SWORD_REACH, pos.y), idx)) 
+    {
+        Level::hitEntity(Level::EntityType::SLIME, idx, SWORD_DMG, flipSprite ? -SWORD_KNOCKBACK_FORCE : SWORD_KNOCKBACK_FORCE);
+        attackSuccesful = true;
+    }
+
     Level::EntityType entt = Level::getCollidedEntity(pos, idx);
     switch (entt) {
     case Level::EntityType::NONE:
         break;
     case Level::EntityType::SLIME:
-        LOG("you got hit by a slime");
+        //LOG("you got hit by a slime");
         break;
     case Level::EntityType::COIN:
         Level::removeEntity(entt, idx);
-        break;
-    case Level::EntityType::LADDER:
         break;
     case Level::EntityType::END:
         break;
@@ -221,6 +272,16 @@ void Player::updateAnimation() {
             changeAnimation(AnimState::WALK);
         }
         break;
+    case AnimState::CLIMB_IDLE:
+        if(md == MovDir::N || md == MovDir::S) {
+            changeAnimation(AnimState::CLIMBING);
+        }
+        break;
+    case AnimState::CLIMBING:
+        if(md != MovDir::N && md != MovDir::S) {
+            changeAnimation(AnimState::CLIMB_IDLE);
+        }
+        break;
     default:
         //execution shouldn't reach this
         break;
@@ -248,6 +309,11 @@ void Player::changeAnimation(AnimState state) {
     case AnimState::ATTACK:
         animFrameStart = ANIM_ATTACK_START;
         animFramesNumber = ANIM_ATTACK_FRAMES;
+        break;
+    case AnimState::CLIMBING:
+    case AnimState::CLIMB_IDLE:
+        animFrameStart = ANIM_CLIMB_START;
+        animFramesNumber = ANIM_CLIMB_FRAMES;
         break;
     default:
         break;

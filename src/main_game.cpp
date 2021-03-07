@@ -58,19 +58,19 @@ void MainGame::loop() {
 
     prevTicks = millis();
     while(LOOP_CONDITION) {
-		newTicks = millis();
-		frameTicks = newTicks - prevTicks;
-		prevTicks = newTicks;
-		delta = frameTicks / (float)targetFrameTicks;
+        newTicks = millis();
+        frameTicks = newTicks - prevTicks;
+        prevTicks = newTicks;
+        delta = frameTicks / (float)targetFrameTicks;
 
-		POLL_EVENTS
+        POLL_EVENTS
         mInputManager.processInput();
         update(delta);
         draw();
 
         difference = targetFrameTicks - (millis() - newTicks);
-		if(difference > 0)
-			delay(difference);
+        if(difference > 0)
+            delay(difference);
     }
 }
 

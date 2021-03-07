@@ -18,6 +18,7 @@ public:
     void draw(Graphics& graphics);
 
     const vec2& getPos();
+    bool hit(int8_t dmg,  int8_t force);
 
 private:
     void checkCollision();
@@ -26,6 +27,7 @@ private:
     vec2 oldPos;
     vec2 velocity;
     bool flipSprite = false;
+    int8_t hp = 10;
     uint8_t animFrameStart = 48;
     uint8_t animFrameCurrent = 0;
     uint8_t animFramesNumber = 4;

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="20" height="16" tilewidth="8" tileheight="8" infinite="0" nextlayerid="8" nextobjectid="15">
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="20" height="16" tilewidth="8" tileheight="8" infinite="0" nextlayerid="8" nextobjectid="16">
  <editorsettings>
   <export target="sewer.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="f24.tsx"/>
  <layer id="1" name="tiles" width="20" height="16">
   <data encoding="csv">
-29,29,26,64,64,64,64,64,64,64,64,64,64,64,64,64,2147483668,21,21,21,
-28,28,27,64,64,64,64,64,64,64,64,64,64,64,64,64,41,23,23,23,
-29,29,29,64,64,64,64,64,64,64,64,64,64,1073741865,64,64,42,64,64,64,
-64,64,64,64,40,44,44,44,2147483691,2147483666,17,18,43,44,44,64,64,64,64,64,
+29,29,29,26,64,64,64,64,64,64,64,64,64,64,41,64,2147483668,21,21,21,
+28,28,28,27,64,64,64,64,64,64,64,64,64,64,42,64,41,23,23,23,
+29,29,29,2147483674,64,64,64,64,64,64,64,64,64,64,1073741865,64,42,64,64,64,
+64,64,64,2147483675,40,44,44,44,2147483691,2147483666,17,18,43,44,44,64,64,64,64,64,
 24,25,64,64,40,64,64,64,64,2147483668,21,20,64,64,64,64,64,64,64,64,
-29,26,64,64,40,64,64,64,64,23,23,23,64,64,64,64,1073741865,38,64,64,
+29,27,64,64,40,64,64,64,64,23,23,23,64,64,64,64,1073741865,38,64,64,
 64,64,64,64,40,64,64,30,64,64,64,64,64,64,64,17,17,17,18,64,
-37,64,64,64,64,64,64,31,64,64,64,64,64,39,17,22,64,22,20,64,
+37,64,64,64,40,64,64,31,64,64,64,64,64,39,17,22,64,22,20,64,
 24,24,24,25,43,44,44,46,44,2147483691,2147483666,17,17,17,22,64,64,19,64,64,
 64,64,64,26,64,64,64,31,64,64,2147483667,22,22,22,64,64,22,20,64,2147483666,
 64,64,64,26,32,32,32,32,32,32,2147483667,22,64,64,64,64,19,64,64,2147483667,
@@ -25,13 +25,12 @@
 </data>
  </layer>
  <objectgroup id="6" name="special">
-  <object id="5" name="Start" type="0" gid="1" x="19.9113" y="34.1579" width="8" height="8"/>
+  <object id="5" name="Start" type="0" gid="1" x="0" y="32" width="8" height="8"/>
   <object id="6" name="Slime" type="2" gid="49" x="80" y="24" width="8" height="8"/>
   <object id="7" name="Coin" type="1" gid="33" x="0" y="56" width="8" height="8"/>
-  <object id="8" name="Coin" type="1" gid="33" x="40" y="24" width="8" height="8"/>
-  <object id="11" name="End" type="4" gid="64" x="0" y="120" width="8" height="8"/>
+  <object id="8" name="Coin" type="1" gid="33" x="104" y="24" width="8" height="8"/>
+  <object id="11" name="End" type="3" gid="64" x="0" y="120" width="8" height="8"/>
   <object id="12" name="Slime" type="2" gid="49" x="72" y="64" width="8" height="8"/>
-  <object id="13" name="Ladder" type="3" gid="64" x="32" y="64" width="8" height="8"/>
-  <object id="14" name="Ladder" type="3" gid="64" x="32" y="24" width="8" height="8"/>
+  <object id="15" name="Coin" type="1" gid="33" x="64" y="40" width="8" height="8"/>
  </objectgroup>
 </map>

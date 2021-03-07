@@ -17,14 +17,13 @@
 
 #define WALK_SPEED       0.5f
 #define GRAVITY          1.2f
+#define VELOCITY_RECOVERY 0.2f
 
 #define ANIM_FRAME_TIME  100
 
 
-Slime::Slime() 
-    : pos(vec2(64.0f, 0.0f))
-    , oldPos(vec2(64.0f, 0.0f))
-    , velocity(vec2(WALK_SPEED, 0.0f))
+Slime::Slime()
+    : Slime(0.0f, 0.0f)
 {}
 
 Slime::Slime(float x, float y)
@@ -38,6 +37,19 @@ Slime::~Slime() {}
 
 void Slime::update(float dt) {
     oldPos = pos;
+
+    //I need to update this a mathematically smarter way to deal with impulses
+    if (flipSprite) {
+        if (velocity.x + WALK_SPEED > 0.01f)
+            velocity.x -= VELOCITY_RECOVERY * dt;
+        else if (velocity.x + WALK_SPEED < -0.01f)
+            velocity.x += VELOCITY_RECOVERY * dt;
+    } else {
+        if (velocity.x - WALK_SPEED > 0.01f)
+            velocity.x -= VELOCITY_RECOVERY * dt;
+        else if (velocity.x - WALK_SPEED < -0.01f)
+            velocity.x += VELOCITY_RECOVERY * dt;
+    }
 
     velocity.y = min(2*GRAVITY, velocity.y + GRAVITY * dt);
     
@@ -64,6 +76,13 @@ void Slime::draw(Graphics& graphics) {
 
 const vec2& Slime::getPos() {
     return pos;
+}
+
+bool Slime::hit(int8_t dmg, int8_t force) {
+    velocity.x = force;
+    velocity.y -= 2.0f;
+    hp -= dmg;
+    return hp > 0;
 }
 
 void Slime::checkCollision() {

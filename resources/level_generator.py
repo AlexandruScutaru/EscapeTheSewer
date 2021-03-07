@@ -57,9 +57,6 @@ def getSpecialObjectsAsStr(specialObjects):
             specialsStr += "    mStartCoords = vec2({}, {});\n".format(positions[0][0], positions[0][1])
         elif name == "End":
             specialsStr += "    mEndCoords = vec2({}, {});\n".format(positions[0][0], positions[0][1])
-        elif name == "Ladder":
-            for pos in positions:
-                specialsStr += "    m{}s.push_back({}({}, {}));\n".format(name, "vec2", pos[0], pos[1])
         else:
             for pos in positions:
                 specialsStr += "    m{}s.push_back({}({}, {}));\n".format(name, name, pos[0], pos[1])

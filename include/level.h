@@ -38,7 +38,6 @@ public:
     enum class EntityType {
         SLIME,
         COIN,
-        LADDER,
         END,
         NONE,
     };
@@ -75,6 +74,7 @@ public:
 
     static EntityType getCollidedEntity(const vec2& pos, size_t& idx);
     static void removeEntity(EntityType entt, size_t idx);
+    static void hitEntity(EntityType entt, size_t idx, float dmg, float force);
 
     static uint8_t getTileByPosition(uint16_t x, uint16_t y);
     static tile_index_t getTileByIndex(uint8_t i, uint8_t j);
@@ -98,7 +98,6 @@ private:
     static vector<Slime> mSlimes;
     static vector<Coin> mCoins;
 
-    static vector<vec2> mLadders;
     static vec2 mEndCoords;
 
     static Graphics* mGraphics; 

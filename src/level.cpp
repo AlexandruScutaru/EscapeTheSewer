@@ -22,7 +22,6 @@ vec2 Level::mStartCoords;
 vec2 Level::mEndCoords;
 vector<Slime> Level::mSlimes;
 vector<Coin> Level::mCoins;
-vector<vec2> Level::mLadders;
 Graphics* Level::mGraphics = nullptr;
 
 //contains the tileset as arrays of tile_t
@@ -80,29 +79,22 @@ Level::tile_row_t Level::getTileRow(uint8_t tileIndex, uint8_t rowIndex) {
 
 Level::EntityType Level::getCollidedEntity(const vec2& pos, size_t& idx) {
     //pretty slow way to do it, I guess it is ok if not many entities are added to a level
-    for (size_t i = 0; i < mSlimes.size(); i++)
+    for (size_t i = 0; i < mSlimes.size(); i++) {
         if (aabb(mSlimes[i].getPos(), pos)) {
             idx = i;
             return EntityType::SLIME;
         }
-
-    for (size_t i = 0; i < mCoins.size(); i++)
+    }
+    for (size_t i = 0; i < mCoins.size(); i++) {
         if (aabb(mCoins[i].getPos(), pos)) {
             idx = i;
             return EntityType::COIN;
         }
-
-    for (size_t i = 0; i < mLadders.size(); i++)
-        if (aabb(mLadders[i], pos)) {
-            idx = i;
-            return EntityType::LADDER;
-        }
-
+    }
     if (aabb(mEndCoords, pos)) {
         return EntityType::END;
     }
-
-        return EntityType::NONE;
+    return EntityType::NONE;
 }
 
 void Level::removeEntity(EntityType entt, size_t idx) {
@@ -115,6 +107,17 @@ void Level::removeEntity(EntityType entt, size_t idx) {
         break;
     default:
         //no op
+        break;
+    }
+}
+
+void Level::hitEntity(EntityType entt, size_t idx, float dmg, float force) {
+    switch (entt) {
+    case Level::EntityType::SLIME:
+        if (!mSlimes[idx].hit(dmg, force))
+            mSlimes.erase(idx);
+        break;
+    default:
         break;
     }
 }
