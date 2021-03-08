@@ -16,6 +16,7 @@ public:
     ~Player();
 
     void update(InputManager& input, float dt);
+    void cleanPrevDraw(Graphics& graphics);
     void draw(Graphics& graphics);
 
     void setPos(const vec2& pos);

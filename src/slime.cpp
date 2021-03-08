@@ -21,6 +21,8 @@
 
 #define ANIM_FRAME_TIME  100
 
+#define IF_NON_COLLIDABLE(tile) if (tile.tile_index.index >= TILE_NON_COLLIDABLE_THRESHOLD)
+
 
 Slime::Slime()
     : Slime(0.0f, 0.0f)
@@ -64,8 +66,33 @@ void Slime::update(float dt) {
     checkCollision();
 }
 
+void Slime::cleanPrevDraw(Graphics& graphics) {
+    //shameless copy/paste from player implementation
+    //TODO: do something about code reuse
+    uint8_t iCoord = (uint8_t)oldPos.y >> 3;
+    uint8_t jCoord = (uint8_t)oldPos.x >> 3;
+
+    Level::tile_index_t tileIndex = Level::getTileByIndex(iCoord, jCoord);
+    IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, jCoord << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);
+
+    if (iCoord + 1 < Level::levelH) {
+        tileIndex = Level::getTileByIndex(iCoord+1, jCoord);
+        IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, jCoord << 3, (iCoord+1) << 3, TILE_SIZE, tileIndex.tile_index.flip);
+
+        if(jCoord + 1 < Level::levelW) {
+            tileIndex = Level::getTileByIndex(iCoord, jCoord + 1);
+            IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);
+            //both above are true, directly draw diagonaly too
+            tileIndex = Level::getTileByIndex(iCoord + 1, jCoord + 1);
+            IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, (iCoord+1) << 3, TILE_SIZE, tileIndex.tile_index.flip);
+        }
+    }else if(jCoord + 1 < Level::levelW) {
+        tileIndex = Level::getTileByIndex(iCoord, jCoord + 1);
+        IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);        
+    }
+}
+
 void Slime::draw(Graphics& graphics) {
-    graphics.drawFillRect(oldPos.x, oldPos.y, TILE_SIZE, TILE_SIZE, COLOR_BROWN_DARKER);
     graphics.drawTile(animFrameCurrent + animFrameStart, pos.x, pos.y, TILE_SIZE, flipSprite);
 
     if(lastFrameUpdate + ANIM_FRAME_TIME <= millis()) {
@@ -82,18 +109,21 @@ bool Slime::hit(int8_t dmg, int8_t force) {
     velocity.x = force;
     velocity.y -= 2.0f;
     hp -= dmg;
+
     return hp > 0;
 }
 
 void Slime::checkCollision() {
+    //TODO: clean these checks a bit
+    //Note: similar stuff is done for the player -> try to move them to a common place and try to reuse some bits
     if(velocity.x <= 0.0f) {
-        if(Level::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f) != 63 || Level::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1) != 63) {
+        if(Level::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f) < TILE_NON_COLLIDABLE_THRESHOLD || Level::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1) < TILE_NON_COLLIDABLE_THRESHOLD) {
             pos.x = (((uint16_t)pos.x >> 3) + 1) << 3;
             velocity.x = WALK_SPEED;
             flipSprite = false;
         }
     } else {
-        if(Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f) != 63 || Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1) != 63) {
+        if(Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f) < TILE_NON_COLLIDABLE_THRESHOLD || Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1) < TILE_NON_COLLIDABLE_THRESHOLD) {
             pos.x = ((uint16_t)pos.x >> 3) << 3;
             velocity.x = -WALK_SPEED;
             flipSprite = true;
@@ -101,12 +131,12 @@ void Slime::checkCollision() {
     }
 
     if(velocity.y <= 0.0f) {
-        if(Level::getTileByPosition(pos.x + 0.0f, pos.y) != 63 || Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y) != 63) {
+        if(Level::getTileByPosition(pos.x + 0.0f, pos.y) < TILE_NON_COLLIDABLE_THRESHOLD || Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y) < TILE_NON_COLLIDABLE_THRESHOLD) {
             pos.y = (((uint16_t)pos.y >> 3) + 1) << 3;
             velocity.y = 0.0f;
         }
     } else {
-        if(Level::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE) != 63 || Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE) != 63) {
+        if(Level::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE) < TILE_NON_COLLIDABLE_THRESHOLD || Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE) < TILE_NON_COLLIDABLE_THRESHOLD) {
             pos.y = ((uint16_t)pos.y >> 3) << 3;
             velocity.y = 0.0f;
             if(pos.y >= 120) {

@@ -44,12 +44,20 @@ void Level::update(float dt) {
         mCoins[i].update(dt);
 }
 
-void Level::draw() {
-    for (size_t i = 0; i < mSlimes.size(); i++)
-        mSlimes[i].draw(*mGraphics);
+void Level::cleanPrevDraw() {
+    for (size_t i = 0; i < mSlimes.size(); i++) {
+        mSlimes[i].cleanPrevDraw(*mGraphics);
+    }
+}
 
-    for (size_t i = 0; i < mCoins.size(); i++)
+void Level::draw() {
+    for (size_t i = 0; i < mCoins.size(); i++) {
         mCoins[i].draw(*mGraphics);
+    }
+
+    for (size_t i = 0; i < mSlimes.size(); i++) {
+        mSlimes[i].draw(*mGraphics);
+    }
 }
 
 void Level::drawEntireLevel() {
@@ -70,6 +78,8 @@ uint8_t Level::getTileByPosition(uint16_t x, uint16_t y) {
 }
 
 Level::tile_index_t Level::getTileByIndex(uint8_t i, uint8_t j) {
+    //don't want to add boundary checks here, as intances when it could be actually out of bounds are not that common
+    //so saving overhead on ifs when not needed
     return level[i][j];
 }
 
@@ -99,10 +109,12 @@ Level::EntityType Level::getCollidedEntity(const vec2& pos, size_t& idx) {
 
 void Level::removeEntity(EntityType entt, size_t idx) {
     switch (entt) {
-    case Level::EntityType::SLIME:
+    case EntityType::SLIME:
+        mSlimes[idx].cleanPrevDraw(*mGraphics);
         mSlimes.erase(idx);
         break;
-    case Level::EntityType::COIN:
+    case EntityType::COIN:
+        mGraphics->drawFillRect(mCoins[idx].getPos().x, mCoins[idx].getPos().y, TILE_SIZE, TILE_SIZE);
         mCoins.erase(idx);
         break;
     default:
@@ -113,9 +125,10 @@ void Level::removeEntity(EntityType entt, size_t idx) {
 
 void Level::hitEntity(EntityType entt, size_t idx, float dmg, float force) {
     switch (entt) {
-    case Level::EntityType::SLIME:
-        if (!mSlimes[idx].hit(dmg, force))
-            mSlimes.erase(idx);
+    case EntityType::SLIME:
+        if (!mSlimes[idx].hit(dmg, force)) {
+            removeEntity(EntityType::SLIME, idx);
+        }
         break;
     default:
         break;

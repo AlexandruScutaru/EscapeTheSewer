@@ -21,7 +21,7 @@ public:
 
 private:
     vec2 pos;
-    uint8_t animFrameStart = 32;
+    uint8_t animFrameStart = 23;
     uint8_t animFrameCurrent = 0;
     uint8_t animFramesNumber = 4;
     uint32_t lastFrameUpdate = 0;

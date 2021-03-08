@@ -15,6 +15,7 @@ public:
     ~Slime();
 
     void update(float dt);
+    void cleanPrevDraw(Graphics& graphics);
     void draw(Graphics& graphics);
 
     const vec2& getPos();

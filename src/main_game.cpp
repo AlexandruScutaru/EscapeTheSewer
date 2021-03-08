@@ -76,8 +76,13 @@ void MainGame::loop() {
 
 void MainGame::draw() {
     BEGIN_DRAW
+    
+    Level::cleanPrevDraw();
+    mPlayer.cleanPrevDraw(mGraphics);
+
     Level::draw();
     mPlayer.draw(mGraphics);
+    
     END_DRAW
 }
 

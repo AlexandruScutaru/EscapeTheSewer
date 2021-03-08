@@ -15,12 +15,12 @@
 
 #define TILE_SIZE  8
 
-#define ANIM_WALK_START    0
-#define ANIM_IDLE_START    4
-#define ANIM_FALL_START    8
-#define ANIM_JUMP_START   10
-#define ANIM_CLIMB_START  12
-#define ANIM_ATTACK_START 14
+#define ANIM_WALK_START   32
+#define ANIM_IDLE_START   36
+#define ANIM_FALL_START   40
+#define ANIM_JUMP_START   42
+#define ANIM_CLIMB_START  44
+#define ANIM_ATTACK_START 46
 
 #define ANIM_WALK_FRAMES   4
 #define ANIM_IDLE_FRAMES   4
@@ -28,6 +28,10 @@
 #define ANIM_JUMP_FRAMES   2
 #define ANIM_CLIMB_FRAMES  2
 #define ANIM_ATTACK_FRAMES 2
+
+#define TILE_LADDER                   19
+#define TILE_EMPTY                    63
+#define TILE_NON_COLLIDABLE_THRESHOLD 19
 
 
 class Graphics;
@@ -68,6 +72,7 @@ public:
 
     static void init();
     static void update(float dt);
+    static void cleanPrevDraw();
     static void draw();
     static void drawEntireLevel();
     static void setGraphics(Graphics* graphics);
