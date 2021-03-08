@@ -12,7 +12,9 @@ Graphics::Graphics()
     : mTFT(TFT_ST7735(TFT_CS, TFT_DC, TFT_RST))
 {
     mTFT.begin();
-    mTFT.setRotation(3);
+    mTFT.setRotation(0);
+
+    mTFT.defineScrollArea(0, 160);
 }
 
 Graphics::~Graphics() {}
@@ -22,16 +24,16 @@ void Graphics::fillScreen(uint16_t color) {
 }
 
 void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip) {
-    mTFT.setArea(x, y, x+size-1, y+size-1);
+    mTFT.setArea(y, 159-x-size, y+size-1, 159-x);
     for (int i = 0; i < 8; i++) {
         Level::tile_row_t r;
-        if (flip & (1 << 1)) {
-            r = Level::getTileRow(index, 7-i);
-        } else {
+        if (flip & 1) {
             r = Level::getTileRow(index, i);
+        } else {
+            r = Level::getTileRow(index, 7-i);
         }
 
-        if (flip & 1) {
+        if (flip & (1 << 1)) {
             mTFT.pushColor(Level::colors[r.row.col8]);
             mTFT.pushColor(Level::colors[r.row.col7]);
             mTFT.pushColor(Level::colors[r.row.col6]);
@@ -54,5 +56,5 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
 }
 
 void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
-    mTFT.fillRect(x, y, w, h, color);
+    mTFT.fillRect(y, 159-x-w, h, w, color);
 }

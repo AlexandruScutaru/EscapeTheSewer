@@ -5,7 +5,7 @@
 #include "level.h"
 
 
-#define ROW(x, y, i, j) pixel.setFillColor(RGB565toSfColor(Level::colors[r.row.col ## i ]));pixel.setPosition(x + (j-1), y);window->draw(pixel);
+#define ROW(x, y, i, j) pixel.setFillColor(RGB565toSfColor(Level::colors[r.row.col ## i ]));pixel.setPosition(x, y + (j-1));window->draw(pixel);
 
 #define DRAW_ROW(x, y) ROW(x, y, 1, 1)\
                        ROW(x, y, 2, 2)\
@@ -47,16 +47,16 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
     sf::RectangleShape pixel(sf::Vector2f(1, 1));
     for (int i = 0; i < 8; i++) {
         Level::tile_row_t r;
-        if (flip & (1 << 1)) {
+        if (flip & 1) {
             r = Level::getTileRow(index, 7-i);
         } else {
             r = Level::getTileRow(index, i);
         }
 
-        if (flip & 1) {
-            DRAW_ROW_FLIP(x, y + i)
+        if (flip & (1 << 1)) {
+            DRAW_ROW_FLIP(x + i, y)
         } else {
-            DRAW_ROW(x, y + i)
+            DRAW_ROW(x + i, y)
         }
     }
 }

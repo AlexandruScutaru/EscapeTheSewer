@@ -61,6 +61,16 @@ def isEmptyTile(tile):
     return True
 
 
+def transposeTile(tile):
+    newTile = []
+    for i in range(TILE_SIZE):
+        row = []
+        for j in range(TILE_SIZE):
+            row.append(tile[j][i])
+        newTile.append(row)
+    return newTile
+
+
 def tile2cArrayStr(tile):
     #god this line of code is crazy, not even sure if I can come up with a worse one, damn
     return "    {{\n{}\n    }}".format(str(["        {{{}}}".format(str(tile[i])[1:-1]) for i in range(TILE_SIZE)])[1:-1].replace('\'', '').replace('}, ', '},\n'))
@@ -79,7 +89,7 @@ def indexMatrix2tilesArrayHeaderStr(rows, cols, indexMatrix):
         for col in range(cols):
             tile = getTileByIndex(row, col, indexMatrix)
             #if not isEmptyTile(tile):
-            tilesArrStr += (tile2cArrayStr(tile)) + ",\n"
+            tilesArrStr += (tile2cArrayStr(transposeTile(tile))) + ",\n"
     tilesArrStr += "};\n\n#endif // TILES_H"
     
     return tilesArrStr

@@ -17,6 +17,16 @@ public:
     void drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip = 0);
     void drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color = BG_COLOR);
 
+    /* 
+    //here just to remember how it works
+    void scroll() {
+        static int scroll;
+
+        mTFT.scroll(scroll);
+        scroll = (scroll+1) % 160;
+    }
+    */
+
 private:
     TFT_ST7735 mTFT;
 
