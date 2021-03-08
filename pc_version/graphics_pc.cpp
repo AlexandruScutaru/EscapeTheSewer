@@ -5,7 +5,7 @@
 #include "level.h"
 
 
-#define ROW(x, y, i, j) pixel.setFillColor(RGB565toSfColor(Level::colors[r.row.col ## i ]));pixel.setPosition(x, y + (j-1));window->draw(pixel);
+#define ROW(x, y, i, j)  screen[x][y + (j-1)] = Level::colors[r.row.col ## i ];
 
 #define DRAW_ROW(x, y) ROW(x, y, 1, 1)\
                        ROW(x, y, 2, 2)\
@@ -29,22 +29,26 @@
 sf::Clock Graphics::clock;
 
 Graphics::Graphics() 
-    : window(std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(w, h), "Escape The Sewer")))
+    : window(std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(win_width, win_height), "Escape The Sewer")))
 {
-    sf::View view(sf::FloatRect(0, 0, 160, 128));
+    sf::View view(sf::FloatRect(0, 0, screen_height, screen_width));
     view.zoom(1.0);
     window->setView(view);
+    fillScreen();
 }
 
 Graphics::~Graphics() {}
 
 
 void Graphics::fillScreen(uint16_t color) {
-    window->clear(RGB565toSfColor(color));
+    for (int i = 0; i < screen_height; i++) {
+        for (int j = 0; j < screen_width; j++) {
+            screen[i][j] = BG_COLOR;
+        }
+    }
 }
 
 void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip) {
-    sf::RectangleShape pixel(sf::Vector2f(1, 1));
     for (int i = 0; i < 8; i++) {
         Level::tile_row_t r;
         if (flip & 1) {
@@ -61,11 +65,28 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
     }
 }
 
-void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
+void Graphics::clear() {
+    window->clear();
+}
+
+void Graphics::display() {
     sf::RectangleShape pixel(sf::Vector2f(1, 1));
-    pixel.setFillColor(RGB565toSfColor(color));
-    pixel.setPosition(x, y);
-    window->draw(pixel);
+    for (int i = 0; i < screen_height; i++) {
+        for (int j = 0; j < screen_width; j++) {
+            pixel.setFillColor(RGB565toSfColor(screen[i][j]));
+            pixel.setPosition(i, j);
+            window->draw(pixel);
+        }
+    }
+    window->display();
+}
+
+void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
+    for (int i = 0; i < h; i++) {
+        for (int j = 0; j < w; j++) {
+            screen[x + j][y + i] = color;
+        }
+    }
 }
 
 sf::Color Graphics::RGB565toSfColor(uint16_t color) {

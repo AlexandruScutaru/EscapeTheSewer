@@ -17,8 +17,8 @@
     #define millis() Graphics::getElapsedTime()
     #define delay(ms) mGraphics.sleep(ms)
 
-    #define BEGIN_DRAW  mGraphics.getWindow()->clear();Level::drawEntireLevel();
-    #define END_DRAW mGraphics.getWindow()->display();
+    #define BEGIN_DRAW  mGraphics.clear();
+    #define END_DRAW mGraphics.display();
     #define POLL_EVENTS mGraphics.pollEvents();
 #endif
 

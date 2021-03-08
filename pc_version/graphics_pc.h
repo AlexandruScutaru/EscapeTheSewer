@@ -16,6 +16,9 @@ public:
     Graphics();
     ~Graphics();
 
+    void clear();
+    void display();
+
     void fillScreen(uint16_t color = BG_COLOR);
     void drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip = 0);
     void drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color = BG_COLOR);
@@ -28,9 +31,12 @@ public:
 private:
     sf::Color RGB565toSfColor(uint16_t color);
 
-    int w = 640;
-    int h = 512;
+    const int win_width = 640;
+    const int win_height = 512;
+    const int screen_width = 128;
+    const int screen_height = 160;
     RenderWindowPtr window;
+    uint16_t screen[160][128];
 
     static sf::Clock clock;
 };
