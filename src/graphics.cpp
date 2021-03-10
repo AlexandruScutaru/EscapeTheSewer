@@ -24,6 +24,13 @@ void Graphics::fillScreen(uint16_t color) {
 }
 
 void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip) {
+    //guess in the end it is faster to do this check
+    //maybe find a better place where it is checked a little less often
+    if(index == TILE_EMPTY) {
+        mTFT.fillRect(y, 159-x-size, size, size, BG_COLOR);
+        return;
+    }
+
     mTFT.setArea(y, 159-x-size, y+size-1, 159-x);
     for (int i = 0; i < 8; i++) {
         Level::tile_row_t r;

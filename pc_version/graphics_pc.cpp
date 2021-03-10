@@ -25,6 +25,8 @@
                             ROW(x, y, 2, 7)\
                             ROW(x, y, 1, 8)
 
+#define modulo(a, b) ((a)%(b)) < 0 ? (a)%(b) + (b) : (a)%(b)
+
 
 sf::Clock Graphics::clock;
 
@@ -49,6 +51,10 @@ void Graphics::fillScreen(uint16_t color) {
 }
 
 void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip) {
+    if(index == TILE_EMPTY) {
+        drawFillRect(x, y, size, size, BG_COLOR);
+        return;
+    }
     for (int i = 0; i < 8; i++) {
         Level::tile_row_t r;
         if (flip & 1) {
@@ -74,7 +80,10 @@ void Graphics::display() {
     for (int i = 0; i < screen_height; i++) {
         for (int j = 0; j < screen_width; j++) {
             pixel.setFillColor(RGB565toSfColor(screen[i][j]));
-            pixel.setPosition(i, j);
+            if(i >= max_game_area)
+                pixel.setPosition(i, j);
+            else 
+                pixel.setPosition(modulo((i - scrollAmount), max_game_area), j);
             window->draw(pixel);
         }
     }

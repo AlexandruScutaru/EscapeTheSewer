@@ -68,6 +68,13 @@ void MainGame::loop() {
         update(delta);
         draw();
 
+        //some thing I'm trying related to horizonatal scrolling
+        //static int frames = 0;
+        //if(frames++ == 30) {
+        //    mGraphics.scroll();
+        //    frames = 0;
+        //}
+
         difference = targetFrameTicks - (millis() - newTicks);
         if(difference > 0)
             delay(difference);
