@@ -2,6 +2,8 @@
 #include "level.h"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
+    #include "audio.h"
+
     #define LOOP_CONDITION 1
 
     #define BEGIN_DRAW
@@ -11,6 +13,7 @@
     #define LOG(msg)
 #else
     #include "../pc_version/logging.h"
+    #include "../pc_version/audio_pc.h"
 
     #define LOOP_CONDITION (!mInputManager.isButtonPressed(InputManager::Button::ESC) && mGraphics.getWindow()->isOpen())
 
@@ -35,6 +38,8 @@ void MainGame::run() {
 }
 
 void MainGame::init() {
+    Audio::Init();
+
     Level::init();
     Level::setGraphics(&mGraphics);
     mPlayer.setPos(Level::mStartCoords);
