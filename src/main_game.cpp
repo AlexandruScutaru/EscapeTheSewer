@@ -38,7 +38,7 @@ void MainGame::run() {
 }
 
 void MainGame::init() {
-    Audio::Init();
+    //Audio::Init();
 
     Level::init();
     Level::setGraphics(&mGraphics);
@@ -47,6 +47,7 @@ void MainGame::init() {
     BEGIN_DRAW
     mGraphics.fillScreen();
     Level::drawEntireLevel();
+    mGraphics.drawFillRect(128, 0, 32, 128, COLOR_RED);
     END_DRAW
 }
 
@@ -60,6 +61,7 @@ void MainGame::loop() {
     uint32_t frameTicks = 0;
     int32_t difference = 0;
     float delta = 0.0f;
+    int frames = 0;
 
     prevTicks = millis();
     while(LOOP_CONDITION) {
@@ -74,11 +76,10 @@ void MainGame::loop() {
         draw();
 
         //some thing I'm trying related to horizonatal scrolling
-        //static int frames = 0;
-        //if(frames++ == 30) {
-        //    mGraphics.scroll();
-        //    frames = 0;
-        //}
+        if(++frames == 500) {
+            //mGraphics.scroll(false);
+            frames = 0;
+        }
 
         difference = targetFrameTicks - (millis() - newTicks);
         if(difference > 0)
@@ -90,15 +91,21 @@ void MainGame::draw() {
     BEGIN_DRAW
     
     Level::cleanPrevDraw();
-    mPlayer.cleanPrevDraw(mGraphics);
+    //mPlayer.cleanPrevDraw(mGraphics);
 
     Level::draw();
-    mPlayer.draw(mGraphics);
+    //mPlayer.draw(mGraphics);
     
     END_DRAW
 }
 
 void MainGame::update(float dt) {
     Level::update(dt);
-    mPlayer.update(mInputManager, dt);
+
+    if (mInputManager.wasButtonPressedNow(InputManager::Button::LEFT))
+        mGraphics.scroll(false);
+    else if (mInputManager.wasButtonPressedNow(InputManager::Button::RIGHT))
+        mGraphics.scroll(true);
+
+    //mPlayer.update(mInputManager, dt);
 }

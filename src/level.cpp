@@ -62,7 +62,7 @@ void Level::draw() {
 
 void Level::drawEntireLevel() {
     for (int i = 0; i < levelH; i++) {
-        for(int j = 0; j < levelW; j++) {
+        for(int j = Graphics::camera.x1; j <= Graphics::camera.x2; j++) {
             const auto& tile_index = getTileByIndex(i, j);
             mGraphics->drawTile(tile_index.tile_index.index,  j*TILE_SIZE, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
         }

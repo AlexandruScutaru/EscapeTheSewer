@@ -37,10 +37,10 @@ const Audio::note_t Audio::melody[] /*PROGMEM*/ = {
     {E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {A4 , 2}, {B4, 2}, {E4 , 2}, {G4, 2},
     {A4, 2}, {E4, 2}, {FS4, 2}, {G4, 2}, {FS4, 4}, {G4, 4},
 
-    //{E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {B4 , 2}, {C5, 2}, {E4 , 2}, {C5, 2},
-    //{D5, 2}, {E4, 2}, {D5 , 2}, {E5, 2}, {E4 , 2}, {B4, 2}, {C5 , 4},
-    //{E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {B4 , 2}, {C5, 2}, {E4 , 2}, {A4, 2},
-    //{B4, 2}, {E4, 2}, {G4 , 2}, {A4, 2}, {E4 , 2}, {A4, 2}, {B4 , 4},
+    {E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {B4 , 2}, {C5, 2}, {E4 , 2}, {C5, 2},
+    {D5, 2}, {E4, 2}, {D5 , 2}, {E5, 2}, {E4 , 2}, {B4, 2}, {C5 , 4},
+    {E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {B4 , 2}, {C5, 2}, {E4 , 2}, {A4, 2},
+    {B4, 2}, {E4, 2}, {G4 , 2}, {A4, 2}, {E4 , 2}, {A4, 2}, {B4 , 4},
     //
     //{E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {A4 , 2}, {B4, 2}, {E4 , 2}, {G4, 2},
     //{A4, 2}, {E4, 2}, {FS4, 2}, {G4, 2}, {E4 , 2}, {G4, 2}, {A4 , 4},
@@ -59,8 +59,9 @@ uint8_t Audio::notesNb;
 uint8_t Audio::subDivision;
 const uint8_t Audio::msPerSixteenthNote = 60;
 
+#define TEMPO_SCALE 1.5
 const uint16_t Audio::t1_load = 0;
-const uint16_t Audio::t1_count = 3750;
+const uint16_t Audio::t1_count = (uint16_t)(3750 * TEMPO_SCALE);
 
 
 void Audio::Init() {
@@ -92,12 +93,12 @@ void Audio::OnTimerInterrupt() {
     if (subDivision == melody[note].duration) {
         note = (note+1) % notesNb;
         subDivision = 0;
-        int16_t noteDuration = melody[note].duration * 60 * 0.9;
+        int16_t noteDuration = melody[note].duration * msPerSixteenthNote * TEMPO_SCALE * 0.9;
         tone(BUZZER, notes[melody[note].frequency], noteDuration);
     }
     subDivision++;
 }
 
-ISR(TIMER1_COMPA_vect) {
-    Audio::OnTimerInterrupt();
-}
+//ISR(TIMER1_COMPA_vect) {
+//    Audio::OnTimerInterrupt();
+//}
