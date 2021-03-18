@@ -55,7 +55,7 @@ void Slime::update(float dt) {
 
     velocity.y = min(2*GRAVITY, velocity.y + GRAVITY * dt);
     
-    pos.x = min(max(0, pos.x + velocity.x * dt), 152);
+    pos.x = min(max(0, pos.x + velocity.x * dt), (Level::levelW << 3) - TILE_SIZE);
     pos.y += velocity.y * dt;
     if(pos.y <= 0.0f) {
         velocity.y = 0.0f;

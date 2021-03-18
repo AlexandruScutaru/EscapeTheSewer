@@ -93,13 +93,14 @@ void Player::update(InputManager& input, float dt) {
         velocity.y = min(2*GRAVITY, velocity.y + GRAVITY * dt);
     }
 
-    pos.x = min(max(0, pos.x + velocity.x * dt), 152);
+    //pos.x = min(max(Graphics::camera.x1 << 3, pos.x + velocity.x * dt), (Graphics::camera.x2 << 3) - TILE_SIZE);
+    pos.x = min(max(0, pos.x + velocity.x * dt), (Level::levelW << 3) - TILE_SIZE);
     pos.y += velocity.y * dt;
     if(pos.y <= 0.0f) {
         velocity.y = 0.0f;
         pos.y = 0.0f;
     }
-    pos.y = min(pos.y, 120);
+    pos.y = min(pos.y, (Level::levelH << 3) - TILE_SIZE);
 
     checkCollision();
     
@@ -135,6 +136,17 @@ void Player::cleanPrevDraw(Graphics& graphics) {
 }
 
 void Player::draw(Graphics& graphics) {
+    if ((Graphics::camera.x2 << 3) - pos.x <= 5*TILE_SIZE) {
+        if (graphics.scroll(true)) {
+           // pos.x += TILE_SIZE;
+        }
+    } else if (pos.x - (Graphics::camera.x1 << 3) <= 5*TILE_SIZE) {
+        if (graphics.scroll(false)) {
+            //pos.x -= TILE_SIZE;
+        }
+    }
+
+
     graphics.drawTile(animFrameCurrent + animFrameStart, pos.x, pos.y, TILE_SIZE, flipSprite);
     //add proper Timer implementation to be reused across app, with a callback as to avoid constant polling
     if(lastFrameUpdate + ANIM_FRAME_TIME <= millis()) {

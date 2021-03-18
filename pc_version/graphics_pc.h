@@ -7,6 +7,7 @@
 #include <SFML/System.hpp>
 
 #include <memory>
+#include <vector>
 
 
 using RenderWindowPtr = std::shared_ptr<sf::RenderWindow>;
@@ -23,14 +24,20 @@ public:
     void drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip = 0);
     void drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color = BG_COLOR);
 
-    void scroll() {
-        scrollAmount = (scrollAmount + 1) % max_game_area;
-    }
+    void scroll(bool direction);
 
     RenderWindowPtr getWindow() {return window;}
     void pollEvents();
     static uint32_t getElapsedTime();
     void sleep(uint32_t ms);
+
+    static const int max_game_area;
+
+    struct Camera {
+        uint8_t x1;
+        uint8_t x2;
+    };
+    static Camera camera;
 
 private:
     sf::Color RGB565toSfColor(uint16_t color);
@@ -39,9 +46,8 @@ private:
     const int win_height = 512;
     const int screen_width = 128;
     const int screen_height = 160;
-    const int max_game_area = 160;
     RenderWindowPtr window;
-    uint16_t screen[160][128];
+    std::vector<std::vector<uint16_t>> screen;
     int scrollAmount = 0;
     static sf::Clock clock;
 };
