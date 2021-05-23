@@ -91,10 +91,10 @@ void MainGame::draw() {
     BEGIN_DRAW
     
     Level::cleanPrevDraw();
-    //mPlayer.cleanPrevDraw(mGraphics);
+    mPlayer.cleanPrevDraw(mGraphics);
 
     Level::draw();
-    //mPlayer.draw(mGraphics);
+    mPlayer.draw(mGraphics);
     
     END_DRAW
 }
@@ -107,5 +107,5 @@ void MainGame::update(float dt) {
     else if (mInputManager.wasButtonPressedNow(InputManager::Button::RIGHT))
         mGraphics.scroll(true);
 
-    //mPlayer.update(mInputManager, dt);
+    mPlayer.update(mInputManager, dt);
 }

@@ -135,10 +135,10 @@ void Graphics::pollEvents() {
     }
 }
 
-void Graphics::scroll(bool direction) {
+bool Graphics::scroll(bool direction) {
     if (direction) {
         if (camera.x2 + 1 > Level::levelW)
-            return;
+            return false;
         
         std::rotate(screen.begin(), screen.begin() + TILE_SIZE, screen.end() - 4*TILE_SIZE);
         for (uint8_t i = 0; i < Level::levelH; i++) {
@@ -147,9 +147,10 @@ void Graphics::scroll(bool direction) {
         }
         camera.x1++;
         camera.x2++;
+        return true;
     } else {
         if (camera.x1 == 0)
-            return;
+            return false;
         
         std::rotate(screen.begin(), screen.begin() + 15*TILE_SIZE, screen.end() - 4*TILE_SIZE);
         camera.x1--;
@@ -159,5 +160,7 @@ void Graphics::scroll(bool direction) {
             const auto& tile_index = Level::getTileByIndex(i, camera.x1);
             drawTile(tile_index.tile_index.index, col, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
         }
+        return true;
     }
+    return false;
 }
