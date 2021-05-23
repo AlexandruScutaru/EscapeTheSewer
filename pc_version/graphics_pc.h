@@ -41,6 +41,12 @@ public:
 
 private:
     sf::Color RGB565toSfColor(uint16_t color);
+    void printRow(std::vector<uint16_t>& row, int col);
+
+    int scrollTop = 32;
+    int scrollBottom = 160;
+    int frontRow = 0;
+    int backRow = 0;
 
     const int win_width = 640;
     const int win_height = 512;
