@@ -43,7 +43,8 @@ private:
     sf::Color RGB565toSfColor(uint16_t color);
     void printRow(const std::vector<uint16_t>& screenRow);
 
-    int scrollTop = 32;
+    int scrollAmount;
+    int scrollTop;
     int scrollBottom = 160;
     int scrollPivotRow = 0;
     int currentOutputRow = 0;
@@ -54,7 +55,6 @@ private:
     const int screen_height = 160;
     RenderWindowPtr window;
     std::vector<std::vector<uint16_t>> screen;
-    int scrollAmount = 32;
     static sf::Clock clock;
 };
 

@@ -1,9 +1,10 @@
-#ifndef DATA_H
-#define DATA_H
+#ifndef LEVEL_H
+#define LEVEL_H
 
 #include "vector.h"
 #include "slime.h"
 #include "coin.h"
+#include "level_size.h"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include <Arduino.h>
@@ -85,8 +86,8 @@ public:
     static tile_index_t getTileByIndex(uint8_t i, uint8_t j);
     static tile_row_t getTileRow(uint8_t tileIndex, uint8_t rowIndex);
 
-    const static uint8_t levelW = 20;
-    const static uint8_t levelH = 16;
+    const static uint8_t levelW = LEVEL_WIDTH;
+    const static uint8_t levelH = LEVEL_HEIGHT;
     const static uint16_t colors[16] /*PROGMEM*/;
 
     static vec2 mStartCoords;
@@ -109,4 +110,4 @@ private:
 
 };
 
-#endif // DATA_H
+#endif // LEVEL_H

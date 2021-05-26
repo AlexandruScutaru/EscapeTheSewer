@@ -27,13 +27,17 @@
 
 #define modulo(a, b) ((a)%(b)) < 0 ? (a)%(b) + (b) : (a)%(b)
 
-const int Graphics::max_game_area = 128;
+#define UNSCROLLABLE_AMOUNT 0
+
+const int Graphics::max_game_area = 160 - UNSCROLLABLE_AMOUNT;
 Graphics::Camera Graphics::camera = Graphics::Camera{0, Graphics::max_game_area >> 3};
 sf::Clock Graphics::clock;
 
 Graphics::Graphics() 
     : window(std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(win_width, win_height), "Escape The Sewer")))
     , screen(std::vector<std::vector<uint16_t>>(screen_height, std::vector<uint16_t>(screen_width)))
+    , scrollAmount(UNSCROLLABLE_AMOUNT)
+    , scrollTop(UNSCROLLABLE_AMOUNT)
 {
     sf::View view(sf::FloatRect(0, 0, screen_height, screen_width));
     view.zoom(1.0);
@@ -68,9 +72,9 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
         }
 
         if (flip & (1 << 1)) {
-            DRAW_ROW_FLIP(x + i, y)
+            DRAW_ROW_FLIP((x + i)%160, y)
         } else {
-            DRAW_ROW(x + i, y)
+            DRAW_ROW((x + i)%160, y)
         }
     }
 }
@@ -91,8 +95,8 @@ void Graphics::printRow(const std::vector<uint16_t>& screenRow) {
 
 void Graphics::display() {
     currentOutputRow = 0;
-    int top = scrollTop - 32;
-    int bottom = scrollBottom - 32;
+    int top = scrollTop - UNSCROLLABLE_AMOUNT;
+    int bottom = scrollBottom - UNSCROLLABLE_AMOUNT;
     int amount = 160 - scrollAmount;
 
     for (int i = 0; i < top; i++) {
@@ -117,7 +121,7 @@ void Graphics::display() {
 void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
-            screen[x + j][y + i] = color;
+            screen[(x + j)%160][y + i] = color;
         }
     }
 }
@@ -157,7 +161,7 @@ bool Graphics::scroll(bool direction) {
             return false;
 
         scrollAmount -= TILE_SIZE;
-        if (scrollAmount < 32)
+        if (scrollAmount < UNSCROLLABLE_AMOUNT)
             scrollAmount = 152;
 
         for (uint8_t i = 0; i < Level::levelH; i++) {
@@ -176,7 +180,7 @@ bool Graphics::scroll(bool direction) {
 
         scrollAmount += TILE_SIZE;
         if (scrollAmount > 159)
-            scrollAmount = 32;
+            scrollAmount = UNSCROLLABLE_AMOUNT;
 
         camera.x1--;
         camera.x2--;

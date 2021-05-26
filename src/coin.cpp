@@ -29,7 +29,7 @@ void Coin::update(float dt) {
 }
 
 void Coin::draw(Graphics& graphics) {
-    if (pos.x < graphics.camera.x1 << 3 || pos.x > graphics.camera.x2 << 3)
+    if (pos.x < graphics.camera.x1 << 3 || pos.x + TILE_SIZE >= graphics.camera.x2 << 3)
         return;
 
     graphics.drawTile(animFrameCurrent + animFrameStart, pos.x, pos.y, TILE_SIZE);

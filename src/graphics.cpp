@@ -7,17 +7,19 @@
 #define TFT_RST    8
 #define TFT_DC     9
 
+#define UNSCROLLABLE_AMOUNT 0
 
-const int16_t Graphics::max_game_area = 128;
+const int16_t Graphics::max_game_area = 160 - UNSCROLLABLE_AMOUNT;
 Graphics::Camera Graphics::camera = Graphics::Camera{0, Graphics::max_game_area >> 3};
 
 Graphics::Graphics() 
     : mTFT(TFT_ST7735(TFT_CS, TFT_DC, TFT_RST))
+    , scrollAmount(UNSCROLLABLE_AMOUNT)
 {
     mTFT.begin();
     mTFT.setRotation(0);
 
-    mTFT.defineScrollArea(32, 160);
+    mTFT.defineScrollArea(UNSCROLLABLE_AMOUNT, 160);
 }
 
 Graphics::~Graphics() {}
@@ -27,6 +29,7 @@ void Graphics::fillScreen(uint16_t color) {
 }
 
 void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip) {
+    x %= 160;
     //guess in the end it is faster to do this check
     //maybe find a better place where it is checked a little less often
     if(index == TILE_EMPTY) {
@@ -34,6 +37,8 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
         return;
     }
 
+    //check the case when we need to draw right over the seam of the hardware scrolling
+    //need to implement wrap
     mTFT.setArea(y, 160-x-size, y+size-1, 159-x);
     for (int i = 0; i < 8; i++) {
         Level::tile_row_t r;
@@ -66,18 +71,18 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
 }
 
 void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
+    x %= 160;
     mTFT.fillRect(y, 160-x-w, h, w, color);
 }
 
 bool Graphics::scroll(bool direction) {
-    Serial.print("before cam1 = "); Serial.print(camera.x1); Serial.print(" cam2 = "); Serial.println(camera.x2);
     if (direction) {
         if (camera.x2 + 1 > Level::levelW) {
            return false;
         }
 
         scrollAmount -= TILE_SIZE;
-        if (scrollAmount < 32) {
+        if (scrollAmount < UNSCROLLABLE_AMOUNT) {
             scrollAmount = 152;
         }
 
@@ -100,7 +105,7 @@ bool Graphics::scroll(bool direction) {
 
         scrollAmount += TILE_SIZE;
         if (scrollAmount > 159) {
-            scrollAmount = 32;
+            scrollAmount = UNSCROLLABLE_AMOUNT;
         }
 
         camera.x1--;
