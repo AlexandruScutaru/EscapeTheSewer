@@ -29,6 +29,7 @@ public:
 
 private:
     int16_t scrollAmount = 32; //on current state it means no scroll
+    int16_t scrollPivotRow = 0;
     TFT_ST7735 mTFT;
 
 };
