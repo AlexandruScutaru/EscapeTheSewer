@@ -136,13 +136,9 @@ void Player::cleanPrevDraw(Graphics& graphics) {
 
 void Player::draw(Graphics& graphics) {
     if ((Graphics::camera.x2 << 3) - pos.x <= 5*TILE_SIZE) {
-        if (graphics.scroll(true)) {
-            //pos.x -= TILE_SIZE;
-        }
+        graphics.scroll(true);
     } else if (pos.x - (Graphics::camera.x1 << 3) <= 5*TILE_SIZE) {
-        if (graphics.scroll(false)) {
-            //pos.x += TILE_SIZE;
-        }
+        graphics.scroll(false);
     }
 
     graphics.drawTile(animFrameCurrent + animFrameStart, pos.x, pos.y, TILE_SIZE, flipSprite);

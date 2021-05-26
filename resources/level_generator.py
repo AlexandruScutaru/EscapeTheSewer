@@ -66,16 +66,28 @@ def getSpecialObjectsAsStr(specialObjects):
 
 
 def tiled2cFileStr(tiledData):
-    tilesArrStr = "#ifndef LEVEL_H\n" \
-                  "#define LEVEL_H\n\n" \
+    tilesArrStr = "#ifndef LEVEL_DATA_H\n" \
+                  "#define LEVEL_DATA_H\n\n" \
                   "/*** NOTE: file auto-generated based on " + str(sys.argv[1]) + " file ***/\n\n"
 
     tilesArrStr += getTilesAsStr(tiledData["layers"][0]["data"])
 
     tilesArrStr += getSpecialObjectsAsStr(getTiledSpecialObjects(tiledData["layers"][1]["objects"]))
     
-    tilesArrStr += "#endif // LEVEL_H"
+    tilesArrStr += "#endif // LEVEL_DATA_H"
     return tilesArrStr
+
+
+def mapSize2cFileStr():
+    sizeStr = "#ifndef LEVEL_SIZE_H\n" \
+                  "#define LEVEL_SIZE_H\n\n" \
+                  "/*** NOTE: file auto-generated based on " + str(sys.argv[1]) + " file ***/\n\n"
+
+    sizeStr += "#define LEVEL_WIDTH  {}\n".format(LEVEL_W)
+    sizeStr += "#define LEVEL_HEIGHT {}\n\n".format(LEVEL_H)
+
+    sizeStr += "#endif // LEVEL_SIZE_H"
+    return sizeStr
 
 
 def writeToFile(filepath, contents):
@@ -93,3 +105,4 @@ if __name__ == "__main__":
     LEVEL_H = levelJson["height"]
 
     writeToFile("../include/level_data.h", tiled2cFileStr(levelJson))
+    writeToFile("../include/level_size.h", mapSize2cFileStr())

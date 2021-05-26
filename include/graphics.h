@@ -28,9 +28,9 @@ public:
     static Camera camera;
 
 private:
-    int16_t scrollAmount = 32; //on current state it means no scroll
-    int16_t scrollPivotRow = 0;
     TFT_ST7735 mTFT;
+    int16_t scrollAmount;
+    int16_t scrollPivotRow = 0;
 
 };
 

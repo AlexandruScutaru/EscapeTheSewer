@@ -47,7 +47,6 @@ void MainGame::init() {
     BEGIN_DRAW
     mGraphics.fillScreen();
     Level::drawEntireLevel();
-    mGraphics.drawFillRect(128, 0, 32, 128, COLOR_RED);
     END_DRAW
 }
 
