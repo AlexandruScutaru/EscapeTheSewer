@@ -99,6 +99,6 @@ void Audio::OnTimerInterrupt() {
     subDivision++;
 }
 
-//ISR(TIMER1_COMPA_vect) {
-//    Audio::OnTimerInterrupt();
-//}
+ISR(TIMER1_COMPA_vect) {
+    Audio::OnTimerInterrupt();
+}

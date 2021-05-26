@@ -38,7 +38,7 @@ void MainGame::run() {
 }
 
 void MainGame::init() {
-    //Audio::Init();
+    Audio::Init();
 
     Level::init();
     Level::setGraphics(&mGraphics);
