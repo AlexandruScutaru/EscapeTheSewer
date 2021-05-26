@@ -54,14 +54,11 @@ void Graphics::fillScreen(uint16_t color) {
 }
 
 void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip) {
-    if(x < camera.x1 << 3)
-        return;
-
     if(index == TILE_EMPTY) {
         drawFillRect(x, y, size, size, BG_COLOR);
         return;
     }
-    x -= camera.x1 << 3;
+
     for (int i = 0; i < 8; i++) {
         Level::tile_row_t r;
         if (flip & 1) {
@@ -82,39 +79,42 @@ void Graphics::clear() {
     window->clear();
 }
 
-void Graphics::printRow(std::vector<uint16_t>& row, int col) {
+void Graphics::printRow(const std::vector<uint16_t>& screenRow) {
     sf::RectangleShape pixel(sf::Vector2f(1, 1));
     for (int i = 0; i < screen_width; i++) {
-        pixel.setFillColor(RGB565toSfColor(screen[i][col]));
-        pixel.setPosition(i, col);
+        pixel.setFillColor(RGB565toSfColor(screenRow[i]));
+        pixel.setPosition(currentOutputRow, i);
         window->draw(pixel);
     }
+    currentOutputRow++;
 }
 
 void Graphics::display() {
-    int tempScrollAmount = scrollAmount - scrollTop;
-    if (tempScrollAmount < 0)
-        tempScrollAmount = 0;
+    currentOutputRow = 0;
+    int top = scrollTop - 32;
+    int bottom = scrollBottom - 32;
+    int amount = 160 - scrollAmount;
 
-    for (int i = 0; i < scrollTop; i++)
-        printRow(screen[i], i);
+    for (int i = 0; i < top; i++) {
+        printRow(screen[i]);
+    }
 
-    for (int i = scrollTop + tempScrollAmount; i < scrollBottom; i++)
-        printRow(screen[i], i);
+    for (int i = top + amount; i < bottom; i++) {
+        printRow(screen[i]);
+    }
 
-    for (int i = 0; i < tempScrollAmount; i++)
-        printRow(screen[i + scrollTop], i);
+    for (int i = 0; i < amount; i++) {
+        printRow(screen[i + top]);
+    }
 
-    for (int i = scrollBottom; i < screen_height; i++)
-        printRow(screen[i], i);
+    for (int i = bottom; i < screen_height; i++) {
+        printRow(screen[i]);
+    }
 
     window->display();
 }
 
 void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
-    if(x < camera.x1 << 3)
-        return;
-    x -= camera.x1 << 3;
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
             screen[x + j][y + i] = color;
@@ -157,16 +157,17 @@ bool Graphics::scroll(bool direction) {
             return false;
 
         scrollAmount -= TILE_SIZE;
-        if (scrollAmount < 0)
-            scrollAmount = 19 << 3;
-        backRow = scrollAmount >> 3;
+        if (scrollAmount < 32)
+            scrollAmount = 152;
 
         for (uint8_t i = 0; i < Level::levelH; i++) {
             const auto& tile_index = Level::getTileByIndex(i, camera.x2);
-            drawTile(tile_index.tile_index.index, backRow * TILE_SIZE, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
+            drawTile(tile_index.tile_index.index, scrollPivotRow, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
         }
+
         camera.x1++;
         camera.x2++;
+        scrollPivotRow += TILE_SIZE;
 
         return true;
     } else {
@@ -174,93 +175,20 @@ bool Graphics::scroll(bool direction) {
             return false;
 
         scrollAmount += TILE_SIZE;
-        if (scrollAmount > 160)
-            scrollAmount = TILE_SIZE;
-        frontRow = (scrollAmount - 1) >> 3;
+        if (scrollAmount > 159)
+            scrollAmount = 32;
 
         camera.x1--;
         camera.x2--;
 
         for (uint8_t i = 0; i < Level::levelH; i++) {
             const auto& tile_index = Level::getTileByIndex(i, camera.x1);
-            drawTile(tile_index.tile_index.index, frontRow << 3, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
+            drawTile(tile_index.tile_index.index, scrollPivotRow-TILE_SIZE, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
         }
+
+        scrollPivotRow -= TILE_SIZE;
+
         return true;
     }
     return false;
 }
-
-
-/********* SHOULD BE REMOVED LATER, NOTES FOR ME TO REMEMBER THE HW SCROLLING *********/
-/*
-
-screenW = 16
-screenH = 20
-
-scrollTop = 4
-scrollBottom = 20
-scrollAmount = 0
-
-frontRow = 0
-backRow = 0
-
-def initMemory(screenMemory):
-    for row in range(screenH):
-        screenMemory.append([row for i in range(screenW)])
-    return screenMemory
-
-
-def scroll(direction):
-    global scrollAmount
-    global frontRow
-    global backRow
-
-    if direction:
-        scrollAmount -= 1
-        if scrollAmount < 0:
-            scrollAmount = 19
-        backRow = scrollAmount
-    else:
-        scrollAmount += 1
-        if scrollAmount > 20:
-            scrollAmount = 1
-        frontRow = scrollAmount - 1
-
-    print("scroll: {} frontRow: {} backRow: {}".format(scrollAmount, frontRow, backRow))
-
-
-def printScreen(screenMemory):
-    # taking into account the scroll data values
-
-    tempScrollAmount = scrollAmount - scrollTop
-    if(tempScrollAmount < 0):
-        tempScrollAmount = 0
-
-    for i in range(scrollTop):
-        printRow(screenMemory[i])
-
-    for i in range(scrollTop + tempScrollAmount, scrollBottom):
-        printRow(screenMemory[i])
-
-    for i in range(tempScrollAmount):
-        printRow(screenMemory[i + scrollTop])
-
-    for i in range(scrollBottom, screenH):
-        printRow(screenMemory[i])
-
-
-def printRow(row):
-    for col in row:
-        print('{0:2}'.format(col), end=' ')
-    print()
-
-
-if __name__ == "__main__":
-    screenMemory = initMemory([])
-
-    for i in range(25):
-        print("##################################################")
-        scroll(True)
-        printScreen(screenMemory)
-
-*/
