@@ -8,6 +8,7 @@
 #define TFT_DC     9
 
 #define UNSCROLLABLE_AMOUNT 0
+#define TOP_OFFSET TILE_SIZE
 
 const int16_t Graphics::max_game_area = 160 - UNSCROLLABLE_AMOUNT;
 Graphics::Camera Graphics::camera = Graphics::Camera{0, Graphics::max_game_area >> 3};
@@ -20,6 +21,9 @@ Graphics::Graphics()
     mTFT.setRotation(0);
 
     mTFT.defineScrollArea(UNSCROLLABLE_AMOUNT, 160);
+
+	mTFT.setTextColor(WHITE);
+	mTFT.setTextScale(1);
 }
 
 Graphics::~Graphics() {}
@@ -29,6 +33,7 @@ void Graphics::fillScreen(uint16_t color) {
 }
 
 void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip) {
+    y += TOP_OFFSET;
     x %= 160;
     //guess in the end it is faster to do this check
     //maybe find a better place where it is checked a little less often
@@ -71,8 +76,14 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
 }
 
 void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
+    y += TOP_OFFSET;
     x %= 160;
     mTFT.fillRect(y, 160-x-w, h, w, color);
+}
+
+void Graphics::print(int value, uint8_t x, uint8_t y) {
+    mTFT.setCursor(x, y);
+    mTFT.print(value);
 }
 
 bool Graphics::scroll(bool direction) {
@@ -124,4 +135,8 @@ bool Graphics::scroll(bool direction) {
     }
 
     return false;
+}
+
+int16_t Graphics::getScrollPivot() {
+    return scrollPivotRow;
 }

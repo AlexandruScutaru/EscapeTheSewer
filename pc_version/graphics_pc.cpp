@@ -28,6 +28,7 @@
 #define modulo(a, b) ((a)%(b)) < 0 ? (a)%(b) + (b) : (a)%(b)
 
 #define UNSCROLLABLE_AMOUNT 0
+#define TOP_OFFSET TILE_SIZE
 
 const int Graphics::max_game_area = 160 - UNSCROLLABLE_AMOUNT;
 Graphics::Camera Graphics::camera = Graphics::Camera{0, Graphics::max_game_area >> 3};
@@ -63,6 +64,7 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
         return;
     }
 
+    y += TOP_OFFSET;
     for (int i = 0; i < 8; i++) {
         Level::tile_row_t r;
         if (flip & 1) {
@@ -75,6 +77,15 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
             DRAW_ROW_FLIP((x + i)%160, y)
         } else {
             DRAW_ROW((x + i)%160, y)
+        }
+    }
+}
+
+void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
+    y += TOP_OFFSET;
+    for (int i = 0; i < h; i++) {
+        for (int j = 0; j < w; j++) {
+            screen[(x + j)%160][y + i] = color;
         }
     }
 }
@@ -118,13 +129,6 @@ void Graphics::display() {
     window->display();
 }
 
-void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
-    for (int i = 0; i < h; i++) {
-        for (int j = 0; j < w; j++) {
-            screen[(x + j)%160][y + i] = color;
-        }
-    }
-}
 
 sf::Color Graphics::RGB565toSfColor(uint16_t color) {
     uint8_t r = (color & 0xF800) >> 11;
@@ -195,4 +199,8 @@ bool Graphics::scroll(bool direction) {
         return true;
     }
     return false;
+}
+
+int Graphics::getScrollPivot() {
+    return scrollPivotRow;
 }

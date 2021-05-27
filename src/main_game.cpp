@@ -88,11 +88,12 @@ void MainGame::draw() {
     Level::draw();
     mPlayer.draw(mGraphics);
     
+    mStatusBar.draw(mGraphics);
     END_DRAW
 }
 
 void MainGame::update(float dt) {
     Level::update(dt);
-
     mPlayer.update(mInputManager, dt);
+    mStatusBar.update(dt);
 }

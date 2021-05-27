@@ -10,6 +10,7 @@
 #endif
 
 #include "player.h"
+#include "status_bar.h"
 
 
 class MainGame {
@@ -30,7 +31,7 @@ private:
     Graphics mGraphics;
 
     Player mPlayer;
-
+    StatusBar mStatusBar;
 };
 
 #endif //MAIN_GAME_H

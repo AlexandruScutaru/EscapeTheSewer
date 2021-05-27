@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="23" height="16" tilewidth="8" tileheight="8" infinite="0" nextlayerid="8" nextobjectid="28">
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="23" height="15" tilewidth="8" tileheight="8" infinite="0" nextlayerid="8" nextobjectid="28">
  <editorsettings>
   <export target="sewer.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="f24.tsx"/>
- <layer id="1" name="tiles" width="23" height="16">
+ <layer id="1" name="tiles" width="23" height="15">
   <data encoding="csv">
-13,13,13,10,64,64,64,64,64,64,64,64,64,64,17,64,2147483652,5,5,5,4,64,17,
-12,12,12,11,64,64,64,64,64,64,64,64,64,64,18,64,17,7,7,7,2147483655,64,18,
-13,13,13,2147483658,64,64,64,64,64,64,64,64,64,64,1073741841,64,18,64,64,64,64,64,1073741841,
-64,64,64,2147483659,20,16,16,16,2147483667,2147483650,1,2,19,16,16,64,64,64,64,64,2147483650,1,2,
+12,12,12,11,64,64,64,64,64,64,64,64,64,64,17,64,2147483652,5,5,5,4,64,17,
+13,13,13,2147483658,64,64,64,64,64,64,64,64,64,64,1073741841,64,17,7,2147483655,64,64,64,1073741841,
+64,64,64,2147483659,20,16,16,16,2147483667,2147483650,1,2,19,16,16,64,18,64,64,64,2147483650,1,2,
 8,9,64,64,20,64,64,64,64,2147483652,5,4,64,64,64,64,64,64,64,64,7,7,7,
-13,1073741833,64,64,20,64,64,64,64,7,7,7,64,64,64,64,1073741841,29,64,64,64,64,64,
-64,64,64,64,20,64,64,14,64,64,64,64,64,64,64,1,1,1,2,64,64,64,64,
+1073741832,1073741833,64,64,20,64,64,64,64,7,7,7,64,64,64,64,1073741841,29,64,64,64,64,64,
+17,64,64,64,20,64,64,14,64,64,64,64,64,64,64,1,1,1,2,64,64,64,64,
 1073741841,64,64,64,20,64,64,22,64,64,64,64,64,30,1,6,64,6,4,64,64,64,64,
 8,8,8,9,19,16,16,15,16,2147483667,2147483650,1,1,1,6,64,64,3,64,64,64,64,64,
 64,64,64,10,64,64,64,22,64,64,2147483651,6,6,6,64,64,6,4,64,2147483650,2,64,64,
@@ -25,18 +24,16 @@
 </data>
  </layer>
  <objectgroup id="6" name="special">
-  <object id="6" name="Slime" type="2" gid="49" x="80" y="24" width="8" height="8"/>
-  <object id="11" name="End" type="3" gid="64" x="0" y="120" width="8" height="8"/>
-  <object id="12" name="Slime" type="2" gid="49" x="72" y="64" width="8" height="8"/>
-  <object id="18" name="Start" type="0" gid="37" x="0" y="32" width="8" height="8"/>
-  <object id="19" name="Coin" type="1" gid="24" x="64" y="40" width="8" height="8"/>
-  <object id="20" name="Coin" type="1" gid="24" x="0" y="56" width="8" height="8"/>
-  <object id="21" name="Coin" type="1" gid="24" x="104" y="16" width="8" height="8"/>
-  <object id="22" name="Coin" type="1" gid="24" x="104" y="8" width="8" height="8"/>
-  <object id="23" name="Coin" type="1" gid="24" x="104" y="24" width="8" height="8"/>
-  <object id="24" name="Coin" type="1" gid="24" x="168" y="24" width="8" height="8"/>
-  <object id="25" name="Coin" type="1" gid="24" x="168" y="16" width="8" height="8"/>
-  <object id="26" name="Coin" type="1" gid="24" x="168" y="8" width="8" height="8"/>
-  <object id="27" name="Slime" type="2" gid="49" x="136" y="120" width="8" height="8"/>
+  <object id="6" name="Slime" type="2" gid="49" x="80" y="16" width="8" height="8"/>
+  <object id="11" name="End" type="3" gid="64" x="0" y="112" width="8" height="8"/>
+  <object id="12" name="Slime" type="2" gid="49" x="72" y="56" width="8" height="8"/>
+  <object id="18" name="Start" type="0" gid="37" x="0" y="24" width="8" height="8"/>
+  <object id="19" name="Coin" type="1" gid="24" x="64" y="32" width="8" height="8"/>
+  <object id="20" name="Coin" type="1" gid="24" x="8" y="48" width="8" height="8"/>
+  <object id="21" name="Coin" type="1" gid="24" x="104" y="8" width="8" height="8"/>
+  <object id="23" name="Coin" type="1" gid="24" x="104" y="16" width="8" height="8"/>
+  <object id="24" name="Coin" type="1" gid="24" x="168" y="16" width="8" height="8"/>
+  <object id="25" name="Coin" type="1" gid="24" x="168" y="8" width="8" height="8"/>
+  <object id="27" name="Slime" type="2" gid="49" x="136" y="112" width="8" height="8"/>
  </objectgroup>
 </map>

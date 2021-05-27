@@ -26,7 +26,8 @@ audio_pc.cpp ^
 ../src/main_game.cpp ^
 ../src/player.cpp ^
 ../src/slime.cpp ^
-../src/coin.cpp
+../src/coin.cpp ^
+../src/status_bar.cpp
 
 REM call VC++ compiler
 IF "%1" == "debug" (
