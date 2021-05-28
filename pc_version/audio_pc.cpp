@@ -4,3 +4,5 @@
 Audio::Audio() {};
 
 void Audio::Init() {}
+
+void Audio::Disable() {}

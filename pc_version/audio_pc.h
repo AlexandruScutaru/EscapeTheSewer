@@ -4,6 +4,7 @@
 class Audio {
 public:
     static void Init();
+    static void Disable();
 
 private:
     Audio();

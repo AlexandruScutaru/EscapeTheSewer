@@ -8,8 +8,9 @@
 class Audio {
 public:
     static void Init();
-
+    static void Disable();
     static void OnTimerInterrupt();
+
 private:
     struct note_t {
         uint8_t frequency : 4;

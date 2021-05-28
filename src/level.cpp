@@ -23,6 +23,7 @@ vec2 Level::mEndCoords;
 vector<Slime> Level::mSlimes;
 vector<Coin> Level::mCoins;
 Graphics* Level::mGraphics = nullptr;
+bool Level::levelCleared = false;
 
 //contains the tileset as arrays of tile_t
 #include "tiles_data.h"
@@ -102,6 +103,7 @@ Level::EntityType Level::getCollidedEntity(const vec2& pos, size_t& idx) {
         }
     }
     if (aabb(mEndCoords, pos)) {
+        levelCleared = true;
         return EntityType::END;
     }
     return EntityType::NONE;
@@ -144,4 +146,8 @@ bool Level::aabb(const vec2& pos1, const vec2& pos2) {
         return true;
     }
     return false;
+}
+
+bool Level::isLevelCleared() {
+    return levelCleared;
 }

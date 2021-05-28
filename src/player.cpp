@@ -104,6 +104,8 @@ void Player::update(InputManager& input, float dt) {
 
     checkCollision();
     updateAnimation();
+
+    //Serial.println(pos.x);
 }
 
 void Player::cleanPrevDraw(Graphics& graphics) {

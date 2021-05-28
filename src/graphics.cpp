@@ -40,9 +40,20 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
     }
 
     //check the case when we need to draw right over the seam of the hardware scrolling
-    //need to implement wrap
-    mTFT.setArea(y, 160-x-size, y+size-1, 159-x);
-    for (int i = 0; i < 8; i++) {
+    //draw first sprite reagardles of it being cropped (still losing some time on SPI pushing all colors, but ok for now)
+    pushColors(index, y, 160-x-size, y+size-1, 159-x, size, flip, 0, size);
+
+    //get the amount of cropped tile and push the rest over scroll seam
+    int16_t offset = size - (160 - x);
+    if (offset > 0){
+        //mTFT.fillRect(y, 152+(size-offset), size, offset, COLOR_CYAN);
+        pushColors(index, y, 160 - offset, y+size-1, 159, size, flip, 0, offset);
+    }
+}
+
+void Graphics::pushColors(uint8_t index, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t size, uint8_t flip, uint16_t from, uint16_t to) {
+    mTFT.setArea(x0, y0, x1, y1);
+    for (uint16_t i = from; i < to; i++) {
         Level::tile_row_t r;
         if (flip & 1) {
             r = Level::getTileRow(index, i);
@@ -76,6 +87,12 @@ void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t
     y += TOP_OFFSET;
     x %= 160;
     mTFT.fillRect(y, 160-x-w, h, w, color);
+
+    //get the amount of cropped rect and push the rest over scroll seam
+    int16_t offset = w - (160 - x);
+    if (offset > 0) {
+        mTFT.fillRect(y, 160-offset, h, offset, color);
+    }
 }
 
 bool Graphics::scroll(bool direction) {

@@ -4,7 +4,7 @@
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "audio.h"
 
-    #define LOOP_CONDITION 1
+    #define LOOP_CONDITION (!Level::isLevelCleared())
 
     #define BEGIN_DRAW
     #define END_DRAW
@@ -77,6 +77,20 @@ void MainGame::loop() {
         if(difference > 0)
             delay(difference);
     }
+
+#if defined (ARDUINO) || defined (__AVR_ATmega328P__)
+    //some sort of screen saver once level is finished
+    //lack of something better for the moment
+    Audio::Disable();
+    uint16_t col = 0x38A6;
+    for(;;) {
+        mGraphics.fillScreen(col);
+        mStatusBar.update(0.0f);
+        mStatusBar.draw(mGraphics);
+        col += 0x045A;
+        delay(1000);
+    }
+#endif
 }
 
 void MainGame::draw() {

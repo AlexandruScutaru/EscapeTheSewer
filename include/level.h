@@ -86,6 +86,8 @@ public:
     static tile_index_t getTileByIndex(uint8_t i, uint8_t j);
     static tile_row_t getTileRow(uint8_t tileIndex, uint8_t rowIndex);
 
+    static bool isLevelCleared();
+
     const static uint8_t levelW = LEVEL_WIDTH;
     const static uint8_t levelH = LEVEL_HEIGHT;
     const static uint16_t colors[16] /*PROGMEM*/;
@@ -103,10 +105,9 @@ private:
     //these entities are dealt with dozens of times a second...
     static vector<Slime> mSlimes;
     static vector<Coin> mCoins;
-
     static vec2 mEndCoords;
-
     static Graphics* mGraphics; 
+    static bool levelCleared;
 
 };
 

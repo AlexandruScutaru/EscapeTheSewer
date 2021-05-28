@@ -1,8 +1,6 @@
 #include "audio.h"
 
-
 #define BUZZER 7
-
 
 #define NOTE_E4  330
 #define NOTE_FS4 370
@@ -26,8 +24,6 @@
 const int16_t Audio::notes[] = {NOTE_E4, NOTE_B4, NOTE_C5, NOTE_A4, NOTE_G4, NOTE_FS4, NOTE_D5, NOTE_E5};
 
 const Audio::note_t Audio::melody[] /*PROGMEM*/ = {
-    //NOTE_E4, NOTE_E4,
-
     {E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {A4 , 2}, {B4, 2}, {E4 , 2}, {G4, 2},
     {A4, 2}, {E4, 2}, {FS4, 2}, {G4, 2}, {E4 , 2}, {G4, 2}, {A4 , 4},
     {E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {A4 , 2}, {B4, 2}, {E4 , 2}, {G4, 2},
@@ -84,6 +80,10 @@ void Audio::Init() {
 
     //enable global intrerrupts
     sei();
+}
+
+void Audio::Disable() {
+    TIMSK1=0;
 }
 
 void Audio::OnTimerInterrupt() {
