@@ -5,7 +5,7 @@
     #include "graphics.h"
     #include <Arduino.h>
 
-    #define BATTERY_PIN       A7
+    #define BATTERY_PIN       A6
     #define VOLTAGE_EPSILON   0.2      /*should be empirically determined*/
     #define MAX_ANALOG_VALUE  1024.0f
 
@@ -28,7 +28,6 @@
 #define BATTERY_IND_SIZE      30
 #define BATTERY_IND_POS       (157 - BATTERY_IND_SIZE)
 
-int val = 0;
 
 StatusBar::StatusBar()
     : lastBatteryReadTime(millis())
@@ -53,26 +52,15 @@ void StatusBar::draw(Graphics& graphics) {
     //need something better than a bool
     //like an also an event when there was a scroll
     if(drawRequired) {
-        //clean status area
         graphics.drawFillRect(0, -8, 160, 8, STATUS_BAR_BG);
-
-#if defined (ARDUINO) || defined (__AVR_ATmega328P__)
-        //some weird debug printing on screen, having issues with reading battery level
-        //and everything is already soldered...
-        graphics.print(val%10, 0, 100);
-        graphics.print(val/10%10, 0, 92);
-        graphics.print(val/100%10, 0, 84);
-        graphics.print(val/1000%10, 0, 76);
-#endif
         drawBatteryIndicator(graphics);
     }
 }
 
 void StatusBar::readBatteryLevel() {
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
-    //read the battery pin
-    val =  analogRead(BATTERY_PIN);
-    float voltage = (5 * val / MAX_ANALOG_VALUE) + VOLTAGE_EPSILON;
+    //seems arduino reports ~950 on a full battery charge
+    float voltage = (5 * analogRead(BATTERY_PIN) / MAX_ANALOG_VALUE) + VOLTAGE_EPSILON;
 
     //map current voltage from max-min voltage to 100-10 percent charge
     //not accurate, but at least there is an indication on when charging is required

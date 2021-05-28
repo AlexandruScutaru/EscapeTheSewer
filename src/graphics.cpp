@@ -21,9 +21,6 @@ Graphics::Graphics()
     mTFT.setRotation(0);
 
     mTFT.defineScrollArea(UNSCROLLABLE_AMOUNT, 160);
-
-	mTFT.setTextColor(WHITE);
-	mTFT.setTextScale(1);
 }
 
 Graphics::~Graphics() {}
@@ -79,11 +76,6 @@ void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t
     y += TOP_OFFSET;
     x %= 160;
     mTFT.fillRect(y, 160-x-w, h, w, color);
-}
-
-void Graphics::print(int value, uint8_t x, uint8_t y) {
-    mTFT.setCursor(x, y);
-    mTFT.print(value);
 }
 
 bool Graphics::scroll(bool direction) {
