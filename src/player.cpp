@@ -30,8 +30,6 @@
 #define SWORD_DMG 3
 #define SWORD_KNOCKBACK_FORCE 2
 
-#define IF_NON_COLLIDABLE(tile) if (tile.tile_index.index >= TILE_NON_COLLIDABLE_THRESHOLD)
-
 
 Player::Player() 
     : pos(vec2(0.0f, 16.0f))
@@ -109,31 +107,7 @@ void Player::update(InputManager& input, float dt) {
 }
 
 void Player::cleanPrevDraw(Graphics& graphics) {
-    //clean up (redraw) the 4 adjacent tiles behind last drawn position
-    //find maybe a way to draw when it is actually needed, as sending data to LCD to be displayed is very costly
-    //TODO: 
-    //  do the checks based on velocity, maybe something can come out of that
-    uint8_t iCoord = (uint8_t)oldPos.y >> 3;
-    uint8_t jCoord = (uint8_t)oldPos.x >> 3;
-
-    Level::tile_index_t tileIndex = Level::getTileByIndex(iCoord, jCoord);
-    IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, jCoord << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);
-
-    if (iCoord + 1 < Level::levelH) {
-        tileIndex = Level::getTileByIndex(iCoord+1, jCoord);
-        IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, jCoord << 3, (iCoord+1) << 3, TILE_SIZE, tileIndex.tile_index.flip);
-
-        if(jCoord + 1 < Level::levelW) {
-            tileIndex = Level::getTileByIndex(iCoord, jCoord + 1);
-            IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);
-            //both above are true, directly draw diagonaly too
-            tileIndex = Level::getTileByIndex(iCoord + 1, jCoord + 1);
-            IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, (iCoord+1) << 3, TILE_SIZE, tileIndex.tile_index.flip);
-        }
-    }else if(jCoord + 1 < Level::levelW) {
-        tileIndex = Level::getTileByIndex(iCoord, jCoord + 1);
-        IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);        
-    }
+    Level::cleanPrevDraw(oldPos);
 }
 
 void Player::draw(Graphics& graphics) {
@@ -161,58 +135,12 @@ void Player::draw(Graphics& graphics) {
 }
 
 void Player::checkCollision() {
-    //if(velocity == vec2(0.0f))
-    //    return;
-    uint8_t leftUp    = Level::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f);
-    uint8_t leftDown  = Level::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1);
-    uint8_t rightUp   = Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f);
-    uint8_t rightDown = Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1);
-    if(velocity.x <= 0.0f) {
-        if(leftUp < TILE_NON_COLLIDABLE_THRESHOLD || leftDown < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.x = (((uint16_t)pos.x >> 3) + 1) << 3;
-            velocity.x = 0.0f;
-        }
-    } else {
-        if(rightUp < TILE_NON_COLLIDABLE_THRESHOLD || rightDown < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.x = ((uint16_t)pos.x >> 3) << 3;
-            velocity.x = 0.0f;
-        }
-    }
+    bool collidedWithLadder = Level::collideWithLevel(pos, oldPos, velocity, vec2(0.0f), nullptr, &onGround, &ladderXpos);
 
-    onGround = false;
-    uint8_t upLeft    = Level::getTileByPosition(pos.x + 0.0f, pos.y);
-    uint8_t upRight   = Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y);
-    uint8_t downLeft  = Level::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE);
-    uint8_t downRight = Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE);
-    if(velocity.y <= 0.0f) {
-        if (upLeft < TILE_NON_COLLIDABLE_THRESHOLD || upRight < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.y = (((uint16_t)pos.y >> 3) + 1) << 3;
-            velocity.y = 0.0f;
-        }
-    } else {
-        if (downLeft < TILE_NON_COLLIDABLE_THRESHOLD || downRight < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.y = min(((uint16_t)pos.y >> 3) << 3, 120);
-            velocity.y = 0.0f;
-            onGround = true;
-        }
-    }
-
-    if (leftUp    == TILE_LADDER ||
-        leftDown  == TILE_LADDER ||
-        rightUp   == TILE_LADDER ||
-        rightDown == TILE_LADDER ||
-        upLeft    == TILE_LADDER ||
-        upRight   == TILE_LADDER ||
-        downLeft  == TILE_LADDER ||
-        downRight == TILE_LADDER)
-    {
+    if (collidedWithLadder) {
         if(mAnimState != AnimState::CLIMBING && mAnimState != AnimState::CLIMB_IDLE) {
             changeAnimation(AnimState::CLIMB_IDLE);
         }
-        if (leftUp == TILE_LADDER || leftDown == TILE_LADDER || upLeft == TILE_LADDER || downLeft == TILE_LADDER)
-            ladderXpos = (((uint16_t)pos.x >> 3) + 0) << 3;
-        else
-            ladderXpos = (((uint16_t)pos.x >> 3) + 1) << 3;
     } else if(mAnimState == AnimState::CLIMBING || mAnimState == AnimState::CLIMB_IDLE) {
         changeAnimation(AnimState::IDLE);
     }

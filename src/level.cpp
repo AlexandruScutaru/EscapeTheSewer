@@ -7,9 +7,14 @@
     #define GET_TILE_ROW(tileIndex, rowIndex) return Level::tile_row_t { .packed = pgm_read_dword_near(&tiles[tileIndex][rowIndex]) }
 #else
     #include "../pc_version/graphics_pc.h"
+
+    #define min(a,b) ((a)<(b)?(a):(b))
+    #define max(a,b) ((a)>(b)?(a):(b))
+
     #define GET_TILE_ROW(tileIndex, rowIndex) return tiles[tileIndex][rowIndex]
 #endif
 
+#define IF_NON_COLLIDABLE(tile) if (tile.tile_index.index >= TILE_NON_COLLIDABLE_THRESHOLD)
 
 const uint16_t Level::colors[16] = {
     COLOR_BROWN_DARKER    ,COLOR_BROWN_DARK   ,COLOR_BROWN        ,COLOR_BROWN_LIGHT,
@@ -45,13 +50,13 @@ void Level::update(float dt) {
         mCoins[i].update(dt);
 }
 
-void Level::cleanPrevDraw() {
+void Level::cleanPrevDrawSpecialObjects() {
     for (size_t i = 0; i < mSlimes.size(); i++) {
         mSlimes[i].cleanPrevDraw(*mGraphics);
     }
 }
 
-void Level::draw() {
+void Level::drawSpecialObjects() {
     for (size_t i = 0; i < mCoins.size(); i++) {
         mCoins[i].draw(*mGraphics);
     }
@@ -86,6 +91,97 @@ Level::tile_index_t Level::getTileByIndex(uint8_t i, uint8_t j) {
 
 Level::tile_row_t Level::getTileRow(uint8_t tileIndex, uint8_t rowIndex) {
     GET_TILE_ROW(tileIndex, rowIndex);
+}
+
+bool Level::collideWithLevel(vec2& pos, const vec2& oldPos, vec2& velocity, const vec2& velocityToSet, bool* flip, bool* onGround, uint16_t* ladderXpos) {
+    uint8_t leftUp    = Level::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f);
+    uint8_t leftDown  = Level::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1);
+    uint8_t rightUp   = Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f);
+    uint8_t rightDown = Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1);
+    if(velocity.x <= 0.0f) {
+        if(leftUp < TILE_NON_COLLIDABLE_THRESHOLD || leftDown < TILE_NON_COLLIDABLE_THRESHOLD) {
+            pos.x = (((uint16_t)pos.x >> 3) + 1) << 3;
+            velocity.x = velocityToSet.x;
+            if (flip)
+                *flip = false;
+        }
+    } else {
+        if(rightUp < TILE_NON_COLLIDABLE_THRESHOLD || rightDown < TILE_NON_COLLIDABLE_THRESHOLD) {
+            pos.x = ((uint16_t)pos.x >> 3) << 3;
+            velocity.x = -velocityToSet.x;
+            if (flip)
+                *flip = true;
+        }
+    }
+
+    if (onGround)
+        *onGround = false;
+
+    uint8_t upLeft    = Level::getTileByPosition(pos.x + 0.0f, pos.y);
+    uint8_t upRight   = Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y);
+    uint8_t downLeft  = Level::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE);
+    uint8_t downRight = Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE);
+    if(velocity.y <= 0.0f) {
+        if (upLeft < TILE_NON_COLLIDABLE_THRESHOLD || upRight < TILE_NON_COLLIDABLE_THRESHOLD) {
+            pos.y = (((uint16_t)pos.y >> 3) + 1) << 3;
+            velocity.y = velocityToSet.y;
+        }
+    } else {
+        if (downLeft < TILE_NON_COLLIDABLE_THRESHOLD || downRight < TILE_NON_COLLIDABLE_THRESHOLD) {
+            pos.y = min(((uint16_t)pos.y >> 3) << 3, 120);
+            velocity.y = velocityToSet.y;
+            if (onGround)
+                *onGround = true;
+        }
+    }
+
+    if (ladderXpos) {
+        bool collidedWithLadder = ( leftUp    == TILE_LADDER ||
+                                    leftDown  == TILE_LADDER ||
+                                    rightUp   == TILE_LADDER ||
+                                    rightDown == TILE_LADDER ||
+                                    upLeft    == TILE_LADDER ||
+                                    upRight   == TILE_LADDER ||
+                                    downLeft  == TILE_LADDER ||
+                                    downRight == TILE_LADDER );
+        if (collidedWithLadder) {
+            if (leftUp == TILE_LADDER || leftDown == TILE_LADDER || upLeft == TILE_LADDER || downLeft == TILE_LADDER)
+                *ladderXpos = (((uint16_t)pos.x >> 3) + 0) << 3;
+            else
+                *ladderXpos = (((uint16_t)pos.x >> 3) + 1) << 3;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void Level::cleanPrevDraw(const vec2& oldPos) {
+    //clean up (redraw) the 4 adjacent tiles behind last drawn position
+    //find maybe a way to draw when it is actually needed, as sending data to LCD to be displayed is very costly
+    //TODO:
+    //  do the checks based on velocity, maybe something can come out of that
+    uint8_t iCoord = (uint8_t)oldPos.y >> 3;
+    uint8_t jCoord = (uint8_t)oldPos.x >> 3;
+
+    Level::tile_index_t tileIndex = Level::getTileByIndex(iCoord, jCoord);
+    IF_NON_COLLIDABLE(tileIndex) mGraphics->drawTile(tileIndex.tile_index.index, jCoord << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);
+
+    if (iCoord + 1 < Level::levelH) {
+        tileIndex = Level::getTileByIndex(iCoord+1, jCoord);
+        IF_NON_COLLIDABLE(tileIndex) mGraphics->drawTile(tileIndex.tile_index.index, jCoord << 3, (iCoord+1) << 3, TILE_SIZE, tileIndex.tile_index.flip);
+
+        if(jCoord + 1 < Level::levelW) {
+            tileIndex = Level::getTileByIndex(iCoord, jCoord + 1);
+            IF_NON_COLLIDABLE(tileIndex) mGraphics->drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);
+            //both above are true, directly draw diagonaly too
+            tileIndex = Level::getTileByIndex(iCoord + 1, jCoord + 1);
+            IF_NON_COLLIDABLE(tileIndex) mGraphics->drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, (iCoord+1) << 3, TILE_SIZE, tileIndex.tile_index.flip);
+        }
+    }else if(jCoord + 1 < Level::levelW) {
+        tileIndex = Level::getTileByIndex(iCoord, jCoord + 1);
+        IF_NON_COLLIDABLE(tileIndex) mGraphics->drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);
+    }
 }
 
 Level::EntityType Level::getCollidedEntity(const vec2& pos, size_t& idx) {

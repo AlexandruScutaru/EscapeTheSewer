@@ -73,10 +73,13 @@ public:
 
     static void init();
     static void update(float dt);
-    static void cleanPrevDraw();
-    static void draw();
+    static void cleanPrevDrawSpecialObjects();
+    static void drawSpecialObjects();
     static void drawEntireLevel();
     static void setGraphics(Graphics* graphics);
+
+    static bool collideWithLevel(vec2& pos, const vec2& oldPos, vec2& velocity, const vec2& velocityToSet, bool* flip = nullptr, bool* onGround = nullptr, uint16_t* ladderXpos = nullptr);
+    static void cleanPrevDraw(const vec2& oldPos);
 
     static EntityType getCollidedEntity(const vec2& pos, size_t& idx);
     static void removeEntity(EntityType entt, size_t idx);
@@ -91,7 +94,6 @@ public:
     const static uint8_t levelW = LEVEL_WIDTH;
     const static uint8_t levelH = LEVEL_HEIGHT;
     const static uint16_t colors[16] /*PROGMEM*/;
-
     static vec2 mStartCoords;
 
 private:

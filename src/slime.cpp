@@ -67,29 +67,7 @@ void Slime::update(float dt) {
 }
 
 void Slime::cleanPrevDraw(Graphics& graphics) {
-    //shameless copy/paste from player implementation
-    //TODO: do something about code reuse
-    uint8_t iCoord = (uint8_t)oldPos.y >> 3;
-    uint8_t jCoord = (uint8_t)oldPos.x >> 3;
-
-    Level::tile_index_t tileIndex = Level::getTileByIndex(iCoord, jCoord);
-    IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, jCoord << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);
-
-    if (iCoord + 1 < Level::levelH) {
-        tileIndex = Level::getTileByIndex(iCoord+1, jCoord);
-        IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, jCoord << 3, (iCoord+1) << 3, TILE_SIZE, tileIndex.tile_index.flip);
-
-        if(jCoord + 1 < Level::levelW) {
-            tileIndex = Level::getTileByIndex(iCoord, jCoord + 1);
-            IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);
-            //both above are true, directly draw diagonaly too
-            tileIndex = Level::getTileByIndex(iCoord + 1, jCoord + 1);
-            IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, (iCoord+1) << 3, TILE_SIZE, tileIndex.tile_index.flip);
-        }
-    }else if(jCoord + 1 < Level::levelW) {
-        tileIndex = Level::getTileByIndex(iCoord, jCoord + 1);
-        IF_NON_COLLIDABLE(tileIndex) graphics.drawTile(tileIndex.tile_index.index, (jCoord+1) << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);        
-    }
+    Level::cleanPrevDraw(oldPos);
 }
 
 void Slime::draw(Graphics& graphics) {
@@ -117,35 +95,5 @@ bool Slime::hit(int8_t dmg, int8_t force) {
 }
 
 void Slime::checkCollision() {
-    //TODO: clean these checks a bit
-    //Note: similar stuff is done for the player -> try to move them to a common place and try to reuse some bits
-    if(velocity.x <= 0.0f) {
-        if(Level::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f) < TILE_NON_COLLIDABLE_THRESHOLD || Level::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1) < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.x = (((uint16_t)pos.x >> 3) + 1) << 3;
-            velocity.x = WALK_SPEED;
-            flipSprite = false;
-        }
-    } else {
-        if(Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f) < TILE_NON_COLLIDABLE_THRESHOLD || Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1) < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.x = ((uint16_t)pos.x >> 3) << 3;
-            velocity.x = -WALK_SPEED;
-            flipSprite = true;
-        }
-    }
-
-    if(velocity.y <= 0.0f) {
-        if(Level::getTileByPosition(pos.x + 0.0f, pos.y) < TILE_NON_COLLIDABLE_THRESHOLD || Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y) < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.y = (((uint16_t)pos.y >> 3) + 1) << 3;
-            velocity.y = 0.0f;
-        }
-    } else {
-        if(Level::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE) < TILE_NON_COLLIDABLE_THRESHOLD || Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE) < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.y = ((uint16_t)pos.y >> 3) << 3;
-            velocity.y = 0.0f;
-            if(pos.y >= 120) {
-                velocity.y = 0.0f;
-                pos.y = 120;
-            }
-        }
-    }
+    Level::collideWithLevel(pos, oldPos, velocity, vec2(WALK_SPEED, 0.0f), &flipSprite);
 }

@@ -96,10 +96,10 @@ void MainGame::loop() {
 void MainGame::draw() {
     BEGIN_DRAW
     
-    Level::cleanPrevDraw();
+    Level::cleanPrevDrawSpecialObjects();
     mPlayer.cleanPrevDraw(mGraphics);
 
-    Level::draw();
+    Level::drawSpecialObjects();
     mPlayer.draw(mGraphics);
     
     mStatusBar.draw(mGraphics);
