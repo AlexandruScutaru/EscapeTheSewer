@@ -36,6 +36,7 @@ Enemy::Enemy(const vec2& mPos, EnemyType type)
             mAnimFramesCount = 4;
             mAnimFrameTime =  120;
             mHp = 10;
+            mDmg = 1;
             mCanJump = true;
             break;
         case EnemyType::BUG:
@@ -46,6 +47,7 @@ Enemy::Enemy(const vec2& mPos, EnemyType type)
             mAnimFramesCount = 2;
             mAnimFrameTime =  150;
             mHp = 20;
+            mDmg = 2;
             mCanSleep = true;
             break;
         default:
@@ -129,6 +131,10 @@ const vec2& Enemy::getPos() {
 
 EnemyType Enemy::getType() {
     return mType;
+}
+
+int8_t Enemy::getDmg() {
+    return mDmg;
 }
 
 bool Enemy::hit(int8_t dmg, int8_t force) {

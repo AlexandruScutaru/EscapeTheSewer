@@ -22,14 +22,21 @@ public:
     void run();
 
 private:
+    enum class LevelState : int8_t {
+        IN_PROGRESS,
+        CLEARED,
+        PLAYER_DIED,
+    };
+
     void init();
     void loop();
     void draw();
     void update(float dt);
 
+    LevelState mState = LevelState::IN_PROGRESS;
+
     InputManager mInputManager;
     Graphics mGraphics;
-
     Player mPlayer;
     StatusBar mStatusBar;
 

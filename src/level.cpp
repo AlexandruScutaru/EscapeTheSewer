@@ -1,4 +1,5 @@
 #include "level.h"
+#include "player.h"
 #include "color_palette.h"
 #include "vec2.inl"
 
@@ -152,6 +153,18 @@ bool Level::collideWithLevel(vec2& pos, const vec2& oldPos, vec2& velocity, cons
     return false;
 }
 
+bool Level::collideWithEnemies(Player& player) {
+    for (size_t i = 0; i < mEnemies.size(); i++) {
+        if (aabb(mEnemies[i].getPos(), player.getPos())) {
+            if (!player.hit(mEnemies[i].getDmg())) {
+                //player died
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void Level::cleanPrevDraw(const vec2& oldPos) {
     //clean up (redraw) the 4 adjacent tiles behind last drawn position
     //find maybe a way to draw when it is actually needed, as sending data to LCD to be displayed is very costly
@@ -180,33 +193,25 @@ void Level::cleanPrevDraw(const vec2& oldPos) {
     }
 }
 
-EnemyType Level::getCollidedEnemy(const vec2& pos, size_t& idx) {
-    //pretty slow way to do it, I guess it is ok if not many entities are added to a level
-    for (size_t i = 0; i < mEnemies.size(); i++) {
-        if (aabb(mEnemies[i].getPos(), pos)) {
-            idx = i;
-            return mEnemies[i].getType();
-        }
-    }
-
-    return EnemyType::NONE;
-}
-
 void Level::removeEnemy(size_t idx) {
     mEnemies[idx].cleanPrevDraw(*mGraphics);
     mEnemies.erase(idx);
 }
 
 bool Level::hitEnemy(const vec2& pos, float dmg, float force) {
-    size_t idx = 0;
-    EnemyType entt = getCollidedEnemy(pos, idx);
+    size_t i = 0;
     bool res = false;
-
-    if (entt == EnemyType::SLIME || entt == EnemyType::BUG) {
-        if (!mEnemies[idx].hit(dmg, force)) {
-            removeEnemy(idx);
+    while (i < mEnemies.size()) {
+        if (aabb(mEnemies[i].getPos(), pos)) {
+            if (!mEnemies[i].hit(dmg, force)) {
+                removeEnemy(i);
+                res = true;
+            } else {
+                i++;
+            }
+        } else {
+            i++;
         }
-        res = true;
     }
 
     return res;

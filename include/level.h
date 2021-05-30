@@ -35,6 +35,7 @@
 
 
 class Graphics;
+class Player;
 
 class Level {
 public:
@@ -71,9 +72,9 @@ public:
 
     static bool collidesWithEnd(const vec2& pos);
     static bool collideWithLevel(vec2& pos, const vec2& oldPos, vec2& velocity, const vec2& velocityToSet, bool* flip = nullptr, bool* onGround = nullptr, uint16_t* ladderXpos = nullptr);
+    static bool collideWithEnemies(Player& player);
     static void cleanPrevDraw(const vec2& oldPos);
 
-    static EnemyType getCollidedEnemy(const vec2& pos, size_t& idx);
     static void removeEnemy(size_t idx);
     static bool hitEnemy(const vec2& pos, float dmg, float force);
 
@@ -95,9 +96,6 @@ private:
     const static tile_t tiles[] PROGMEM;
 
     //I haven't tried making these polymorphic, not sure if I want to add vtable overhead on arduino
-    //these entities are dealt with dozens of times a second...
-    //static vector<Slime> mSlimes;
-    //static vector<Bug> mBugs;
     static vector<Enemy> mEnemies;
     static vec2 mEndCoords;
     static Graphics* mGraphics;

@@ -13,14 +13,17 @@ public:
     void update(float dt);
     void draw(Graphics& graphics);
 
-    void fire();
+    void setPlayerHp(int8_t hp);
+    void fire(); //this is not the best name, but eh
 
 private:
     bool readBatteryLevel();
     void drawBatteryIndicator(Graphics& graphics);
+    void drawPlayerHpIndicator(Graphics& graphics);
 
     uint32_t lastBatteryReadTime;
     float batteryLevel = 0.1f;
+    int8_t playerHp = 0;
     bool drawRequired = true;
 
 };

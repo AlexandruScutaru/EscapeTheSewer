@@ -5,7 +5,7 @@
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "audio.h"
 
-    #define LOOP_CONDITION true
+    #define LOOP_CONDITION (mState == LevelState::IN_PROGRESS)
 
     #define BEGIN_DRAW
     #define END_DRAW
@@ -16,7 +16,7 @@
     #include "../pc_version/logging.h"
     #include "../pc_version/audio_pc.h"
 
-    #define LOOP_CONDITION (!mInputManager.isButtonPressed(InputManager::Button::ESC) && mGraphics.getWindow()->isOpen())
+    #define LOOP_CONDITION (!mInputManager.isButtonPressed(InputManager::Button::ESC) && mGraphics.getWindow()->isOpen() && mState == LevelState::IN_PROGRESS)
 
     #define millis() Graphics::getElapsedTime()
     #define delay(ms) mGraphics.sleep(ms)
@@ -27,9 +27,7 @@
 #endif
 
 
-MainGame::MainGame()
-    //: mRedrawEvent(&mStatusBar)
-{
+MainGame::MainGame() {
     init();
     mGraphics.registerEvent(Event<StatusBar>(&mStatusBar));
 }
@@ -75,10 +73,6 @@ void MainGame::loop() {
         POLL_EVENTS
         mInputManager.processInput();
         update(delta);
-
-        if (Level::collidesWithEnd(mPlayer.getPos()))
-            break;
-
         draw();
 
         difference = targetFrameTicks - (millis() - newTicks);
@@ -94,10 +88,13 @@ void MainGame::loop() {
     for(;;) {
         mGraphics.fillScreen(col);
         mStatusBar.update(0.0f);
+        mStatusBar.fire();
         mStatusBar.draw(mGraphics);
         col += 0x045A;
         delay(1000);
     }
+#else
+    for(;;);
 #endif
 }
 
@@ -118,4 +115,16 @@ void MainGame::update(float dt) {
     Level::update(dt);
     mPlayer.update(mInputManager, dt);
     mStatusBar.update(dt);
+
+    if (Level::collidesWithEnd(mPlayer.getPos())) {
+        LOG("level cleared");
+        mState = LevelState::CLEARED;
+    }
+
+    if (Level::collideWithEnemies(mPlayer)) {
+        LOG("player died");
+        mState = LevelState::PLAYER_DIED;
+    }
+
+    mStatusBar.setPlayerHp(mPlayer.getHp());
 }

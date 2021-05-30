@@ -17,21 +17,26 @@
     #define millis() Graphics::getElapsedTime()
 #endif
 
-bool FloatEquality(float a, float b, float epsilon)
-{
+bool FloatEquality(float a, float b, float epsilon) {
    return fabs(a - b) < epsilon;
 }
 
-#define BATTERY_IND_BG        0xBDF7
+#define STATUS_BAR_BG         0x39C7
+#define IND_BG                0xBDF7
+
 #define BATTERY_IND_GREEN     0x07E4
 #define BATTERY_IND_YELLOW    0xFFE0
 #define BATTERY_IND_ORANGE    0xFCA0
 #define BATTERY_IND_RED       0xF800
-
-#define STATUS_BAR_BG         0x39C7
-
 #define BATTERY_IND_SIZE      30
 #define BATTERY_IND_POS       (157 - BATTERY_IND_SIZE)
+
+#define HP_IND_RED            0xF800
+#define HP_IND_SIZE           50
+#define HP_IND_POS            (0)
+
+//settings this value this way may leed to some mistakes if different from the value in player, but it's ok
+#define MAX_HP                100
 
 
 StatusBar::StatusBar()
@@ -51,8 +56,18 @@ void StatusBar::draw(Graphics& graphics) {
     //like an also an event when there was a scroll
     if(drawRequired) {
         graphics.drawFillRect(0, -8, 160, 8, STATUS_BAR_BG);
+
+        drawPlayerHpIndicator(graphics);
         drawBatteryIndicator(graphics);
+
         drawRequired = false;
+    }
+}
+
+void StatusBar::setPlayerHp(int8_t hp) {
+    if (playerHp != hp) {
+        playerHp = hp;
+        drawRequired = true;
     }
 }
 
@@ -85,8 +100,8 @@ bool StatusBar::readBatteryLevel() {
 void StatusBar::drawBatteryIndicator(Graphics& graphics) {
     uint8_t pos = graphics.getScrollPivot() + BATTERY_IND_POS;
 
-    graphics.drawFillRect(pos, -8, BATTERY_IND_SIZE, 8, BATTERY_IND_BG);
-    graphics.drawFillRect(pos + BATTERY_IND_SIZE, -6, 2, 4, BATTERY_IND_BG);
+    graphics.drawFillRect(pos, -8, BATTERY_IND_SIZE, 8, IND_BG);
+    graphics.drawFillRect(pos + BATTERY_IND_SIZE, -6, 2, 4, IND_BG);
 
     uint16_t color = BATTERY_IND_GREEN;
     if(batteryLevel >= 0.5f && batteryLevel < 0.75f)
@@ -97,4 +112,12 @@ void StatusBar::drawBatteryIndicator(Graphics& graphics) {
         color = BATTERY_IND_RED;
 
     graphics.drawFillRect(pos + 1, -7, batteryLevel * BATTERY_IND_SIZE-2, 6, color);
+}
+
+void StatusBar::drawPlayerHpIndicator(Graphics& graphics) {
+    uint8_t pos = graphics.getScrollPivot() + HP_IND_POS;
+
+    graphics.drawFillRect(pos, -8, HP_IND_SIZE, 8, IND_BG);
+    float factor = playerHp / (float)MAX_HP;
+    graphics.drawFillRect(pos + 1, -7, factor * HP_IND_SIZE-2, 6, HP_IND_RED);
 }

@@ -59,6 +59,14 @@ vec2 Player::getPos() const {
     return pos;
 }
 
+int8_t Player::getHp() const {
+    return hp;
+}
+
+bool Player::hit(int8_t dmg) {
+    return (hp -= dmg) > 0;
+}
+
 void Player::update(InputManager& input, float dt) {
     oldPos = pos;
 
@@ -149,24 +157,9 @@ void Player::checkCollision() {
         changeAnimation(AnimState::IDLE);
     }
 
-    size_t idx = 0;
     if (mAnimState == AnimState::ATTACK && !attackSuccesful) 
     {
         attackSuccesful = Level::hitEnemy(vec2(flipSprite ? pos.x - SWORD_REACH : pos.x + SWORD_REACH, pos.y), SWORD_DMG, flipSprite ? -SWORD_KNOCKBACK_FORCE : SWORD_KNOCKBACK_FORCE);
-    }
-
-    EnemyType entt = Level::getCollidedEnemy(pos, idx);
-    switch (entt) {
-    case EnemyType::SLIME:
-        //LOG("you got hit by a slime");
-        break;
-    case EnemyType::BUG:
-        //LOG("you got hit by a bug");
-        break;
-    case EnemyType::NONE:
-        break;
-    default:
-        break;
     }
 }
 

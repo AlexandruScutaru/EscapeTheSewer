@@ -9,7 +9,6 @@
 class Graphics;
 
 enum class EnemyType : int8_t {
-    NONE,
     SLIME,
     BUG,
 };
@@ -26,6 +25,8 @@ public:
 
     const vec2& getPos();
     EnemyType getType();
+    int8_t getDmg();
+
     bool hit(int8_t dmg,  int8_t force);
 
 private:
@@ -49,6 +50,7 @@ private:
     uint8_t mAnimFramesCount;
     uint8_t mAnimFrameTime;
     int8_t mHp;
+    int8_t mDmg;
     
     bool mFlipSprite = false;
     bool mSleeps = false;

@@ -21,9 +21,12 @@ public:
 
     void setPos(const vec2& pos);
     vec2 getPos() const;
+    int8_t getHp() const;
+
+    bool hit(int8_t dmg);
 
 private:
-    enum class AnimState {
+    enum class AnimState : int8_t {
         IDLE,
         WALK,
         JUMP,
@@ -32,7 +35,7 @@ private:
         CLIMB_IDLE,
         CLIMBING,
     };
-    enum class MovDir {
+    enum class MovDir : int8_t {
         NONE,
         N,
         E,
@@ -41,23 +44,25 @@ private:
     };
 
     void checkCollision();
-    MovDir getMovingDirection();
     void updateAnimation();
     void changeAnimation(AnimState state);
+    MovDir getMovingDirection();
 
     vec2 pos;
     vec2 oldPos;
     vec2 velocity;
-    bool onGround = false;
-    bool flipSprite = false;
-    bool attackSuccesful = false;
+
+    uint32_t lastFrameUpdate = 0;
     uint16_t ladderXpos = 0;
-    AnimState mAnimState = AnimState::WALK;
-    MovDir mMovingDirection = MovDir::NONE;
     uint8_t animFrameStart = 0;
     uint8_t animFrameCurrent = 0;
     uint8_t animFramesNumber = 4;
-    uint32_t lastFrameUpdate = 0;
+    int8_t hp = 100;
+    AnimState mAnimState = AnimState::WALK;
+    MovDir mMovingDirection = MovDir::NONE;
+    bool onGround = false;
+    bool flipSprite = false;
+    bool attackSuccesful = false;
 
 };
 
