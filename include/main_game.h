@@ -32,6 +32,7 @@ private:
 
     Player mPlayer;
     StatusBar mStatusBar;
+
 };
 
 #endif //MAIN_GAME_H

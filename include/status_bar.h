@@ -13,8 +13,10 @@ public:
     void update(float dt);
     void draw(Graphics& graphics);
 
+    void fire();
+
 private:
-    void readBatteryLevel();
+    bool readBatteryLevel();
     void drawBatteryIndicator(Graphics& graphics);
 
     uint32_t lastBatteryReadTime;

@@ -1,5 +1,6 @@
 #include "main_game.h"
 #include "level.h"
+#include "event.h"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "audio.h"
@@ -26,8 +27,11 @@
 #endif
 
 
-MainGame::MainGame() {
+MainGame::MainGame()
+    //: mRedrawEvent(&mStatusBar)
+{
     init();
+    mGraphics.registerEvent(Event<StatusBar>(&mStatusBar));
 }
 
 MainGame::~MainGame() {}

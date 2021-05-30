@@ -2,6 +2,7 @@
 #include "input_manager_pc.h"
 #include "logging.h"
 #include "level.h"
+#include "status_bar.h"
 
 #include <algorithm>
 
@@ -180,6 +181,7 @@ bool Graphics::scroll(bool direction) {
         camera.x2++;
         scrollPivotRow += TILE_SIZE;
 
+        if (event) event();
         return true;
     } else {
         if (camera.x1 == 0)
@@ -199,6 +201,7 @@ bool Graphics::scroll(bool direction) {
 
         scrollPivotRow -= TILE_SIZE;
 
+        if (event) event();
         return true;
     }
     return false;
@@ -206,4 +209,8 @@ bool Graphics::scroll(bool direction) {
 
 int Graphics::getScrollPivot() {
     return scrollPivotRow;
+}
+
+void Graphics::registerEvent(Event<StatusBar> e) {
+    event = e;
 }

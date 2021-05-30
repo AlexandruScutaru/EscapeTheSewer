@@ -17,6 +17,11 @@
     #define millis() Graphics::getElapsedTime()
 #endif
 
+bool FloatEquality(float a, float b, float epsilon)
+{
+   return fabs(a - b) < epsilon;
+}
+
 #define BATTERY_IND_BG        0xBDF7
 #define BATTERY_IND_GREEN     0x07E4
 #define BATTERY_IND_YELLOW    0xFFE0
@@ -36,8 +41,7 @@ StatusBar::StatusBar()
 //not really needing the delta time, but eh
 void StatusBar::update(float dt) {
     if(millis() - lastBatteryReadTime >= 1000) {
-        readBatteryLevel();
-        drawRequired = true;
+        drawRequired = readBatteryLevel();
         lastBatteryReadTime = millis();
     }
 }
@@ -48,10 +52,17 @@ void StatusBar::draw(Graphics& graphics) {
     if(drawRequired) {
         graphics.drawFillRect(0, -8, 160, 8, STATUS_BAR_BG);
         drawBatteryIndicator(graphics);
+        drawRequired = false;
     }
 }
 
-void StatusBar::readBatteryLevel() {
+void StatusBar::fire() {
+    drawRequired = true;
+}
+
+bool StatusBar::readBatteryLevel() {
+    float oldVal = batteryLevel;
+
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     //seems arduino reports ~950 on a full battery charge
     float voltage = (5 * analogRead(BATTERY_PIN) / MAX_ANALOG_VALUE) + VOLTAGE_EPSILON;
@@ -67,6 +78,8 @@ void StatusBar::readBatteryLevel() {
     if (batteryLevel < 0.0f)
         batteryLevel = 1.0f;
 #endif
+
+    return !(FloatEquality(batteryLevel, oldVal, 0.001));
 }
 
 void StatusBar::drawBatteryIndicator(Graphics& graphics) {
@@ -84,5 +97,4 @@ void StatusBar::drawBatteryIndicator(Graphics& graphics) {
         color = BATTERY_IND_RED;
 
     graphics.drawFillRect(pos + 1, -7, batteryLevel * BATTERY_IND_SIZE-2, 6, color);
-    drawRequired = false;
 }

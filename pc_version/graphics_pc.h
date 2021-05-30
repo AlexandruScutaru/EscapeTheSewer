@@ -2,6 +2,7 @@
 #define GRAPHICS_PC_H
 
 #include "color_palette.h"
+#include "event.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -11,6 +12,8 @@
 
 
 using RenderWindowPtr = std::shared_ptr<sf::RenderWindow>;
+
+class StatusBar;
 
 class Graphics {
 public:
@@ -26,6 +29,8 @@ public:
 
     bool scroll(bool direction);
     int getScrollPivot();
+
+    void registerEvent(Event<StatusBar> e);
 
     RenderWindowPtr getWindow() {return window;}
     void pollEvents();
@@ -57,6 +62,8 @@ private:
     RenderWindowPtr window;
     std::vector<std::vector<uint16_t>> screen;
     static sf::Clock clock;
+
+    Event<StatusBar> event;
 };
 
 

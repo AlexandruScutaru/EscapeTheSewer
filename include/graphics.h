@@ -2,11 +2,13 @@
 #define GRAPHICS_H
 
 #include "color_palette.h"
+#include "event.h"
 
 #include <stdint.h>
 
 #include <TFT_ST7735.h>
 
+class StatusBar;
 
 class Graphics {
 public:
@@ -19,6 +21,8 @@ public:
 
     bool scroll(bool direction);
     int16_t getScrollPivot();
+
+    void registerEvent(Event<StatusBar> e);
 
     static const int16_t max_game_area;
 
@@ -35,6 +39,7 @@ private:
     int16_t scrollAmount;
     int16_t scrollPivotRow = 0;
 
+    Event<StatusBar> event;
 };
 
 #endif //GRAPHICS_H
