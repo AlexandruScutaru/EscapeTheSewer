@@ -59,6 +59,9 @@ void Graphics::fillScreen(uint16_t color) {
 }
 
 void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip) {
+    if (x < (uint16_t)camera.x1 << 3u || x >= (uint16_t)camera.x2 << 3u)
+        return;
+
     if(index == TILE_EMPTY) {
         drawFillRect(x, y, size, size, BG_COLOR);
         return;

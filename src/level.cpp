@@ -25,10 +25,8 @@ const uint16_t Level::colors[16] = {
 
 vec2 Level::mStartCoords;
 vec2 Level::mEndCoords;
-vector<Slime> Level::mSlimes;
-vector<Coin> Level::mCoins;
+vector<Enemy> Level::mEnemies;
 Graphics* Level::mGraphics = nullptr;
-bool Level::levelCleared = false;
 
 //contains the tileset as arrays of tile_t
 #include "tiles_data.h"
@@ -43,26 +41,20 @@ void Level::init() {
 }
 
 void Level::update(float dt) {
-    for (size_t i = 0; i < mSlimes.size(); i++)
-        mSlimes[i].update(dt);
-
-    for (size_t i = 0; i < mCoins.size(); i++)
-        mCoins[i].update(dt);
+    for (size_t i = 0; i < mEnemies.size(); i++) {
+        mEnemies[i].update(dt);
+    }
 }
 
 void Level::cleanPrevDrawSpecialObjects() {
-    for (size_t i = 0; i < mSlimes.size(); i++) {
-        mSlimes[i].cleanPrevDraw(*mGraphics);
+    for (size_t i = 0; i < mEnemies.size(); i++) {
+        mEnemies[i].cleanPrevDraw(*mGraphics);
     }
 }
 
 void Level::drawSpecialObjects() {
-    for (size_t i = 0; i < mCoins.size(); i++) {
-        mCoins[i].draw(*mGraphics);
-    }
-
-    for (size_t i = 0; i < mSlimes.size(); i++) {
-        mSlimes[i].draw(*mGraphics);
+    for (size_t i = 0; i < mEnemies.size(); i++) {
+        mEnemies[i].draw(*mGraphics);
     }
 }
 
@@ -93,21 +85,25 @@ Level::tile_row_t Level::getTileRow(uint8_t tileIndex, uint8_t rowIndex) {
     GET_TILE_ROW(tileIndex, rowIndex);
 }
 
+bool Level::collidesWithEnd(const vec2& pos) {
+    return aabb(mEndCoords, pos);
+}
+
 bool Level::collideWithLevel(vec2& pos, const vec2& oldPos, vec2& velocity, const vec2& velocityToSet, bool* flip, bool* onGround, uint16_t* ladderXpos) {
     uint8_t leftUp    = Level::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f);
     uint8_t leftDown  = Level::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1);
     uint8_t rightUp   = Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f);
     uint8_t rightDown = Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1);
     if(velocity.x <= 0.0f) {
-        if(leftUp < TILE_NON_COLLIDABLE_THRESHOLD || leftDown < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.x = (((uint16_t)pos.x >> 3) + 1) << 3;
+        if(leftUp < TILE_NON_COLLIDABLE_THRESHOLD || leftDown < TILE_NON_COLLIDABLE_THRESHOLD || pos.x <= 0.0f) {
+            pos.x =  pos.x <= 0.0f ? 0.0f : (((uint16_t)pos.x >> 3) + 1) << 3;
             velocity.x = velocityToSet.x;
             if (flip)
                 *flip = false;
         }
     } else {
-        if(rightUp < TILE_NON_COLLIDABLE_THRESHOLD || rightDown < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.x = ((uint16_t)pos.x >> 3) << 3;
+        if(rightUp < TILE_NON_COLLIDABLE_THRESHOLD || rightDown < TILE_NON_COLLIDABLE_THRESHOLD ||  pos.x > levelW << 3) {
+            pos.x = pos.x > levelW << 3 ? (levelW - 1) << 3 : ((uint16_t)pos.x >> 3) << 3;
             velocity.x = -velocityToSet.x;
             if (flip)
                 *flip = true;
@@ -184,53 +180,36 @@ void Level::cleanPrevDraw(const vec2& oldPos) {
     }
 }
 
-Level::EntityType Level::getCollidedEntity(const vec2& pos, size_t& idx) {
+EnemyType Level::getCollidedEnemy(const vec2& pos, size_t& idx) {
     //pretty slow way to do it, I guess it is ok if not many entities are added to a level
-    for (size_t i = 0; i < mSlimes.size(); i++) {
-        if (aabb(mSlimes[i].getPos(), pos)) {
+    for (size_t i = 0; i < mEnemies.size(); i++) {
+        if (aabb(mEnemies[i].getPos(), pos)) {
             idx = i;
-            return EntityType::SLIME;
+            return mEnemies[i].getType();
         }
     }
-    for (size_t i = 0; i < mCoins.size(); i++) {
-        if (aabb(mCoins[i].getPos(), pos)) {
-            idx = i;
-            return EntityType::COIN;
-        }
-    }
-    if (aabb(mEndCoords, pos)) {
-        levelCleared = true;
-        return EntityType::END;
-    }
-    return EntityType::NONE;
+
+    return EnemyType::NONE;
 }
 
-void Level::removeEntity(EntityType entt, size_t idx) {
-    switch (entt) {
-    case EntityType::SLIME:
-        mSlimes[idx].cleanPrevDraw(*mGraphics);
-        mSlimes.erase(idx);
-        break;
-    case EntityType::COIN:
-        mGraphics->drawFillRect(mCoins[idx].getPos().x, mCoins[idx].getPos().y, TILE_SIZE, TILE_SIZE);
-        mCoins.erase(idx);
-        break;
-    default:
-        //no op
-        break;
-    }
+void Level::removeEnemy(size_t idx) {
+    mEnemies[idx].cleanPrevDraw(*mGraphics);
+    mEnemies.erase(idx);
 }
 
-void Level::hitEntity(EntityType entt, size_t idx, float dmg, float force) {
-    switch (entt) {
-    case EntityType::SLIME:
-        if (!mSlimes[idx].hit(dmg, force)) {
-            removeEntity(EntityType::SLIME, idx);
+bool Level::hitEnemy(const vec2& pos, float dmg, float force) {
+    size_t idx = 0;
+    EnemyType entt = getCollidedEnemy(pos, idx);
+    bool res = false;
+
+    if (entt == EnemyType::SLIME || entt == EnemyType::BUG) {
+        if (!mEnemies[idx].hit(dmg, force)) {
+            removeEnemy(idx);
         }
-        break;
-    default:
-        break;
+        res = true;
     }
+
+    return res;
 }
 
 bool Level::aabb(const vec2& pos1, const vec2& pos2) {
@@ -242,8 +221,4 @@ bool Level::aabb(const vec2& pos1, const vec2& pos2) {
         return true;
     }
     return false;
-}
-
-bool Level::isLevelCleared() {
-    return levelCleared;
 }

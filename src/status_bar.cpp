@@ -33,12 +33,6 @@ StatusBar::StatusBar()
     : lastBatteryReadTime(millis())
 {}
 
-
-void StatusBar::addCoin() {
-    coins++;
-    drawRequired = true;
-}
-
 //not really needing the delta time, but eh
 void StatusBar::update(float dt) {
     if(millis() - lastBatteryReadTime >= 1000) {

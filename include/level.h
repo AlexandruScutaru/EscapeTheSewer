@@ -2,8 +2,7 @@
 #define LEVEL_H
 
 #include "vector.h"
-#include "slime.h"
-#include "coin.h"
+#include "enemy.h"
 #include "level_size.h"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
@@ -31,22 +30,14 @@
 #define ANIM_ATTACK_FRAMES 2
 
 #define TILE_LADDER                   19
-#define TILE_EMPTY                    63
+#define TILE_EMPTY                    48
 #define TILE_NON_COLLIDABLE_THRESHOLD 19
 
 
 class Graphics;
 
-
 class Level {
 public:
-    enum class EntityType {
-        SLIME,
-        COIN,
-        END,
-        NONE,
-    };
-
     union tile_row_t {
         struct row_s{
             uint32_t col1 : 4;
@@ -78,18 +69,18 @@ public:
     static void drawEntireLevel();
     static void setGraphics(Graphics* graphics);
 
+    static bool collidesWithEnd(const vec2& pos);
     static bool collideWithLevel(vec2& pos, const vec2& oldPos, vec2& velocity, const vec2& velocityToSet, bool* flip = nullptr, bool* onGround = nullptr, uint16_t* ladderXpos = nullptr);
     static void cleanPrevDraw(const vec2& oldPos);
 
-    static EntityType getCollidedEntity(const vec2& pos, size_t& idx);
-    static void removeEntity(EntityType entt, size_t idx);
-    static void hitEntity(EntityType entt, size_t idx, float dmg, float force);
+    static EnemyType getCollidedEnemy(const vec2& pos, size_t& idx);
+    static void removeEnemy(size_t idx);
+    static bool hitEnemy(const vec2& pos, float dmg, float force);
+
 
     static uint8_t getTileByPosition(uint16_t x, uint16_t y);
     static tile_index_t getTileByIndex(uint8_t i, uint8_t j);
     static tile_row_t getTileRow(uint8_t tileIndex, uint8_t rowIndex);
-
-    static bool isLevelCleared();
 
     const static uint8_t levelW = LEVEL_WIDTH;
     const static uint8_t levelH = LEVEL_HEIGHT;
@@ -105,11 +96,11 @@ private:
 
     //I haven't tried making these polymorphic, not sure if I want to add vtable overhead on arduino
     //these entities are dealt with dozens of times a second...
-    static vector<Slime> mSlimes;
-    static vector<Coin> mCoins;
+    //static vector<Slime> mSlimes;
+    //static vector<Bug> mBugs;
+    static vector<Enemy> mEnemies;
     static vec2 mEndCoords;
-    static Graphics* mGraphics; 
-    static bool levelCleared;
+    static Graphics* mGraphics;
 
 };
 

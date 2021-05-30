@@ -4,7 +4,7 @@
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "audio.h"
 
-    #define LOOP_CONDITION (!Level::isLevelCleared())
+    #define LOOP_CONDITION true
 
     #define BEGIN_DRAW
     #define END_DRAW
@@ -71,6 +71,10 @@ void MainGame::loop() {
         POLL_EVENTS
         mInputManager.processInput();
         update(delta);
+
+        if (Level::collidesWithEnd(mPlayer.getPos()))
+            break;
+
         draw();
 
         difference = targetFrameTicks - (millis() - newTicks);

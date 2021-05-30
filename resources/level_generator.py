@@ -57,12 +57,15 @@ def getSpecialObjectsAsStr(specialObjects):
             specialsStr += "    mStartCoords = vec2({}, {});\n".format(positions[0][0], positions[0][1])
         elif name == "End":
             specialsStr += "    mEndCoords = vec2({}, {});\n".format(positions[0][0], positions[0][1])
-        else:
+        elif name == "Slime":
             for pos in positions:
-                specialsStr += "    m{}s.push_back({}({}, {}));\n".format(name, name, pos[0], pos[1])
+                specialsStr += "    mEnemies.push_back(Enemy(vec2({}, {}), EnemyType::SLIME));\n".format(pos[0], pos[1])
+        elif name == "Bug":
+            for pos in positions:
+                specialsStr += "    mEnemies.push_back(Enemy(vec2({}, {}), EnemyType::BUG));\n".format(pos[0], pos[1])
+
     specialsStr += "}\n\n"
     return specialsStr
-
 
 
 def tiled2cFileStr(tiledData):

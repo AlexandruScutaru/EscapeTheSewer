@@ -20,6 +20,7 @@ public:
     void draw(Graphics& graphics);
 
     void setPos(const vec2& pos);
+    vec2 getPos() const;
 
 private:
     enum class AnimState {

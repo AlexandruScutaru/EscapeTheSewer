@@ -25,8 +25,7 @@ audio_pc.cpp ^
 ../src/level.cpp ^
 ../src/main_game.cpp ^
 ../src/player.cpp ^
-../src/slime.cpp ^
-../src/coin.cpp ^
+../src/enemy.cpp ^
 ../src/status_bar.cpp
 
 REM call VC++ compiler

@@ -55,6 +55,10 @@ void Player::setPos(const vec2& pos) {
     oldPos = pos;
 }
 
+vec2 Player::getPos() const {
+    return pos;
+}
+
 void Player::update(InputManager& input, float dt) {
     oldPos = pos;
 
@@ -146,24 +150,20 @@ void Player::checkCollision() {
     }
 
     size_t idx = 0;
-    if (mAnimState == AnimState::ATTACK && !attackSuccesful && 
-        Level::EntityType::SLIME == Level::getCollidedEntity(vec2(flipSprite ? pos.x - SWORD_REACH : pos.x + SWORD_REACH, pos.y), idx)) 
+    if (mAnimState == AnimState::ATTACK && !attackSuccesful) 
     {
-        Level::hitEntity(Level::EntityType::SLIME, idx, SWORD_DMG, flipSprite ? -SWORD_KNOCKBACK_FORCE : SWORD_KNOCKBACK_FORCE);
-        attackSuccesful = true;
+        attackSuccesful = Level::hitEnemy(vec2(flipSprite ? pos.x - SWORD_REACH : pos.x + SWORD_REACH, pos.y), SWORD_DMG, flipSprite ? -SWORD_KNOCKBACK_FORCE : SWORD_KNOCKBACK_FORCE);
     }
 
-    Level::EntityType entt = Level::getCollidedEntity(pos, idx);
+    EnemyType entt = Level::getCollidedEnemy(pos, idx);
     switch (entt) {
-    case Level::EntityType::NONE:
-        break;
-    case Level::EntityType::SLIME:
+    case EnemyType::SLIME:
         //LOG("you got hit by a slime");
         break;
-    case Level::EntityType::COIN:
-        Level::removeEntity(entt, idx);
+    case EnemyType::BUG:
+        //LOG("you got hit by a bug");
         break;
-    case Level::EntityType::END:
+    case EnemyType::NONE:
         break;
     default:
         break;
