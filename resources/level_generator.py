@@ -28,7 +28,7 @@ def getTileStr(tiledGid):
 
 
 def getTilesAsStr(tiles):
-    dataStr = "const Level::tile_index_t Level::level[levelH][levelW] /*PROGMEM*/ =  {\n"
+    dataStr = "const Level::tile_index_t Level::level[levelH][levelW] PROGMEM =  {\n"
     
     for row in range(LEVEL_H):
         arrStr = "    { "

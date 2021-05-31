@@ -98,7 +98,7 @@ bool StatusBar::readBatteryLevel() {
 }
 
 void StatusBar::drawBatteryIndicator(Graphics& graphics) {
-    uint8_t pos = graphics.getScrollPivot() + BATTERY_IND_POS;
+    uint16_t pos = graphics.getScrollPivot() + BATTERY_IND_POS;
 
     graphics.drawFillRect(pos, -8, BATTERY_IND_SIZE, 8, IND_BG);
     graphics.drawFillRect(pos + BATTERY_IND_SIZE, -6, 2, 4, IND_BG);
@@ -115,7 +115,7 @@ void StatusBar::drawBatteryIndicator(Graphics& graphics) {
 }
 
 void StatusBar::drawPlayerHpIndicator(Graphics& graphics) {
-    uint8_t pos = graphics.getScrollPivot() + HP_IND_POS;
+    uint16_t pos = graphics.getScrollPivot() + HP_IND_POS;
 
     graphics.drawFillRect(pos, -8, HP_IND_SIZE, 8, IND_BG);
     float factor = playerHp / (float)MAX_HP;

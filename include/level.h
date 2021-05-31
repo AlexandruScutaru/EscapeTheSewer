@@ -92,7 +92,7 @@ private:
     static void populateSpecialObjects();
     static bool aabb(const vec2& pos1, const vec2& pos2);
 
-    const static tile_index_t level[levelH][levelW] /*PROGMEM*/;
+    const static tile_index_t level[levelH][levelW] PROGMEM;
     const static tile_t tiles[] PROGMEM;
 
     //I haven't tried making these polymorphic, not sure if I want to add vtable overhead on arduino

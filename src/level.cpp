@@ -5,14 +5,16 @@
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "graphics.h"
-    #define GET_TILE_ROW(tileIndex, rowIndex) return Level::tile_row_t { .packed = pgm_read_dword_near(&tiles[tileIndex][rowIndex]) }
+    #define GET_TILE_ROW(tileIndex, rowIndex) (Level::tile_row_t { .packed = pgm_read_dword_near(&tiles[tileIndex][rowIndex]) })
+    #define GET_TILE_FROM_LEVEL(i, j) (Level::tile_index_t { .packed = pgm_read_byte_near(&level[i][j]) })
 #else
     #include "../pc_version/graphics_pc.h"
 
     #define min(a,b) ((a)<(b)?(a):(b))
     #define max(a,b) ((a)>(b)?(a):(b))
 
-    #define GET_TILE_ROW(tileIndex, rowIndex) return tiles[tileIndex][rowIndex]
+    #define GET_TILE_ROW(tileIndex, rowIndex) (tiles[tileIndex][rowIndex])
+    #define GET_TILE_FROM_LEVEL(i, j) (level[i][j])
 #endif
 
 #define IF_NON_COLLIDABLE(tile) if (tile.tile_index.index >= TILE_NON_COLLIDABLE_THRESHOLD)
@@ -29,13 +31,11 @@ vec2 Level::mEndCoords;
 vector<Enemy> Level::mEnemies;
 Graphics* Level::mGraphics = nullptr;
 
-//contains the tileset as arrays of tile_t
+//generated tiles array
 #include "tiles_data.h"
 
-//for the future:
-//      - implement a sparse matrix for the level, a lot of entries are just background colored/empty tiles
+//genrated level matrix
 #include "level_data.h"
-
 
 void Level::init() {
     populateSpecialObjects();
@@ -73,17 +73,17 @@ void Level::setGraphics(Graphics* graphics) {
 }
 
 uint8_t Level::getTileByPosition(uint16_t x, uint16_t y) {
-    return level[y>>3][x>>3].tile_index.index;
+    return  GET_TILE_FROM_LEVEL(y>>3, x>>3).tile_index.index;
 }
 
 Level::tile_index_t Level::getTileByIndex(uint8_t i, uint8_t j) {
     //don't want to add boundary checks here, as intances when it could be actually out of bounds are not that common
     //so saving overhead on ifs when not needed
-    return level[i][j];
+    return  GET_TILE_FROM_LEVEL(i, j);
 }
 
 Level::tile_row_t Level::getTileRow(uint8_t tileIndex, uint8_t rowIndex) {
-    GET_TILE_ROW(tileIndex, rowIndex);
+    return GET_TILE_ROW(tileIndex, rowIndex);
 }
 
 bool Level::collidesWithEnd(const vec2& pos) {
@@ -170,8 +170,8 @@ void Level::cleanPrevDraw(const vec2& oldPos) {
     //find maybe a way to draw when it is actually needed, as sending data to LCD to be displayed is very costly
     //TODO:
     //  do the checks based on velocity, maybe something can come out of that
-    uint8_t iCoord = (uint8_t)oldPos.y >> 3;
-    uint8_t jCoord = (uint8_t)oldPos.x >> 3;
+    uint8_t iCoord = (uint16_t)oldPos.y >> 3;
+    uint8_t jCoord = (uint16_t)oldPos.x >> 3;
 
     Level::tile_index_t tileIndex = Level::getTileByIndex(iCoord, jCoord);
     IF_NON_COLLIDABLE(tileIndex) mGraphics->drawTile(tileIndex.tile_index.index, jCoord << 3, iCoord << 3, TILE_SIZE, tileIndex.tile_index.flip);
