@@ -49,6 +49,22 @@ public:
             uint32_t col6 : 4;
             uint32_t col7 : 4;
             uint32_t col8 : 4;
+
+            uint16_t operator[] (size_t idx) const {
+                switch (idx) {
+                    case 1: return col1;
+                    case 2: return col2;
+                    case 3: return col3;
+                    case 4: return col4;
+                    case 5: return col5;
+                    case 6: return col6;
+                    case 7: return col7;
+                    case 8: return col8;
+                    default:
+                        //maybe an assert or something
+                        return 0;
+                }
+            }
         } row;
         uint32_t packed;
     };

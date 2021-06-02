@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-#define ROW(x, y, i, j)  screen[x][y + (j-1)] = Level::colors[r.row.col ## i ];
+#define ROW(x, y, i, j)  screen[x][y + (j-1)] = Level::colors[r.row[i]];
 
 #define DRAW_ROW(x, y) ROW(x, y, 1, 1)\
                        ROW(x, y, 2, 2)\

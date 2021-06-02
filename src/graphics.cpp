@@ -65,25 +65,12 @@ void Graphics::pushColors(uint8_t index, uint16_t x0, uint16_t y0, uint16_t x1, 
             r = Level::getTileRow(index, 7-i);
         }
 
-        if (flip & (1 << 1)) {
-            mTFT.pushColor(Level::colors[r.row.col8]);
-            mTFT.pushColor(Level::colors[r.row.col7]);
-            mTFT.pushColor(Level::colors[r.row.col6]);
-            mTFT.pushColor(Level::colors[r.row.col5]);
-            mTFT.pushColor(Level::colors[r.row.col4]);
-            mTFT.pushColor(Level::colors[r.row.col3]);
-            mTFT.pushColor(Level::colors[r.row.col2]);
-            mTFT.pushColor(Level::colors[r.row.col1]);
-        } else {
-            mTFT.pushColor(Level::colors[r.row.col1]);
-            mTFT.pushColor(Level::colors[r.row.col2]);
-            mTFT.pushColor(Level::colors[r.row.col3]);
-            mTFT.pushColor(Level::colors[r.row.col4]);
-            mTFT.pushColor(Level::colors[r.row.col5]);
-            mTFT.pushColor(Level::colors[r.row.col6]);
-            mTFT.pushColor(Level::colors[r.row.col7]);
-            mTFT.pushColor(Level::colors[r.row.col8]);
-        }
+        if (flip & (1 << 1))
+            for (size_t col = 8; col > 0; col--)
+                mTFT.pushColor(Level::colors[r.row[col]]);
+        else
+            for (size_t col = 1; col <= 8; col++)
+                mTFT.pushColor(Level::colors[r.row[col]]);
     }
 }
 
