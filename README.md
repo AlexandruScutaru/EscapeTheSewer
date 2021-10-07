@@ -3,7 +3,7 @@
 
 This [youtube video](https://www.youtube.com/watch?v=chjQD4TIpNc) shows a rather poor recording of it running on the Arduino.
 
-Below is a sample of it running on pc.
+Below is a sample of it running on pc.\
 <img src="https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/EscapeTheSewer.gif" alt="EscapeTheSewer.gif" width="60%"/>
 
 # Software
