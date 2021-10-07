@@ -4,7 +4,7 @@
 This [youtube video](https://www.youtube.com/watch?v=chjQD4TIpNc) shows a rather poor recording of it running on the Arduino.
 
 Below is a sample of it running on pc.
-<img src="https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/EscapeTheSewer.gif" alt="EscapeTheSewer.gif" width="70%"/>
+<img src="https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/EscapeTheSewer.gif" alt="EscapeTheSewer.gif" width="60%"/>
 
 # Software
 ## Graphics
@@ -20,7 +20,7 @@ I then thought about defining a limited color pallete. I'm not that good of an a
 As a programmer `24` wasn't going to cut for my needs to decrease memory footprint so I resorted to the next smaller power of 2, and that is `16` colors. I extracted 16 colors from the pallete and redraw the tileset with those.
 
 ### What is a `tile` for Arduino?
-I will walkthrough how did I get from this bmp tileset <img src=https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/f24.bmp alt="f24.bmp" width="130%"/> to single tiles being displayed by Arduino on the LCD.
+I will walkthrough how did I get from this bmp tileset <img src=https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/f24.bmp alt="f24.bmp" width="30%"/> to single tiles being displayed by Arduino on the LCD.
 
 The color pallete has 16 colors, this means there are required 4 bits to index any color.
 The tiles used in this project are all 8x8. So there are 8x8x4 bits required to define a tile. This adds up to a total of 32 bytes per tile.
@@ -77,7 +77,7 @@ For that I wrote a [python script](https://github.com/AlexandruScutaru/EscapeThe
 Same goes for defning a level. 
 Best option would be to procedurally create teh levels, didn't manage to do that yet, but it is there in the to do list.
 For now they are created using [Tiled](https://www.mapeditor.org/).\
-<img src="https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/tiled.png" alt="tiled.png" width="80%"/>
+<img src="https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/tiled.png" alt="tiled.png" width="100%"/>
 
 I created another [python script](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/level_generator.py) to take care of the level based on the tiled export.
 
@@ -134,7 +134,7 @@ The handheld itself is a revision of a previous project of mine.\
 I created a 1:1 printable pcb design, you can find a pdf of it [here](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/pcb_design.pdf).
 
 The best I could do for now for a schematic is this:\
-<img src="https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/schematic.png" alt="schematic.png" width="80%"/>
+<img src="https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/schematic.png" alt="schematic.png" width="100%"/>
 
 You can imagine the schematic as being the components laid down on a _see-through etched board_ seen from the top side.
 * 6 resistors (10k ohms) used for pulling down the buttons
