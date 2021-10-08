@@ -8,23 +8,21 @@ Below is a sample of it running on pc.\
 
 # Software
 ## Graphics
-### How would on get tiles to be drawn on the display?
+### Managing the tiles
 
-The first thing that would seem fine to do is to save these tiles on a microSD card and just read the tiles whenever needed and display them (even go to lengths and cache some of those?).\
-Yeah, it works fine but it is so slow that you can see the pixels coming in, that is not an experience you can build a game on.
+The first thing that would seem fine to do is to save these tiles on a micro SD card and just read the tiles whenever needed and display them.\
+That works fine but it is so slow that you can see the pixels coming in, that is not an experience you can build a game on.
 
-Next logical thing would to store the tiles on Arduino's memory and read them directly from there, right? NO!\
-Arduino Nano has a flash of 32KB and the tileset I ended up using is around 12KB. That would waste almost half the space. The rest needs to store all the code that drives the game, the LCD driver, the bootloader, the melodies and some level data.
+Next logical thing would be to store the tiles on Arduino's memory and read them directly from there.\
+There's a slight issue, Arduino Nano has a flash of 32KB and the tileset I ended up using is around 12KB. That would waste almost half the space. The rest needs to store the bootloader, the LCD driver, all the code that drives the game, the melodies and some level data...
 
-I then thought about defining a limited color pallete. I'm not that good of an artist so I searched a bit through [itch.io](https://itch.io/) and I stumbled across [this tileset](https://0x72.itch.io/8x8-f24-tileset) which is based on a 24 colors pallete.\
-As a programmer `24` wasn't going to cut for my needs to decrease memory footprint so I resorted to the next smaller power of 2, and that is `16` colors. I extracted 16 colors from the pallete and redraw the tileset with those.
+I then thought about defining a limited color palette. I'm not that good of an artist so I searched a bit through [itch.io](https://itch.io/) and I stumbled across [this tileset](https://0x72.itch.io/8x8-f24-tileset) which is based on a 24 colors pallete.\
+`24` wasn't going to cut for my needs to decrease memory footprint so I resorted to the next smaller power of 2, and that is `16` colors.\
+I extracted 16 colors from the palette and redraw the tileset with those.
 
-### What is a `tile` for Arduino?
-I will walkthrough how did I get from this bmp tileset <img src=https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/f24.bmp alt="f24.bmp" width="30%"/> to single tiles being displayed by Arduino on the LCD.
-
-The color pallete has 16 colors, this means there are required 4 bits to index any color.
+The color palette has 16 colors, this means there are required 4 bits to index a color.
 The tiles used in this project are all 8x8. So there are 8x8x4 bits required to define a tile. This adds up to a total of 32 bytes per tile.
-Following this, a bitfield struct of 4 bytes in size can be declared to store a tile row. 8 of those to define the entire tile.
+Following this, a bitfield struct of 4 bytes in size can be declared to store a tile row. 8 of these are needed to define a tile.
 
 ```cpp
 struct tile_row_t {
@@ -40,26 +38,29 @@ struct tile_row_t {
 
 typedef tile_row_t tile_t[8];
 ```
-The tileset is limited to 64 tiles this results in 2 kilobytes to store the entire tileset and those are defined like this:
+Using indices from the palette, a tile can now be defined like this:
 ```cpp
-const tile_t tiles[] PROGMEM = {
-    {
-        {2, 3, 2, 2, 1, 0, 0, 0},
-        {4, 4, 3, 1, 1, 1, 0, 2},
-        {4, 3, 2, 3, 1, 1, 0, 0},
-        {2, 3, 2, 2, 1, 0, 0, 0},
-        {4, 3, 2, 2, 1, 0, 1, 0},
-        {4, 4, 3, 1, 1, 0, 1, 0},
-        {4, 4, 2, 2, 1, 0, 0, 0},
-        {2, 3, 2, 1, 1, 0, 0, 0}
-    },
-    ...
+tile_t tile = {
+    { 2, 3, 2, 2, 1, 0, 0, 0 },
+    { 4, 4, 3, 1, 1, 1, 0, 2 },
+    { 4, 3, 2, 3, 1, 1, 0, 0 },
+    { 2, 3, 2, 2, 1, 0, 0, 0 },
+    { 4, 3, 2, 2, 1, 0, 1, 0 },
+    { 4, 4, 3, 1, 1, 0, 1, 0 },
+    { 4, 4, 2, 2, 1, 0, 0, 0 },
+    { 2, 3, 2, 1, 1, 0, 0, 0 }
 };
 ```
-Nice, now we have all the tiles properly stored and indexable by 6 bits.
+The tile are stored as an array in arduino's `PROGMEM`.
+The tileset is limited to 64 tiles, this adds up to 2KB to store the entire tileset.
 
-### How can the levels be created?
-The least referenceable memory unit is 8 bits, and our indexes are 6 bits, so we still have 2 bits to store some more info. For more variation and also to reuse existing tiles these 2 bits can be used to specify the vertical and horizontal flipping.
+But defining up to 64 tiles by inputing every pixel/color index is very tedious and error prone.\
+For that I wrote a [python script](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/tiles_generator.py). This takes an input tileset, eg <img src=https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/f24.bmp alt="f24.bmp" width="30%"/>  and generates the tiles as a c-array.
+
+### Managing the levels
+Now we have an array of max 64 tiles, which means a tile is indexable by 6 bits.\
+The least addressable memory unit is 8 bits, and our indexes are 6 bits, so we still have 2 bits to store some more info. For more variation and also to reuse existing tiles in different situations, these 2 bits can be used to specify the vertical and horizontal flipping.\
+A bitfield struct is used and a level ends up as a matrix of `tile_index_t`.
 ```cpp
 struct tile_index_t {
     uint8_t index : 6;
@@ -71,22 +72,20 @@ const Level::tile_index_t Level::level[levelH][levelW] PROGMEM =  {
     ...
 };
 ```
-Defining all those tils by hand would be fairly error prone and tidieus.\
-For that I wrote a [python script](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/tiles_generator.py) to generate the tiles as c-array from the .bmp tileset. This is helpful if in the future another tileset is to be used.
+Same as the tiles array, it is quite tedious to define the levels by hand.\
+Best option would be to procedurally create the levels, didn't do that yet, but it is there in the to do list.\
+For now they are created using [Tiled](https://www.mapeditor.org/).
 
-Same goes for defning a level. 
-Best option would be to procedurally create teh levels, didn't manage to do that yet, but it is there in the to do list.
-For now they are created using [Tiled](https://www.mapeditor.org/).\
 <img src="https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/tiled.png" alt="tiled.png" width="100%"/>
 
 I created another [python script](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/level_generator.py) to take care of the level based on the tiled export.
 
 ## Audio
 Everything in the game happens sequentially, as no multi-threading can be leveraged on an arduino (there is though something called protothreading, but that is another subject).\
-So getting audio, which is very time sensitive, in between game updates is not really ideal.
+So getting audio, which is very time sensitive, in between some game updates that may happen at different times is not really ideal.
 
 Here come interrupts.\
-[This file](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/src/audio.cpp) shows how a tiemr interrupt can be used to drive the sound at specific time intervals, so the buzzer tone is consistent.\
+[This file](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/src/audio.cpp) shows how a timer interrupt can be used to drive the sound at specific time intervals, so the _background melody_ is consistent.\
 The melodies themselves are being defined in the same manner the tiles are.
 
 # Getting it running
