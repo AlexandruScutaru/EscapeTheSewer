@@ -1,8 +1,8 @@
 #ifndef GRAPHICS_PC_H
 #define GRAPHICS_PC_H
 
-#include "color_palette.h"
-#include "event.h"
+#include <color_palette.h>
+#include <event.h>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -65,6 +65,5 @@ private:
 
     Event<StatusBar> event;
 };
-
 
 #endif // GRAPHICS_PC_H

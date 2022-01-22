@@ -5,8 +5,8 @@
     #include "input_manager.h"
     #include "graphics.h"
 #else
-    #include "../pc_version/input_manager_pc.h"
-    #include "../pc_version/graphics_pc.h"
+    #include "../pc_version/pc_version/input_manager_pc.h"
+    #include "../pc_version/pc_version/graphics_pc.h"
 #endif
 
 #include "player.h"

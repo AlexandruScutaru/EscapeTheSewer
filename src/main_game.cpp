@@ -13,11 +13,11 @@
 
     #define LOG(msg)
 #else
-    #include "../pc_version/logging.h"
-    #include "../pc_version/audio_pc.h"
+    #include "../pc_version/pc_version/logging.h"
+    #include "../pc_version/pc_version/audio_pc.h"
 
-    #define LOOP_CONDITION (!mInputManager.isButtonPressed(InputManager::Button::ESC) && mGraphics.getWindow()->isOpen() && mState == LevelState::IN_PROGRESS)
-
+    #define LOOP_CONDITION (mGraphics.getWindow()->isOpen() && mState == LevelState::IN_PROGRESS)
+ 
     #define millis() Graphics::getElapsedTime()
     #define delay(ms) mGraphics.sleep(ms)
 
@@ -94,7 +94,7 @@ void MainGame::loop() {
         delay(1000);
     }
 #else
-    for(;;);
+    exit(0);
 #endif
 }
 

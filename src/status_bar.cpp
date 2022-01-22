@@ -11,8 +11,8 @@
 
     #define LOG(x)
 #else
-    #include "../pc_version/graphics_pc.h"
-    #include "../pc_version/logging.h"
+    #include "../pc_version/pc_version/graphics_pc.h"
+    #include "../pc_version/pc_version/logging.h"
 
     #define millis() Graphics::getElapsedTime()
 #endif
@@ -94,7 +94,7 @@ bool StatusBar::readBatteryLevel() {
         batteryLevel = 1.0f;
 #endif
 
-    return !(FloatEquality(batteryLevel, oldVal, 0.001));
+    return !(FloatEquality(batteryLevel, oldVal, 0.001f));
 }
 
 void StatusBar::drawBatteryIndicator(Graphics& graphics) {
@@ -111,7 +111,7 @@ void StatusBar::drawBatteryIndicator(Graphics& graphics) {
     else if (batteryLevel < 0.25f)
         color = BATTERY_IND_RED;
 
-    graphics.drawFillRect(pos + 1, -7, batteryLevel * BATTERY_IND_SIZE-2, 6, color);
+    graphics.drawFillRect(pos + 1, -7, static_cast<int16_t>(batteryLevel * BATTERY_IND_SIZE-2), 6, color);
 }
 
 void StatusBar::drawPlayerHpIndicator(Graphics& graphics) {
@@ -119,5 +119,5 @@ void StatusBar::drawPlayerHpIndicator(Graphics& graphics) {
 
     graphics.drawFillRect(pos, -8, HP_IND_SIZE, 8, IND_BG);
     float factor = playerHp / (float)MAX_HP;
-    graphics.drawFillRect(pos + 1, -7, factor * HP_IND_SIZE-2, 6, HP_IND_RED);
+    graphics.drawFillRect(pos + 1, -7, static_cast<int16_t>(factor * HP_IND_SIZE-2), 6, HP_IND_RED);
 }

@@ -9,9 +9,9 @@
 
     #define LOG(msg)
 #else
-    #include "../pc_version/input_manager_pc.h"
-    #include "../pc_version/graphics_pc.h"
-    #include "../pc_version/logging.h"
+    #include "../pc_version/pc_version/input_manager_pc.h"
+    #include "../pc_version/pc_version/graphics_pc.h"
+    #include "../pc_version/pc_version/logging.h"
 
     #define min(a,b) ((a)<(b)?(a):(b))
     #define max(a,b) ((a)>(b)?(a):(b))
@@ -26,9 +26,9 @@
 
 #define ANIM_FRAME_TIME  100
 
-#define SWORD_REACH 3
-#define SWORD_DMG 3
-#define SWORD_KNOCKBACK_FORCE 2
+#define SWORD_REACH 3.0f
+#define SWORD_DMG 3.0f
+#define SWORD_KNOCKBACK_FORCE 2.0f
 
 
 Player::Player() 
@@ -129,7 +129,7 @@ void Player::draw(Graphics& graphics) {
         graphics.scroll(false);
     }
 
-    graphics.drawTile(animFrameCurrent + animFrameStart, pos.x, pos.y, TILE_SIZE, flipSprite);
+    graphics.drawTile(animFrameCurrent + animFrameStart, static_cast<uint16_t>(pos.x), static_cast<uint16_t>(pos.y), TILE_SIZE, flipSprite);
     //add proper Timer implementation to be reused across app, with a callback as to avoid constant polling
     if(lastFrameUpdate + ANIM_FRAME_TIME <= millis()) {
         //jeezuhs.. damn this animation handling is bad

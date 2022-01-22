@@ -8,7 +8,7 @@
     #define GET_TILE_ROW(tileIndex, rowIndex) (Level::tile_row_t { .packed = pgm_read_dword_near(&tiles[tileIndex][rowIndex]) })
     #define GET_TILE_FROM_LEVEL(i, j) (Level::tile_index_t { .packed = pgm_read_byte_near(&level[i][j]) })
 #else
-    #include "../pc_version/graphics_pc.h"
+    #include "../pc_version/pc_version/graphics_pc.h"
 
     #define min(a,b) ((a)<(b)?(a):(b))
     #define max(a,b) ((a)>(b)?(a):(b))
@@ -91,20 +91,20 @@ bool Level::collidesWithEnd(const vec2& pos) {
 }
 
 bool Level::collideWithLevel(vec2& pos, const vec2& oldPos, vec2& velocity, const vec2& velocityToSet, bool* flip, bool* onGround, uint16_t* ladderXpos) {
-    uint8_t leftUp    = Level::getTileByPosition(pos.x + 0.0f, oldPos.y + 0.0f);
-    uint8_t leftDown  = Level::getTileByPosition(pos.x + 0.0f, oldPos.y + TILE_SIZE-1);
-    uint8_t rightUp   = Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + 0.0f);
-    uint8_t rightDown = Level::getTileByPosition(pos.x + TILE_SIZE, oldPos.y + TILE_SIZE-1);
+    uint8_t leftUp    = Level::getTileByPosition(static_cast<uint16_t>(pos.x + 0.0f), static_cast<uint16_t>(oldPos.y + 0.0f));
+    uint8_t leftDown  = Level::getTileByPosition(static_cast<uint16_t>(pos.x + 0.0f), static_cast<uint16_t>(oldPos.y + TILE_SIZE-1));
+    uint8_t rightUp   = Level::getTileByPosition(static_cast<uint16_t>(pos.x + TILE_SIZE), static_cast<uint16_t>(oldPos.y + 0.0f));
+    uint8_t rightDown = Level::getTileByPosition(static_cast<uint16_t>(pos.x + TILE_SIZE), static_cast<uint16_t>(oldPos.y + TILE_SIZE-1));
     if(velocity.x <= 0.0f) {
         if(leftUp < TILE_NON_COLLIDABLE_THRESHOLD || leftDown < TILE_NON_COLLIDABLE_THRESHOLD || pos.x <= 0.0f) {
-            pos.x =  pos.x <= 0.0f ? 0.0f : (((uint16_t)pos.x >> 3) + 1) << 3;
+            pos.x =  pos.x <= 0.0f ? 0.0f : static_cast<float>((((uint16_t)pos.x >> 3) + 1) << 3);
             velocity.x = velocityToSet.x;
             if (flip)
                 *flip = false;
         }
     } else {
         if(rightUp < TILE_NON_COLLIDABLE_THRESHOLD || rightDown < TILE_NON_COLLIDABLE_THRESHOLD ||  pos.x > levelW << 3) {
-            pos.x = pos.x > levelW << 3 ? (levelW - 1) << 3 : ((uint16_t)pos.x >> 3) << 3;
+            pos.x = pos.x > levelW << 3 ? static_cast<float>((levelW - 1) << 3) : static_cast<float>(((uint16_t)pos.x >> 3) << 3);
             velocity.x = -velocityToSet.x;
             if (flip)
                 *flip = true;
@@ -114,18 +114,18 @@ bool Level::collideWithLevel(vec2& pos, const vec2& oldPos, vec2& velocity, cons
     if (onGround)
         *onGround = false;
 
-    uint8_t upLeft    = Level::getTileByPosition(pos.x + 0.0f, pos.y);
-    uint8_t upRight   = Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y);
-    uint8_t downLeft  = Level::getTileByPosition(pos.x + 0.0f, pos.y + TILE_SIZE);
-    uint8_t downRight = Level::getTileByPosition(pos.x + TILE_SIZE-1, pos.y + TILE_SIZE);
+    uint8_t upLeft    = Level::getTileByPosition(static_cast<uint16_t>(pos.x + 0.0f), static_cast<uint16_t>(pos.y));
+    uint8_t upRight   = Level::getTileByPosition(static_cast<uint16_t>(pos.x + TILE_SIZE-1), static_cast<uint16_t>(pos.y));
+    uint8_t downLeft  = Level::getTileByPosition(static_cast<uint16_t>(pos.x + 0.0f), static_cast<uint16_t>(pos.y + TILE_SIZE));
+    uint8_t downRight = Level::getTileByPosition(static_cast<uint16_t>(pos.x + TILE_SIZE-1), static_cast<uint16_t>(pos.y + TILE_SIZE));
     if(velocity.y <= 0.0f) {
         if (upLeft < TILE_NON_COLLIDABLE_THRESHOLD || upRight < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.y = (((uint16_t)pos.y >> 3) + 1) << 3;
+            pos.y = static_cast<float>((((uint16_t)pos.y >> 3) + 1) << 3);
             velocity.y = velocityToSet.y;
         }
     } else {
         if (downLeft < TILE_NON_COLLIDABLE_THRESHOLD || downRight < TILE_NON_COLLIDABLE_THRESHOLD) {
-            pos.y = min(((uint16_t)pos.y >> 3) << 3, 120);
+            pos.y = static_cast<float>(min(((uint16_t)pos.y >> 3) << 3, 120));
             velocity.y = velocityToSet.y;
             if (onGround)
                 *onGround = true;
@@ -203,7 +203,7 @@ bool Level::hitEnemy(const vec2& pos, float dmg, float force) {
     bool res = false;
     while (i < mEnemies.size()) {
         if (aabb(mEnemies[i].getPos(), pos)) {
-            if (!mEnemies[i].hit(dmg, force)) {
+            if (!mEnemies[i].hit(static_cast<int8_t>(dmg), static_cast<int8_t>(force))) {
                 removeEnemy(i);
                 res = true;
             } else {

@@ -2,6 +2,7 @@
 #define INPUT_MANAGER_PC_H
 
 #include <stdint.h>
+#include <memory>
 
 
 class InputManager{
@@ -13,7 +14,6 @@ public:
         UP    =  0x08,
         A     =  0x10,
         B     =  0x20,
-        ESC   =  0x40
     };
 
     void processInput();

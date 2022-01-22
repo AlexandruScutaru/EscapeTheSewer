@@ -8,7 +8,7 @@ public:
 
 private:
     Audio();
-    
+
 };
 
 #endif // AUDIO_PC_H

@@ -1,8 +1,9 @@
 #include "graphics_pc.h"
 #include "input_manager_pc.h"
 #include "logging.h"
-#include "level.h"
-#include "status_bar.h"
+
+#include <level.h>
+#include <status_bar.h>
 
 #include <algorithm>
 
@@ -41,7 +42,7 @@ Graphics::Graphics()
     , scrollAmount(UNSCROLLABLE_AMOUNT)
     , scrollTop(UNSCROLLABLE_AMOUNT)
 {
-    sf::View view(sf::FloatRect(0, 0, screen_height, screen_width));
+    sf::View view(sf::FloatRect(0.0f, 0.0f, static_cast<float>(screen_height), static_cast<float>(screen_width)));
     view.zoom(1.0);
     window->setView(view);
 
@@ -53,7 +54,7 @@ Graphics::~Graphics() {}
 
 void Graphics::fillScreen(uint16_t color) {
     for (int i = 0; i < screen_height; i++) {
-        for (int j = 0; j < max_game_area; j++) {
+        for (int j = 0; j < screen_width; j++) {
             screen[i][j] = BG_COLOR;
         }
     }
@@ -102,7 +103,7 @@ void Graphics::printRow(const std::vector<uint16_t>& screenRow) {
     sf::RectangleShape pixel(sf::Vector2f(1, 1));
     for (int i = 0; i < screen_width; i++) {
         pixel.setFillColor(RGB565toSfColor(screenRow[i]));
-        pixel.setPosition(currentOutputRow, i);
+        pixel.setPosition(static_cast<float>(currentOutputRow), static_cast<float>(i));
         window->draw(pixel);
     }
     currentOutputRow++;
@@ -115,18 +116,30 @@ void Graphics::display() {
     int amount = 160 - scrollAmount;
 
     for (int i = 0; i < top; i++) {
+        if (i >= 160) {
+            int a  = 10;
+        }
         printRow(screen[i]);
     }
 
     for (int i = top + amount; i < bottom; i++) {
+        if (i >= 160) {
+            int a  = 10;
+        }
         printRow(screen[i]);
     }
 
     for (int i = 0; i < amount; i++) {
+        if (i >= 160) {
+            int a  = 10;
+        }
         printRow(screen[i + top]);
     }
 
     for (int i = bottom; i < screen_height; i++) {
+        if (i >= 160) {
+            int a  = 10;
+        }
         printRow(screen[i]);
     }
 
@@ -156,8 +169,12 @@ void Graphics::sleep(uint32_t ms) {
 
 void Graphics::pollEvents() {
     sf::Event event;
+    if (!window->hasFocus()) {
+        return;
+    }
+
     while (window->pollEvent(event)) { 
-        if (event.type == sf::Event::Closed) {
+        if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)) {
             window->close();
         }
     }

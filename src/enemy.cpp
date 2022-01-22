@@ -6,8 +6,8 @@
     #include "graphics.h"
     #include <Arduino.h>
 #else
-    #include "../pc_version/graphics_pc.h"
-    #include "../pc_version/logging.h"
+    #include "../pc_version/pc_version/graphics_pc.h"
+    #include "../pc_version/pc_version/logging.h"
 
     #define min(a,b) ((a)<(b)?(a):(b))
     #define max(a,b) ((a)>(b)?(a):(b))
@@ -117,7 +117,7 @@ void Enemy::draw(Graphics& graphics) {
     if (mPos.x < graphics.camera.x1 << 3 || mPos.x + TILE_SIZE >= graphics.camera.x2 << 3)
         return;
 
-    graphics.drawTile(mAnimFrameCurrent + mAnimFrameStart, mPos.x, mPos.y, TILE_SIZE, mFlipSprite);
+    graphics.drawTile(mAnimFrameCurrent + mAnimFrameStart, static_cast<uint16_t>(mPos.x), static_cast<uint16_t>(mPos.y), TILE_SIZE, mFlipSprite);
 
     if(mLastFrameUpdate + mAnimFrameTime <= millis() && !mSleeps) {
         mAnimFrameCurrent = mAnimFrameCurrent + 1 == mAnimFramesCount ? 0 : mAnimFrameCurrent + 1;
