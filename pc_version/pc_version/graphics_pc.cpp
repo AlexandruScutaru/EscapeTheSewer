@@ -116,30 +116,18 @@ void Graphics::display() {
     int amount = 160 - scrollAmount;
 
     for (int i = 0; i < top; i++) {
-        if (i >= 160) {
-            int a  = 10;
-        }
         printRow(screen[i]);
     }
 
     for (int i = top + amount; i < bottom; i++) {
-        if (i >= 160) {
-            int a  = 10;
-        }
         printRow(screen[i]);
     }
 
     for (int i = 0; i < amount; i++) {
-        if (i >= 160) {
-            int a  = 10;
-        }
         printRow(screen[i + top]);
     }
 
     for (int i = bottom; i < screen_height; i++) {
-        if (i >= 160) {
-            int a  = 10;
-        }
         printRow(screen[i]);
     }
 
