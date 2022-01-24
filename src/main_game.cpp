@@ -5,7 +5,7 @@
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "audio.h"
 
-    #define LOOP_CONDITION (mState == LevelState::IN_PROGRESS)
+    #define LOOP_CONDITION (mState != LevelState::PLAYER_DIED && mState != LevelState::FINISHED)
 
     #define BEGIN_DRAW
     #define END_DRAW
@@ -16,7 +16,7 @@
     #include "../pc_version/pc_version/logging.h"
     #include "../pc_version/pc_version/audio_pc.h"
 
-    #define LOOP_CONDITION (mGraphics.getWindow()->isOpen() && mState == LevelState::IN_PROGRESS)
+    #define LOOP_CONDITION (mGraphics.getWindow()->isOpen() && mState != LevelState::PLAYER_DIED && mState != LevelState::FINISHED)
  
     #define millis() Graphics::getElapsedTime()
     #define delay(ms) mGraphics.sleep(ms)
@@ -40,15 +40,24 @@ void MainGame::run() {
 }
 
 void MainGame::init() {
-    Audio::Init();
+    //Audio::Init();
 
-    Level::init();
+    Level::clear();
+    if (!Level::loadNextLevel()) {
+        mState = LevelState::FINISHED;
+        return;
+    }
+    prevTicks = millis();
+
+    mGraphics.reset();
+
     Level::setGraphics(&mGraphics);
     mPlayer.setPos(Level::mStartCoords);
 
     BEGIN_DRAW
     mGraphics.fillScreen();
     Level::drawEntireLevel();
+    mStatusBar.draw(mGraphics, true);
     END_DRAW
 }
 
@@ -56,8 +65,7 @@ void MainGame::init() {
 //maybe implement a more proper one, handle multiple "physics steps" before redrawing again
 //not sure if a fixed timestep is really needed but could be a nice experiment
 void MainGame::loop() {
-    uint32_t targetFrameTicks = 1000 / 30;
-    uint32_t prevTicks = 0;
+    uint32_t targetFrameTicks = 1000 / 24;
     uint32_t newTicks = 0;
     uint32_t frameTicks = 0;
     int32_t difference = 0;
@@ -116,10 +124,13 @@ void MainGame::update(float dt) {
     mPlayer.update(mInputManager, dt);
     mStatusBar.update(dt);
 
-    if (Level::collidesWithEnd(mPlayer.getPos())) {
+    if (Level::collideWithEnd(mPlayer.getPos())) {
         LOG("level cleared");
-        mState = LevelState::CLEARED;
+        init();
+        return;
     }
+
+    Level::collideWithPickups(mPlayer);
 
     if (Level::collideWithEnemies(mPlayer)) {
         LOG("player died");

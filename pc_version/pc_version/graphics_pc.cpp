@@ -55,7 +55,7 @@ Graphics::~Graphics() {}
 void Graphics::fillScreen(uint16_t color) {
     for (int i = 0; i < screen_height; i++) {
         for (int j = 0; j < screen_width; j++) {
-            screen[i][j] = BG_COLOR;
+            screen[i][j] = color;
         }
     }
 }
@@ -218,4 +218,14 @@ int Graphics::getScrollPivot() {
 
 void Graphics::registerEvent(Event<StatusBar> e) {
     event = e;
+}
+
+void Graphics::reset() {
+    camera = Graphics::Camera{ 0, Graphics::max_game_area >> 3 };
+    scrollAmount = UNSCROLLABLE_AMOUNT;
+    scrollTop = UNSCROLLABLE_AMOUNT;
+    scrollPivotRow = 0;
+    currentOutputRow = 0;
+
+    fillScreen();
 }

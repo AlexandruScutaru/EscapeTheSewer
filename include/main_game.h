@@ -24,8 +24,8 @@ public:
 private:
     enum class LevelState : int8_t {
         IN_PROGRESS,
-        CLEARED,
         PLAYER_DIED,
+        FINISHED
     };
 
     void init();
@@ -39,6 +39,7 @@ private:
     Graphics mGraphics;
     Player mPlayer;
     StatusBar mStatusBar;
+    uint32_t prevTicks = 0;
 
 };
 

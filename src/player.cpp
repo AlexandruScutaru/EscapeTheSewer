@@ -63,6 +63,10 @@ int8_t Player::getHp() const {
     return hp;
 }
 
+void Player::incHp(uint8_t val) {
+    hp = min(100, hp + val);
+}
+
 bool Player::hit(int8_t dmg) {
     return (hp -= dmg) > 0;
 }

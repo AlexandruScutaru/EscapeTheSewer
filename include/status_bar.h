@@ -11,7 +11,7 @@ public:
     StatusBar();
 
     void update(float dt);
-    void draw(Graphics& graphics);
+    void draw(Graphics& graphics, bool forceRedraw = false);
 
     void setPlayerHp(int8_t hp);
     void fire(); //this is not the best name, but eh

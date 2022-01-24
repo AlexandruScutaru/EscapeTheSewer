@@ -22,6 +22,7 @@ public:
     void setPos(const vec2& pos);
     vec2 getPos() const;
     int8_t getHp() const;
+    void incHp(uint8_t hp);
 
     bool hit(int8_t dmg);
 

@@ -1,13 +1,12 @@
 """
-Auto-generate C++ file with level data based on Tiled json map export.
-"""
+Generate a binary file with level data based on Tiled json map export.
 
+The format is described in the levels_kaitai_format.ksy.
+To visualize it, navitage to https://ide.kaitai.io/ and drag and drop the levels.bin and levels_kaitai_format.ksy in the ide's Local Storage to explore it.
+"""
 
 import json
 import sys
-
-LEVEL_W = 0
-LEVEL_H = 0
 
 
 def parseJson(filename):
@@ -17,95 +16,110 @@ def parseJson(filename):
     return data
 
 
-def getTileStr(tiledGid):
-    flip = 0
-    if tiledGid & (1 << 31):
-        flip |= 1 << 0 #flipped on X axis
-    if tiledGid & (1 << 30):
-        flip |= 1 << 1 #flipped on Y axis
-    index = (tiledGid & 0x7F) - 1 #indexes are 1 based...
-    return "{{{}, {}}},".format(index, flip)
-
-
-def getTilesAsStr(tiles):
-    dataStr = "const Level::tile_index_t Level::level[levelH][levelW] PROGMEM =  {\n"
-    
-    for row in range(LEVEL_H):
-        arrStr = "    { "
-        for col in range(LEVEL_W):
-            tileStr = getTileStr(tiles[LEVEL_W * row + col])
-            arrStr += tileStr
-        arrStr += " },\n"
-        dataStr += arrStr
-    dataStr += "};\n\n"
-    return dataStr
-
-
 def getTiledSpecialObjects(tiledObjects):
     specialObjects = {}
+    start = ()
+    end = ()
+
     for obj in tiledObjects:
-        if obj["name"] not in specialObjects:
-            specialObjects[obj["name"]] = []
-        specialObjects[obj["name"]].append((obj["x"], obj["y"]-8))
-    return specialObjects
+        if obj['name'] == 'Start':
+            start = (obj['x'], obj['y'] - 8)
+            continue
+        elif obj['name'] == 'End':
+            end = (obj['x'], obj['y'] - 8)
+            continue
+
+        if obj['name'] not in specialObjects:
+            specialObjects[obj['name']] = []
+        specialObjects[obj['name']].append((obj['x'], obj['y'] - 8))
+
+    return (specialObjects, start, end)
 
 
-def getSpecialObjectsAsStr(specialObjects):
-    specialsStr = "void Level::populateSpecialObjects() {\n"
-    for name, positions in specialObjects.items():
-        if name == "Start":
-            specialsStr += "    mStartCoords = vec2({}, {});\n".format(positions[0][0], positions[0][1])
-        elif name == "End":
-            specialsStr += "    mEndCoords = vec2({}, {});\n".format(positions[0][0], positions[0][1])
-        elif name == "Slime":
-            for pos in positions:
-                specialsStr += "    mEnemies.push_back(Enemy(vec2({}, {}), EnemyType::SLIME));\n".format(pos[0], pos[1])
-        elif name == "Bug":
-            for pos in positions:
-                specialsStr += "    mEnemies.push_back(Enemy(vec2({}, {}), EnemyType::BUG));\n".format(pos[0], pos[1])
+def getLevelData(levelJson):
+    levelData = {}
 
-    specialsStr += "}\n\n"
-    return specialsStr
+    levelData['w'] = levelJson["width"]
+    levelData['h'] = levelJson["height"]
 
+    levelData['indices'] = levelJson["layers"][0]["data"]
+    levelData['specialObjs'], levelData['start'], levelData['end'] = getTiledSpecialObjects(levelJson["layers"][1]["objects"])
 
-def tiled2cFileStr(tiledData):
-    tilesArrStr = "#ifndef LEVEL_DATA_H\n" \
-                  "#define LEVEL_DATA_H\n\n" \
-                  "/*** NOTE: file auto-generated based on " + str(sys.argv[1]) + " file ***/\n\n"
+    # level size in bytes
+    levelWAndH = 2
+    countSize = 1
+    bytesPerCoord = 2
+    specialObjsSize = 0
+    for coords in  levelData['specialObjs'].values():
+        specialObjsSize += countSize + 2 * len(coords) * bytesPerCoord
+    levelData['size'] = levelWAndH + levelData['w'] * levelData['h'] + specialObjsSize + 2 * 2 * bytesPerCoord
 
-    tilesArrStr += getTilesAsStr(tiledData["layers"][0]["data"])
-
-    tilesArrStr += getSpecialObjectsAsStr(getTiledSpecialObjects(tiledData["layers"][1]["objects"]))
-    
-    tilesArrStr += "#endif // LEVEL_DATA_H"
-    return tilesArrStr
+    return levelData
 
 
-def mapSize2cFileStr():
-    sizeStr = "#ifndef LEVEL_SIZE_H\n" \
-                  "#define LEVEL_SIZE_H\n\n" \
-                  "/*** NOTE: file auto-generated based on " + str(sys.argv[1]) + " file ***/\n\n"
+def writeSpecialObjectsGroup(file, positions, writeCount = True):
+    if writeCount:
+        file.write(len(positions).to_bytes(1, 'little'))
 
-    sizeStr += "#define LEVEL_WIDTH  {}\n".format(LEVEL_W)
-    sizeStr += "#define LEVEL_HEIGHT {}\n\n".format(LEVEL_H)
-
-    sizeStr += "#endif // LEVEL_SIZE_H"
-    return sizeStr
+    for pos in positions:
+        file.write(pos[0].to_bytes(2, 'little'))
+        file.write(pos[1].to_bytes(2, 'little'))
 
 
-def writeToFile(filepath, contents):
-    with open(filepath, 'w') as file:
-        file.write(contents)
+def writeToBinFile(filepath, levels):
+    with open(filepath, 'wb') as file:
+        ## current level
+        file.write(int(0).to_bytes(1, 'little'))
+
+        ## number of levels
+        file.write(len(levels).to_bytes(1, 'little'))
+
+        levelDatas = []
+        for level in levels:
+            levelDatas.append(getLevelData(parseJson(level)))
+            ## for each level write the level size in bytes for level seeking functionalities
+            file.write(levelDatas[-1]['size'].to_bytes(4, 'little'))
+
+        for levelData in levelDatas:
+            ## write level info
+            # start by writing the actual size as w and h
+            levelW = levelData["w"]
+            levelH = levelData["h"]
+            file.write(levelW.to_bytes(1, 'little'))
+            file.write(levelH.to_bytes(1, 'little'))
+
+            # for every w * h tileIndex write a byte as 6 bits = index, 2 bits flipping
+            indexBytes = bytearray(levelW * levelH)
+
+            indices = levelData['indices']
+            for i in range(len(indices)):
+                flip = 0
+                index = indices[i]
+                if index & (1 << 31):
+                    flip |= 1 << 0 #flipped on X axis
+                if index & (1 << 30):
+                    flip |= 1 << 1 #flipped on Y axis
+
+                indexBytes[i] = (flip << 6) + ((index - 1) & 0x3F)
+            file.write(indexBytes)
+
+            ## write special objects
+            specialObjects = levelData['specialObjs']
+
+            # write start and end coords and special objects
+            writeSpecialObjectsGroup(file, [levelData['start']], writeCount = False)
+            writeSpecialObjectsGroup(file, [levelData['end']], writeCount = False)
+            writeSpecialObjectsGroup(file, specialObjects.get('Slime', []))
+            writeSpecialObjectsGroup(file, specialObjects.get('Bug', []))
+            writeSpecialObjectsGroup(file, specialObjects.get('Health', []))
+
+        file.close()
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: {} level-name.json ".format(sys.argv[0]))
+        print("Usage: {} level.json. The script will parse all files of the form level*.json.".format(sys.argv[0]))
         sys.exit(1)
 
-    levelJson = parseJson(sys.argv[1])
-    LEVEL_W = levelJson["width"]
-    LEVEL_H = levelJson["height"]
-
-    writeToFile("../include/level_data.h", tiled2cFileStr(levelJson))
-    writeToFile("../include/level_size.h", mapSize2cFileStr())
+    levels = ['level1.json', 'level2.json']
+    writeToBinFile("levels.bin", levels)

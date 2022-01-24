@@ -18,13 +18,27 @@ Graphics::Graphics()
     : mTFT(TFT_ST7735(TFT_CS, TFT_DC, TFT_RST))
     , scrollAmount(UNSCROLLABLE_AMOUNT)
 {
+    //reset();
+}
+
+Graphics::~Graphics() {}
+
+void Graphics::reset() {
+
+    camera = Graphics::Camera{ 0, Graphics::max_game_area >> 3 };
+    scrollAmount = UNSCROLLABLE_AMOUNT;
+    scrollPivotRow = 0;
+
+    pinMode(4, OUTPUT);
+    digitalWrite(4, HIGH);
+    //SPI.begin();
     mTFT.begin();
     mTFT.setRotation(0);
 
     mTFT.defineScrollArea(UNSCROLLABLE_AMOUNT, 160);
-}
 
-Graphics::~Graphics() {}
+    fillScreen();
+}
 
 void Graphics::fillScreen(uint16_t color) {
     mTFT.fillScreen(color);

@@ -146,23 +146,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\enemy.cpp" />
+    <ClCompile Include="..\..\src\enemy_config.cpp" />
     <ClCompile Include="..\..\src\level.cpp" />
     <ClCompile Include="..\..\src\main_game.cpp" />
+    <ClCompile Include="..\..\src\pickup.cpp" />
     <ClCompile Include="..\..\src\player.cpp" />
     <ClCompile Include="..\..\src\status_bar.cpp" />
     <ClCompile Include="audio_pc.cpp" />
     <ClCompile Include="graphics_pc.cpp" />
     <ClCompile Include="input_manager_pc.cpp" />
+    <ClCompile Include="level_loader_pc.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\color_palette.h" />
     <ClInclude Include="..\..\include\enemy.h" />
+    <ClInclude Include="..\..\include\enemy_config.h" />
     <ClInclude Include="..\..\include\event.h" />
     <ClInclude Include="..\..\include\level.h" />
-    <ClInclude Include="..\..\include\level_data.h" />
-    <ClInclude Include="..\..\include\level_size.h" />
     <ClInclude Include="..\..\include\main_game.h" />
+    <ClInclude Include="..\..\include\pickup.h" />
     <ClInclude Include="..\..\include\player.h" />
     <ClInclude Include="..\..\include\status_bar.h" />
     <ClInclude Include="..\..\include\tiles_data.h" />
@@ -171,6 +174,7 @@
     <ClInclude Include="audio_pc.h" />
     <ClInclude Include="graphics_pc.h" />
     <ClInclude Include="input_manager_pc.h" />
+    <ClInclude Include="level_loader_pc.h" />
     <ClInclude Include="logging.h" />
   </ItemGroup>
   <ItemGroup>

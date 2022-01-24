@@ -55,6 +55,10 @@ public:
         mData[mSize] = temp;
     }
 
+    void clear() {
+        mSize = 0;
+    }
+
     size_t size() const { 
         return mSize; 
 	}

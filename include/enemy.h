@@ -1,6 +1,7 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
+#include "enemy_config.h"
 #include "vec2.h"
 
 #include <stdint.h>
@@ -8,15 +9,10 @@
 
 class Graphics;
 
-enum class EnemyType : int8_t {
-    SLIME,
-    BUG,
-};
-
 class Enemy {
 public:
     Enemy();
-    Enemy(const vec2& pos, EnemyType type);
+    Enemy(const vec2& pos, const EnemyConfig::Config& config);
     ~Enemy();
 
     void update(float dt);
@@ -24,7 +20,7 @@ public:
     void draw(Graphics& graphics);
 
     const vec2& getPos();
-    EnemyType getType();
+    EnemyConfig::Type getType();
     int8_t getDmg();
 
     bool hit(int8_t dmg,  int8_t force);
@@ -36,27 +32,16 @@ private:
     vec2 mOldPos;
     vec2 mVelocity;
 
-    float mWalkSpeed;
-    float mJumpForce;
-    float mGravity;
+    EnemyConfig::Config mConfig;
 
     uint32_t mLastFrameUpdate = 0;
-    uint32_t mLastSleepTime = 0;
-    
-    EnemyType mType;
+    uint32_t mLastSleepTime = 0; 
 
     uint8_t mAnimFrameCurrent = 0;
-    uint8_t mAnimFrameStart;
-    uint8_t mAnimFramesCount;
-    uint8_t mAnimFrameTime;
-    int8_t mHp;
-    int8_t mDmg;
     
     bool mFlipSprite = false;
     bool mSleeps = false;
     bool mOnGround = false;
-    bool mCanJump = false;
-    bool mCanSleep = false;
 
 };
 

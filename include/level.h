@@ -2,8 +2,9 @@
 #define LEVEL_H
 
 #include "vector.h"
+//#include "vec2.h"
 #include "enemy.h"
-#include "level_size.h"
+#include "pickup.h"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include <Arduino.h>
@@ -33,6 +34,8 @@
 #define TILE_EMPTY                    48
 #define TILE_NON_COLLIDABLE_THRESHOLD 19
 
+#define LEVEL_MAX_W 50
+#define LEVEL_MAX_H 15
 
 class Graphics;
 class Player;
@@ -79,42 +82,50 @@ public:
         uint8_t packed;
     };
 
-    static void init();
+    static void clear();
+    static bool loadNextLevel();
+    static bool writeCurrentLevelIndex();
     static void update(float dt);
     static void cleanPrevDrawSpecialObjects();
     static void drawSpecialObjects();
     static void drawEntireLevel();
     static void setGraphics(Graphics* graphics);
 
-    static bool collidesWithEnd(const vec2& pos);
+    static bool collideWithEnd(const vec2& pos);
     static bool collideWithLevel(vec2& pos, const vec2& oldPos, vec2& velocity, const vec2& velocityToSet, bool* flip = nullptr, bool* onGround = nullptr, uint16_t* ladderXpos = nullptr);
+    static void collideWithPickups(Player& player);
     static bool collideWithEnemies(Player& player);
     static void cleanPrevDraw(const vec2& oldPos);
 
     static void removeEnemy(size_t idx);
+    static void removePickup(size_t idx);
     static bool hitEnemy(const vec2& pos, float dmg, float force);
-
 
     static uint8_t getTileByPosition(uint16_t x, uint16_t y);
     static tile_index_t getTileByIndex(uint8_t i, uint8_t j);
     static tile_row_t getTileRow(uint8_t tileIndex, uint8_t rowIndex);
 
-    const static uint8_t levelW = LEVEL_WIDTH;
-    const static uint8_t levelH = LEVEL_HEIGHT;
+    static uint8_t levelW;
+    static uint8_t levelH;
     const static uint16_t colors[16] /*PROGMEM*/;
     static vec2 mStartCoords;
 
 private:
-    static void populateSpecialObjects();
+    friend class LevelLoader;
+
     static bool aabb(const vec2& pos1, const vec2& pos2);
 
-    const static tile_index_t level[levelH][levelW] PROGMEM;
+    static tile_index_t level[LEVEL_MAX_H][LEVEL_MAX_W];
     const static tile_t tiles[] PROGMEM;
 
     //I haven't tried making these polymorphic, not sure if I want to add vtable overhead on arduino
     static vector<Enemy> mEnemies;
+    static vector<Pickup> mPickups;
+
     static vec2 mEndCoords;
     static Graphics* mGraphics;
+
+    static uint8_t mCurrentLevel;
 
 };
 

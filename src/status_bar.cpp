@@ -51,10 +51,10 @@ void StatusBar::update(float dt) {
     }
 }
 
-void StatusBar::draw(Graphics& graphics) {
+void StatusBar::draw(Graphics& graphics, bool forceRedraw) {
     //need something better than a bool
     //like an also an event when there was a scroll
-    if(drawRequired) {
+    if(drawRequired || forceRedraw) {
         graphics.drawFillRect(0, -8, 160, 8, STATUS_BAR_BG);
 
         drawPlayerHpIndicator(graphics);

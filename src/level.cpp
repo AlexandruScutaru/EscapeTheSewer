@@ -5,19 +5,35 @@
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "graphics.h"
+    #include "level_loader.h"
+
     #define GET_TILE_ROW(tileIndex, rowIndex) (Level::tile_row_t { .packed = pgm_read_dword_near(&tiles[tileIndex][rowIndex]) })
-    #define GET_TILE_FROM_LEVEL(i, j) (Level::tile_index_t { .packed = pgm_read_byte_near(&level[i][j]) })
 #else
     #include "../pc_version/pc_version/graphics_pc.h"
+    #include "../pc_version/pc_version/level_loader_pc.h"
 
     #define min(a,b) ((a)<(b)?(a):(b))
     #define max(a,b) ((a)>(b)?(a):(b))
 
     #define GET_TILE_ROW(tileIndex, rowIndex) (tiles[tileIndex][rowIndex])
-    #define GET_TILE_FROM_LEVEL(i, j) (level[i][j])
 #endif
 
+//generated tiles array
+#include "tiles_data.h"
+
 #define IF_NON_COLLIDABLE(tile) if (tile.tile_index.index >= TILE_NON_COLLIDABLE_THRESHOLD)
+
+
+uint8_t Level::levelW = 0;
+uint8_t Level::levelH = 0;
+uint8_t Level::mCurrentLevel = 0;
+Level::tile_index_t Level::level[LEVEL_MAX_H][LEVEL_MAX_W] = { 0 };
+
+vec2 Level::mStartCoords;
+vec2 Level::mEndCoords;
+vector<Enemy> Level::mEnemies;
+vector<Pickup> Level::mPickups;
+Graphics* Level::mGraphics = nullptr;
 
 const uint16_t Level::colors[16] = {
     COLOR_BROWN_DARKER    ,COLOR_BROWN_DARK   ,COLOR_BROWN        ,COLOR_BROWN_LIGHT,
@@ -26,36 +42,26 @@ const uint16_t Level::colors[16] = {
     COLOR_RED             ,COLOR_ORANGE       ,COLOR_YELLOW       ,COLOR_WHITISH
 };
 
-vec2 Level::mStartCoords;
-vec2 Level::mEndCoords;
-vector<Enemy> Level::mEnemies;
-Graphics* Level::mGraphics = nullptr;
-
-//generated tiles array
-#include "tiles_data.h"
-
-//genrated level matrix
-#include "level_data.h"
-
-void Level::init() {
-    populateSpecialObjects();
-}
 
 void Level::update(float dt) {
     for (size_t i = 0; i < mEnemies.size(); i++) {
-        mEnemies[i].update(dt);
+       mEnemies[i].update(dt);
     }
 }
 
 void Level::cleanPrevDrawSpecialObjects() {
     for (size_t i = 0; i < mEnemies.size(); i++) {
-        mEnemies[i].cleanPrevDraw(*mGraphics);
+       mEnemies[i].cleanPrevDraw(*mGraphics);
     }
 }
 
 void Level::drawSpecialObjects() {
+    for (size_t i = 0; i < mPickups.size(); i++) {
+       mPickups[i].draw(*mGraphics);
+    }
+
     for (size_t i = 0; i < mEnemies.size(); i++) {
-        mEnemies[i].draw(*mGraphics);
+       mEnemies[i].draw(*mGraphics);
     }
 }
 
@@ -73,21 +79,27 @@ void Level::setGraphics(Graphics* graphics) {
 }
 
 uint8_t Level::getTileByPosition(uint16_t x, uint16_t y) {
-    return  GET_TILE_FROM_LEVEL(y>>3, x>>3).tile_index.index;
+    return  level[y>>3][x>>3].tile_index.index;
 }
 
 Level::tile_index_t Level::getTileByIndex(uint8_t i, uint8_t j) {
     //don't want to add boundary checks here, as intances when it could be actually out of bounds are not that common
     //so saving overhead on ifs when not needed
-    return  GET_TILE_FROM_LEVEL(i, j);
+    return  level[i][j];
 }
 
 Level::tile_row_t Level::getTileRow(uint8_t tileIndex, uint8_t rowIndex) {
     return GET_TILE_ROW(tileIndex, rowIndex);
 }
 
-bool Level::collidesWithEnd(const vec2& pos) {
-    return aabb(mEndCoords, pos);
+bool Level::collideWithEnd(const vec2& pos) {
+    if (aabb(mEndCoords, pos)) {
+        mCurrentLevel++;
+        writeCurrentLevelIndex();
+        return true;
+    }
+
+    return false;
 }
 
 bool Level::collideWithLevel(vec2& pos, const vec2& oldPos, vec2& velocity, const vec2& velocityToSet, bool* flip, bool* onGround, uint16_t* ladderXpos) {
@@ -153,14 +165,23 @@ bool Level::collideWithLevel(vec2& pos, const vec2& oldPos, vec2& velocity, cons
     return false;
 }
 
+void Level::collideWithPickups(Player& player) {
+    for (size_t i = 0; i < mPickups.size(); i++) {
+       if (aabb(mPickups[i].getPos(), player.getPos())) {
+           player.incHp(30);
+           removePickup(i);
+       }
+    }
+}
+
 bool Level::collideWithEnemies(Player& player) {
     for (size_t i = 0; i < mEnemies.size(); i++) {
-        if (aabb(mEnemies[i].getPos(), player.getPos())) {
-            if (!player.hit(mEnemies[i].getDmg())) {
-                //player died
-                return true;
-            }
-        }
+       if (aabb(mEnemies[i].getPos(), player.getPos())) {
+           if (!player.hit(mEnemies[i].getDmg())) {
+               //player died
+               return true;
+           }
+       }
     }
     return false;
 }
@@ -198,20 +219,26 @@ void Level::removeEnemy(size_t idx) {
     mEnemies.erase(idx);
 }
 
+void Level::removePickup(size_t idx) {
+    auto pos = mPickups[idx].getPos();
+    mGraphics->drawTile(TILE_EMPTY, static_cast<uint16_t>(pos.x), static_cast<uint16_t>(pos.y), TILE_SIZE);
+    mPickups.erase(idx);
+}
+
 bool Level::hitEnemy(const vec2& pos, float dmg, float force) {
     size_t i = 0;
     bool res = false;
     while (i < mEnemies.size()) {
-        if (aabb(mEnemies[i].getPos(), pos)) {
-            if (!mEnemies[i].hit(static_cast<int8_t>(dmg), static_cast<int8_t>(force))) {
-                removeEnemy(i);
-                res = true;
-            } else {
-                i++;
-            }
-        } else {
-            i++;
-        }
+       if (aabb(mEnemies[i].getPos(), pos)) {
+           if (!mEnemies[i].hit(static_cast<int8_t>(dmg), static_cast<int8_t>(force))) {
+               removeEnemy(i);
+               res = true;
+           } else {
+               i++;
+           }
+       } else {
+           i++;
+       }
     }
 
     return res;
@@ -226,4 +253,24 @@ bool Level::aabb(const vec2& pos1, const vec2& pos2) {
         return true;
     }
     return false;
+}
+
+void Level::clear() {
+    memset(level, 0, LEVEL_MAX_H * LEVEL_MAX_W);
+    levelH = 0;
+    levelW = 0;
+    mStartCoords = vec2();
+    mEndCoords = vec2();
+    mEnemies.clear();
+    mPickups.clear();
+}
+
+bool Level::loadNextLevel() {
+    LevelLoader loader;
+    return loader.loadNextLevel();
+}
+
+bool Level::writeCurrentLevelIndex() {
+    LevelLoader loader;
+    return loader.writeCurrentLevelIndex();
 }
