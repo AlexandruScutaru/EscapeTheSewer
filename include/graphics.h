@@ -37,10 +37,12 @@ private:
     void pushColors(uint8_t index, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t size, uint8_t flip, uint16_t from, uint16_t to);
 
     TFT_ST7735 mTFT;
+
+    Event<StatusBar> event;
+
     int16_t scrollAmount;
     int16_t scrollPivotRow = 0;
 
-    Event<StatusBar> event;
 };
 
 #endif //GRAPHICS_H

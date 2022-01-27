@@ -31,8 +31,8 @@ Level::tile_index_t Level::level[LEVEL_MAX_H][LEVEL_MAX_W] = { 0 };
 
 vec2 Level::mStartCoords;
 vec2 Level::mEndCoords;
-vector<Enemy> Level::mEnemies;
-vector<Pickup> Level::mPickups;
+array<Enemy, ENEMIES_PER_LEVEL> Level::mEnemies;
+array<Pickup, PICKUPS_PER_LEVEL> Level::mPickups;
 Graphics* Level::mGraphics = nullptr;
 
 const uint16_t Level::colors[16] = {

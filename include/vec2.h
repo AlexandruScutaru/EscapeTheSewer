@@ -1,9 +1,8 @@
-#ifndef VECTOR2_H
-#define VECTOR2_H
+#ifndef VEC2_H
+#define VEC2_H
 
 
-class vec2 {
-public:
+struct vec2 {
     vec2();
     vec2(float val);
     vec2(float x, float y);
@@ -35,4 +34,4 @@ public:
     float y;
 };
 
-#endif // VECTOR2_H
+#endif // VEC2_H

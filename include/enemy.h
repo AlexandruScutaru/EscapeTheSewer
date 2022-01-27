@@ -12,7 +12,7 @@ class Graphics;
 class Enemy {
 public:
     Enemy();
-    Enemy(const vec2& pos, const EnemyConfig::Config& config);
+    Enemy(const vec2& pos, EnemyConfig::Type type);
     ~Enemy();
 
     void update(float dt);
@@ -32,16 +32,18 @@ private:
     vec2 mOldPos;
     vec2 mVelocity;
 
-    EnemyConfig::Config mConfig;
-
     uint32_t mLastFrameUpdate = 0;
     uint32_t mLastSleepTime = 0; 
 
     uint8_t mAnimFrameCurrent = 0;
-    
-    bool mFlipSprite = false;
-    bool mSleeps = false;
-    bool mOnGround = false;
+    uint8_t mConfigIndex = 0;
+    int8_t mHealth = 0;
+
+    struct flags_t {
+        uint8_t flipSprite  : 1;
+        uint8_t sleeps      : 1;
+        uint8_t onGround    : 1;
+    } mFlags;
 
 };
 

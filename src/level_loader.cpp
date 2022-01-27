@@ -78,7 +78,7 @@ bool LevelLoader::loadNextLevel() {
         pos.x = static_cast<float>(value);
         file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
         pos.y = static_cast<float>(value);
-        //Level::mEnemies.push_back(Enemy(pos, EnemyConfig::GetConfig(EnemyConfig::Type::SLIME)));
+        Level::mEnemies.push_back(Enemy(pos, EnemyConfig::Type::SLIME));
     }
 
     file.read(reinterpret_cast<char*>(&count), sizeof(uint8_t));
@@ -87,7 +87,7 @@ bool LevelLoader::loadNextLevel() {
         pos.x = static_cast<float>(value);
         file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
         pos.y = static_cast<float>(value);
-        //Level::mEnemies.push_back(Enemy(pos, EnemyConfig::GetConfig(EnemyConfig::Type::BUG)));
+        Level::mEnemies.push_back(Enemy(pos, EnemyConfig::Type::BUG));
     }
 
     file.read(reinterpret_cast<char*>(&count), sizeof(uint8_t));
@@ -96,7 +96,7 @@ bool LevelLoader::loadNextLevel() {
         pos.x = static_cast<float>(value);
         file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
         pos.y = static_cast<float>(value);
-        //Level::mPickups.push_back(Pickup(pos, 50, 0));
+        Level::mPickups.push_back(Pickup(pos, 50, 0));
     }
 
     file.close();

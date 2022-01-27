@@ -19,14 +19,20 @@
 
 using namespace EnemyConfig;
 
+
 Enemy::Enemy() {}
 
-Enemy::Enemy(const vec2& mPos, const Config& config) 
+Enemy::Enemy(const vec2& mPos, Type type)
     : mPos(mPos)
     , mOldPos(mPos)
     , mVelocity(vec2(0.0f))
-    , mConfig(config)
-{}
+    , mConfigIndex(static_cast<uint8_t>(type))
+{
+    mHealth = configs[mConfigIndex].mHp;
+    mFlags.flipSprite = false;
+    mFlags.sleeps = false;
+    mFlags.onGround = false;
+}
 
 Enemy::~Enemy() {}
 
@@ -34,43 +40,43 @@ Enemy::~Enemy() {}
 void Enemy::update(float dt) {
     mOldPos = mPos;
 
-    if (mConfig.mCanSleep) {
+    if (configs[mConfigIndex].mFlags.canSleep) {
         if(mLastSleepTime + 3000 <= millis()) {
             mAnimFrameCurrent = 2;
             mLastSleepTime = millis();
-            mSleeps = true;
+            mFlags.sleeps = true;
         }
 
-        if(mSleeps  && mLastSleepTime + 1000 <= millis()) {
+        if(mFlags.sleeps  && mLastSleepTime + 1000 <= millis()) {
             mAnimFrameCurrent = 0;
             mLastFrameUpdate = millis();
-            mSleeps = false;
+            mFlags.sleeps = false;
         }
     }
 
-    if (!mSleeps) {
+    if (!mFlags.sleeps) {
         //I need to update this a mathematically smarter way to deal with impulses
-        if (mFlipSprite) {
-            if (mVelocity.x + mConfig.mWalkSpeed > 0.01f)
+        if (mFlags.flipSprite) {
+            if (mVelocity.x + configs[mConfigIndex].mWalkSpeed > 0.01f)
                 mVelocity.x -= VELOCITY_RECOVERY * dt;
-            else if (mVelocity.x + mConfig.mWalkSpeed < -0.01f)
+            else if (mVelocity.x + configs[mConfigIndex].mWalkSpeed < -0.01f)
                 mVelocity.x += VELOCITY_RECOVERY * dt;
         } else {
-            if (mVelocity.x - mConfig.mWalkSpeed > 0.01f)
+            if (mVelocity.x - configs[mConfigIndex].mWalkSpeed > 0.01f)
                 mVelocity.x -= VELOCITY_RECOVERY * dt;
-            else if (mVelocity.x - mConfig.mWalkSpeed < -0.01f)
+            else if (mVelocity.x - configs[mConfigIndex].mWalkSpeed < -0.01f)
                 mVelocity.x += VELOCITY_RECOVERY * dt;
         }
 
         mPos.x = min(max(0, mPos.x + mVelocity.x * dt), (Level::levelW << 3) - TILE_SIZE);
     }
 
-    if (mConfig.mCanJump && mOnGround && mAnimFrameCurrent == 1) {
-        mVelocity.y = -mConfig.mJumpForce;
-        mOnGround = false;
+    if (configs[mConfigIndex].mFlags.canJump && mFlags.onGround && mAnimFrameCurrent == 1) {
+        mVelocity.y = -configs[mConfigIndex].mJumpForce;
+        mFlags.onGround = false;
     }
 
-    mVelocity.y = min(2*mConfig.mGravity, mVelocity.y + mConfig.mGravity * dt);
+    mVelocity.y = min(2 * configs[mConfigIndex].mGravity, mVelocity.y + configs[mConfigIndex].mGravity * dt);
     mPos.y += mVelocity.y * dt;
     if(mPos.y <= 0.0f) {
         mVelocity.y = 0.0f;
@@ -89,10 +95,10 @@ void Enemy::draw(Graphics& graphics) {
     if (mPos.x < graphics.camera.x1 << 3 || mPos.x + TILE_SIZE >= graphics.camera.x2 << 3)
         return;
 
-    graphics.drawTile(mAnimFrameCurrent + mConfig.mAnimFrameStart, static_cast<uint16_t>(mPos.x), static_cast<uint16_t>(mPos.y), TILE_SIZE, mFlipSprite);
+    graphics.drawTile(mAnimFrameCurrent + configs[mConfigIndex].mAnimFrameStart, static_cast<uint16_t>(mPos.x), static_cast<uint16_t>(mPos.y), TILE_SIZE, mFlags.flipSprite);
 
-    if(mLastFrameUpdate + mConfig.mAnimFrameTime <= millis() && !mSleeps) {
-        mAnimFrameCurrent = mAnimFrameCurrent + 1 == mConfig.mAnimFramesCount ? 0 : mAnimFrameCurrent + 1;
+    if(mLastFrameUpdate + configs[mConfigIndex].mAnimFrameTime <= millis() && !mFlags.sleeps) {
+        mAnimFrameCurrent = mAnimFrameCurrent + 1 == configs[mConfigIndex].mAnimFramesCount ? 0 : mAnimFrameCurrent + 1;
         mLastFrameUpdate = millis();
     }
 }
@@ -102,24 +108,29 @@ const vec2& Enemy::getPos() {
 }
 
 Type Enemy::getType() {
-    return mConfig.mType;
+    return static_cast<Type>(mConfigIndex);
 }
 
 int8_t Enemy::getDmg() {
-    return mConfig.mDmg;
+    return configs[mConfigIndex].mDamage;
 }
 
 bool Enemy::hit(int8_t dmg, int8_t force) {
-    if (mSleeps)
+    if (mFlags.sleeps)
         return true;
 
     mVelocity.x = force;
     mVelocity.y -= 2.0f;
-    mConfig.mHp -= dmg;
+    mHealth -= dmg;
 
-    return mConfig.mHp > 0;
+    return configs[mConfigIndex].mHp > 0;
 }
 
 void Enemy::checkCollision() {
-    Level::collideWithLevel(mPos, mOldPos, mVelocity, vec2(mConfig.mWalkSpeed, 0.0f), &mFlipSprite, &mOnGround);
+    //not looking nice, but at least the memory footprint is reduced if adding more flags
+    bool flip = mFlags.flipSprite;
+    bool onGround = mFlags.onGround;
+    Level::collideWithLevel(mPos, mOldPos, mVelocity, vec2(configs[mConfigIndex].mWalkSpeed, 0.0f), &flip, &onGround);
+    mFlags.flipSprite = flip;
+    mFlags.onGround = onGround;
 }

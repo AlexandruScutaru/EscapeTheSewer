@@ -170,7 +170,7 @@
     <ClInclude Include="..\..\include\status_bar.h" />
     <ClInclude Include="..\..\include\tiles_data.h" />
     <ClInclude Include="..\..\include\vec2.h" />
-    <ClInclude Include="..\..\include\vector.h" />
+    <ClInclude Include="..\..\include\array.h" />
     <ClInclude Include="audio_pc.h" />
     <ClInclude Include="graphics_pc.h" />
     <ClInclude Include="input_manager_pc.h" />

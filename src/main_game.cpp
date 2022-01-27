@@ -40,7 +40,7 @@ void MainGame::run() {
 }
 
 void MainGame::init() {
-    //Audio::Init();
+    Audio::Init();
 
     Level::clear();
     if (!Level::loadNextLevel()) {

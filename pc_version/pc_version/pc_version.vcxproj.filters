@@ -92,7 +92,7 @@
     <ClInclude Include="..\..\include\vec2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\vector.h">
+    <ClInclude Include="..\..\include\array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pickup.h">

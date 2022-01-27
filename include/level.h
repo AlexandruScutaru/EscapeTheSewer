@@ -1,8 +1,7 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
-#include "vector.h"
-//#include "vec2.h"
+#include "array.h"
 #include "enemy.h"
 #include "pickup.h"
 
@@ -36,6 +35,10 @@
 
 #define LEVEL_MAX_W 50
 #define LEVEL_MAX_H 15
+
+#define ENEMIES_PER_LEVEL 4
+#define PICKUPS_PER_LEVEL 3
+
 
 class Graphics;
 class Player;
@@ -119,8 +122,8 @@ private:
     const static tile_t tiles[] PROGMEM;
 
     //I haven't tried making these polymorphic, not sure if I want to add vtable overhead on arduino
-    static vector<Enemy> mEnemies;
-    static vector<Pickup> mPickups;
+    static array<Enemy, ENEMIES_PER_LEVEL> mEnemies;
+    static array<Pickup, PICKUPS_PER_LEVEL> mPickups;
 
     static vec2 mEndCoords;
     static Graphics* mGraphics;
