@@ -1,5 +1,7 @@
-#include "main_game.h"
+#include "game.h"
+#include "game_runner.h"
 #include "level.h"
+#include "level_utils.h"
 #include "event.h"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
@@ -16,7 +18,7 @@
     #include "../pc_version/pc_version/logging.h"
     #include "../pc_version/pc_version/audio_pc.h"
 
-    #define LOOP_CONDITION (mGraphics.getWindow()->isOpen() && mState != LevelState::PLAYER_DIED && mState != LevelState::FINISHED)
+    #define LOOP_CONDITION (mGraphics.getWindow()->isOpen() && mState == LevelState::IN_PROGRESS)
  
     #define millis() Graphics::getElapsedTime()
     #define delay(ms) mGraphics.sleep(ms)
@@ -27,45 +29,42 @@
 #endif
 
 
-MainGame::MainGame() {
+Game::Game(Level& level)
+    : mLevel(level)
+    , mGraphics(mLevel)
+{
+    Serial.println("game::game");
     init();
     mGraphics.registerEvent(Event<StatusBar>(&mStatusBar));
 }
 
-MainGame::~MainGame() {}
+Game::~Game() {}
 
 
-void MainGame::run() {
+void Game::run() {
     loop();
 }
 
-void MainGame::init() {
-    Audio::Init();
+void Game::init() {
+    //Audio::Init();
 
-    Level::clear();
-    if (!Level::loadNextLevel()) {
-        mState = LevelState::FINISHED;
-        return;
-    }
-    prevTicks = millis();
-
-    mGraphics.reset();
-
-    Level::setGraphics(&mGraphics);
-    mPlayer.setPos(Level::mStartCoords);
+    mPlayer.setPos(mLevel.startCoords);
 
     BEGIN_DRAW
     mGraphics.fillScreen();
-    Level::drawEntireLevel();
+    LevelUtils::drawEntireLevel(mLevel, mGraphics);
     mStatusBar.draw(mGraphics, true);
     END_DRAW
+
+    Serial.println("game::init");
 }
 
 //the game loop seems a bit meh, works for now
 //maybe implement a more proper one, handle multiple "physics steps" before redrawing again
 //not sure if a fixed timestep is really needed but could be a nice experiment
-void MainGame::loop() {
+void Game::loop() {
     uint32_t targetFrameTicks = 1000 / 24;
+    uint32_t prevTicks = 0;
     uint32_t newTicks = 0;
     uint32_t frameTicks = 0;
     int32_t difference = 0;
@@ -81,61 +80,58 @@ void MainGame::loop() {
         POLL_EVENTS
         mInputManager.processInput();
         update(delta);
+        handleCollision();
         draw();
 
         difference = targetFrameTicks - (millis() - newTicks);
         if(difference > 0)
             delay(difference);
     }
-
-#if defined (ARDUINO) || defined (__AVR_ATmega328P__)
-    //some sort of screen saver once level is finished
-    //lack of something better for the moment
-    Audio::Disable();
-    uint16_t col = 0x38A6;
-    for(;;) {
-        mGraphics.fillScreen(col);
-        mStatusBar.update(0.0f);
-        mStatusBar.fire();
-        mStatusBar.draw(mGraphics);
-        col += 0x045A;
-        delay(1000);
-    }
-#else
-    exit(0);
-#endif
 }
 
-void MainGame::draw() {
+void Game::draw() {
     BEGIN_DRAW
     
-    Level::cleanPrevDrawSpecialObjects();
-    mPlayer.cleanPrevDraw(mGraphics);
+    //clean prev draws
+    for (size_t i = 0; i < mLevel.enemies.size(); i++) {
+       mLevel.enemies[i].cleanPrevDraw(mLevel, mGraphics);
+    }
 
-    Level::drawSpecialObjects();
+    mPlayer.cleanPrevDraw(mLevel, mGraphics);
+
+    //draw special objects
+    for (size_t i = 0; i < mLevel.pickups.size(); i++) {
+       mLevel.pickups[i].draw(mGraphics);
+    }
+    for (size_t i = 0; i < mLevel.enemies.size(); i++) {
+       mLevel.enemies[i].draw(mGraphics);
+    }
     mPlayer.draw(mGraphics);
     
     mStatusBar.draw(mGraphics);
     END_DRAW
 }
 
-void MainGame::update(float dt) {
-    Level::update(dt);
-    mPlayer.update(mInputManager, dt);
+void Game::update(float dt) {
+    for (size_t i = 0; i < mLevel.enemies.size(); i++) {
+       mLevel.enemies[i].update(mLevel, mGraphics, dt);
+    }
+
+    mPlayer.update(mInputManager, mLevel, mGraphics, dt);
     mStatusBar.update(dt);
 
-    if (Level::collideWithEnd(mPlayer.getPos())) {
-        LOG("level cleared");
-        init();
+    mStatusBar.setPlayerHp(mPlayer.getHp());
+}
+
+void Game::handleCollision() {
+    LevelUtils::collideWithPickups(mLevel, mGraphics, mPlayer);
+
+    if (LevelUtils::collideWithEnd(mLevel, mPlayer.getPos())) {
+        mState = LevelState::FINISHED;
         return;
     }
 
-    Level::collideWithPickups(mPlayer);
-
-    if (Level::collideWithEnemies(mPlayer)) {
-        LOG("player died");
+    if (LevelUtils::collideWithEnemies(mLevel, mPlayer)) {
         mState = LevelState::PLAYER_DIED;
     }
-
-    mStatusBar.setPlayerHp(mPlayer.getHp());
 }

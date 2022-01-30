@@ -8,6 +8,7 @@
 
 
 class Graphics;
+class Level;
 
 class Enemy {
 public:
@@ -15,8 +16,8 @@ public:
     Enemy(const vec2& pos, EnemyConfig::Type type);
     ~Enemy();
 
-    void update(float dt);
-    void cleanPrevDraw(Graphics& graphics);
+    void update(Level& level, Graphics& graphics, float dt);
+    void cleanPrevDraw(Level& level, Graphics& graphics);
     void draw(Graphics& graphics);
 
     const vec2& getPos();
@@ -26,7 +27,7 @@ public:
     bool hit(int8_t dmg,  int8_t force);
 
 private:
-    void checkCollision();
+    void checkCollision(Level& level);
 
     vec2 mPos;
     vec2 mOldPos;

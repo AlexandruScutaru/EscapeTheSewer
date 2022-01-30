@@ -14,19 +14,6 @@ inline vec2::vec2(float x, float y)
     , y(y)
 {}
 
-inline vec2::vec2(const vec2& other) {
-    x = other.x;
-    y = other.y;
-}
-
-inline vec2& vec2::operator=(const vec2& other) {
-    if (this != &other) {
-        x = other.x;
-        y = other.y;
-    }
-	return *this;
-}
-
 inline vec2 vec2::operator+(const vec2& other) const {
     return vec2(x + other.x, y + other.y);
 }

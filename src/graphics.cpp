@@ -1,5 +1,5 @@
 #include "graphics.h"
-#include "level.h"
+#include "level_utils.h"
 #include "status_bar.h"
 
 #include <SPI.h>
@@ -14,31 +14,20 @@
 const int16_t Graphics::max_game_area = 160 - UNSCROLLABLE_AMOUNT;
 Graphics::Camera Graphics::camera = Graphics::Camera{0, Graphics::max_game_area >> 3};
 
-Graphics::Graphics() 
+Graphics::Graphics(Level& level) 
     : mTFT(TFT_ST7735(TFT_CS, TFT_DC, TFT_RST))
+    , mLevel(level)
     , scrollAmount(UNSCROLLABLE_AMOUNT)
 {
+    Serial.println("graphics::graphics");
+    pinMode(4, OUTPUT);
+    digitalWrite(4, HIGH);
+    SPI.begin();
     //reset();
 }
 
 Graphics::~Graphics() {}
 
-void Graphics::reset() {
-
-    camera = Graphics::Camera{ 0, Graphics::max_game_area >> 3 };
-    scrollAmount = UNSCROLLABLE_AMOUNT;
-    scrollPivotRow = 0;
-
-    pinMode(4, OUTPUT);
-    digitalWrite(4, HIGH);
-    //SPI.begin();
-    mTFT.begin();
-    mTFT.setRotation(0);
-
-    mTFT.defineScrollArea(UNSCROLLABLE_AMOUNT, 160);
-
-    fillScreen();
-}
 
 void Graphics::fillScreen(uint16_t color) {
     mTFT.fillScreen(color);
@@ -74,9 +63,9 @@ void Graphics::pushColors(uint8_t index, uint16_t x0, uint16_t y0, uint16_t x1, 
     for (uint16_t i = from; i < to; i++) {
         Level::tile_row_t r;
         if (flip & 1) {
-            r = Level::getTileRow(index, i);
+            r = LevelUtils::getTileRow(mLevel, index, i);
         } else {
-            r = Level::getTileRow(index, 7-i);
+            r = LevelUtils::getTileRow(mLevel, index, 7-i);
         }
 
         if (flip & (1 << 1))
@@ -102,7 +91,7 @@ void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t
 
 bool Graphics::scroll(bool direction) {
     if (direction) {
-        if (camera.x2 + 1 > Level::levelW) {
+        if (camera.x2 + 1 > mLevel.levelW) {
            return false;
         }
 
@@ -113,8 +102,8 @@ bool Graphics::scroll(bool direction) {
 
         mTFT.scroll(scrollAmount);
 
-        for (uint8_t i = 0; i < Level::levelH; i++) {
-            const auto& tile_index = Level::getTileByIndex(i, camera.x2);
+        for (uint8_t i = 0; i < mLevel.levelH; i++) {
+            const auto& tile_index = LevelUtils::getTileByIndex(mLevel, i, camera.x2);
             drawTile(tile_index.tile_index.index, scrollPivotRow, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
         }
 
@@ -139,8 +128,8 @@ bool Graphics::scroll(bool direction) {
 
         mTFT.scroll(scrollAmount);
 
-        for (uint8_t i = 0; i < Level::levelH; i++) {
-            const auto& tile_index = Level::getTileByIndex(i, camera.x1);
+        for (uint8_t i = 0; i < mLevel.levelH; i++) {
+            const auto& tile_index = LevelUtils::getTileByIndex(mLevel, i, camera.x1);
             drawTile(tile_index.tile_index.index, scrollPivotRow-TILE_SIZE, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
         }
 

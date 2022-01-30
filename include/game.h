@@ -1,5 +1,9 @@
-#ifndef MAIN_GAME_H
-#define MAIN_GAME_H
+#ifndef GAME_H
+#define GAME_H
+
+#include "level.h"
+#include "player.h"
+#include "status_bar.h"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "input_manager.h"
@@ -9,15 +13,12 @@
     #include "../pc_version/pc_version/graphics_pc.h"
 #endif
 
-#include "player.h"
-#include "status_bar.h"
 
-
-class MainGame {
+class Game {
 public:
-    MainGame();
-    MainGame(const MainGame& other) = delete;
-    ~MainGame();
+    Game(Level& level);
+    Game(const Game& other) = delete;
+    ~Game();
 
     void run();
 
@@ -32,15 +33,16 @@ private:
     void loop();
     void draw();
     void update(float dt);
+    void handleCollision();
 
     LevelState mState = LevelState::IN_PROGRESS;
 
+    Level mLevel;
     InputManager mInputManager;
     Graphics mGraphics;
     Player mPlayer;
     StatusBar mStatusBar;
-    uint32_t prevTicks = 0;
 
 };
 
-#endif //MAIN_GAME_H
+#endif //GAME_H

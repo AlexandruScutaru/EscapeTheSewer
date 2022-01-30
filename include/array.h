@@ -16,8 +16,6 @@ public:
 	{}
 
     ~array() = default;
-    array(const array& other) = delete;
-    array& operator=(const array& other) = delete;
 
     bool push_back(const T& x) {
         if (mCapacity == mSize)

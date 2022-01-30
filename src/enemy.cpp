@@ -1,5 +1,5 @@
 #include "enemy.h"
-#include "level.h"
+#include "level_utils.h"
 #include "vec2.inl"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
@@ -37,7 +37,7 @@ Enemy::Enemy(const vec2& mPos, Type type)
 Enemy::~Enemy() {}
 
 
-void Enemy::update(float dt) {
+void Enemy::update(Level& level, Graphics& graphics, float dt) {
     mOldPos = mPos;
 
     if (configs[mConfigIndex].mFlags.canSleep) {
@@ -68,7 +68,7 @@ void Enemy::update(float dt) {
                 mVelocity.x += VELOCITY_RECOVERY * dt;
         }
 
-        mPos.x = min(max(0, mPos.x + mVelocity.x * dt), (Level::levelW << 3) - TILE_SIZE);
+        mPos.x = min(max(0, mPos.x + mVelocity.x * dt), (level.levelW << 3) - TILE_SIZE);
     }
 
     if (configs[mConfigIndex].mFlags.canJump && mFlags.onGround && mAnimFrameCurrent == 1) {
@@ -84,11 +84,11 @@ void Enemy::update(float dt) {
     }
     mPos.y = min(mPos.y, 120);
 
-    checkCollision();
+    checkCollision(level);
 }
 
-void Enemy::cleanPrevDraw(Graphics& graphics) {
-    Level::cleanPrevDraw(mOldPos);
+void Enemy::cleanPrevDraw(Level& level, Graphics& graphics) {
+    LevelUtils::cleanPrevDraw(level, graphics, mOldPos);
 }
 
 void Enemy::draw(Graphics& graphics) {
@@ -126,11 +126,11 @@ bool Enemy::hit(int8_t dmg, int8_t force) {
     return configs[mConfigIndex].mHp > 0;
 }
 
-void Enemy::checkCollision() {
+void Enemy::checkCollision(Level& level) {
     //not looking nice, but at least the memory footprint is reduced if adding more flags
     bool flip = mFlags.flipSprite;
     bool onGround = mFlags.onGround;
-    Level::collideWithLevel(mPos, mOldPos, mVelocity, vec2(configs[mConfigIndex].mWalkSpeed, 0.0f), &flip, &onGround);
+    LevelUtils::collideWithLevel(level, mPos, mOldPos, mVelocity, vec2(configs[mConfigIndex].mWalkSpeed, 0.0f), &flip, &onGround);
     mFlags.flipSprite = flip;
     mFlags.onGround = onGround;
 }

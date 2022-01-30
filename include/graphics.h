@@ -8,14 +8,14 @@
 
 #include <TFT_ST7735.h>
 
+struct Level;
 class StatusBar;
 
 class Graphics {
 public:
-    Graphics();
+    Graphics(Level& level);
     ~Graphics();
 
-    void reset();
     void fillScreen(uint16_t color = BG_COLOR);
     void drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip = 0);
     void drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color = BG_COLOR);
@@ -39,7 +39,7 @@ private:
     TFT_ST7735 mTFT;
 
     Event<StatusBar> event;
-
+    Level& mLevel;
     int16_t scrollAmount;
     int16_t scrollPivotRow = 0;
 

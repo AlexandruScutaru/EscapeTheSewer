@@ -6,8 +6,9 @@
 #include <stdint.h>
 
 
-class InputManager;
 class Graphics;
+class InputManager;
+struct Level;
 
 class Player {
 public:
@@ -15,8 +16,8 @@ public:
     Player(float x, float y);
     ~Player();
 
-    void update(InputManager& input, float dt);
-    void cleanPrevDraw(Graphics& graphics);
+    void update(InputManager& input, Level& level, Graphics& graphics,  float dt);
+    void cleanPrevDraw(Level& level, Graphics& graphics);
     void draw(Graphics& graphics);
 
     void setPos(const vec2& pos);
@@ -44,7 +45,7 @@ private:
         W
     };
 
-    void checkCollision();
+    void checkCollision(Level& level, Graphics& graphics);
     void updateAnimation();
     void changeAnimation(AnimState state);
     MovDir getMovingDirection();

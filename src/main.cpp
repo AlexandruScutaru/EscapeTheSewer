@@ -1,10 +1,11 @@
 #include <Arduino.h>
 
-#include "main_game.h"
+#include "game_runner.h"
 
 void  setup() {
-    MainGame game;
-    game.run();
+    Serial.begin(115200);
+    GameRunner runner;
+    runner.run();
 }
 
 void loop() {}

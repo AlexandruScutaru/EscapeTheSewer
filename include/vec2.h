@@ -6,8 +6,6 @@ struct vec2 {
     vec2();
     vec2(float val);
     vec2(float x, float y);
-    vec2(const vec2& other);
-    vec2& operator=(const vec2& other);
 
     vec2 operator+(const vec2& other) const;
     vec2 operator-(const vec2& other) const;

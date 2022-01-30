@@ -2,14 +2,14 @@
 #define LEVEL_LOADER
 
 #include <FatReader.h>
-
+#include "level.h"
 
 class LevelLoader {
 public:
     LevelLoader();
     ~LevelLoader();
 
-    bool loadNextLevel();
+    Level loadLevel(uint8_t index);
     bool writeCurrentLevelIndex();
 
 private:

@@ -17,6 +17,8 @@ LevelLoader::LevelLoader() {
     rootDir.openRoot(volume);
     char name[] = "levels.bin";
     file.open(rootDir, name);
+
+    Serial.println("levelloader::levelloader");
 }
 
 LevelLoader::~LevelLoader() {
@@ -27,48 +29,49 @@ LevelLoader::~LevelLoader() {
     digitalWrite(SD_CS, HIGH);
 }
 
-bool LevelLoader::loadNextLevel() {
+Level LevelLoader::loadLevel(uint8_t index) {
+    Level level;
     uint8_t currLevel = 0;
     file.read(reinterpret_cast<char*>(&currLevel), sizeof(uint8_t));
     uint8_t num_levels = 0;
     file.read(reinterpret_cast<char*>(&num_levels), sizeof(uint8_t));
 
-    if (Level::mCurrentLevel >= num_levels) {
-        return false;
+    if (index >= num_levels) {
+        return {};
     }
 
     uint32_t offsetToLevelData = 0;
-    for (int i = 0; i < Level::mCurrentLevel; i++) {
+    for (int i = 0; i < index; i++) {
         uint32_t size = 0;
         file.read(reinterpret_cast<char*>(&size), sizeof(uint32_t));
         offsetToLevelData += size;
     }
 
     //skip next level sizes and past levels
-    uint32_t seek = sizeof(uint32_t) * (num_levels - Level::mCurrentLevel) + offsetToLevelData;
+    uint32_t seek = sizeof(uint32_t) * (num_levels - index) + offsetToLevelData;
     file.seekSet(file.readPosition() + seek);
 
-    file.read(reinterpret_cast<char*>(&Level::levelW), sizeof(uint8_t));
-    file.read(reinterpret_cast<char*>(&Level::levelH), sizeof(uint8_t));
+    file.read(reinterpret_cast<char*>(&level.levelW), sizeof(uint8_t));
+    file.read(reinterpret_cast<char*>(&level.levelH), sizeof(uint8_t));
 
-    Serial.print("w: "); Serial.print(Level::levelW); Serial.print(" h: "); Serial.println(Level::levelH);
+    Serial.print("w: "); Serial.print(level.levelW); Serial.print(" h: "); Serial.println(level.levelH);
 
-    for (int i = 0; i < Level::levelH; i++) {
-        for (int j = 0; j < Level::levelW; j++) {
-            file.read(reinterpret_cast<char*>(&Level::level[i][j]), sizeof(uint8_t));
+    for (int i = 0; i < level.levelH; i++) {
+        for (int j = 0; j < level.levelW; j++) {
+            file.read(reinterpret_cast<char*>(&level.levelData[i][j]), sizeof(uint8_t));
         }
     }
 
     uint16_t value;
     file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-    Level::mStartCoords.x = static_cast<float>(value);
+    level.startCoords.x = static_cast<float>(value);
     file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-    Level::mStartCoords.y = static_cast<float>(value);
+    level.startCoords.y = static_cast<float>(value);
 
     file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-    Level::mEndCoords.x = static_cast<float>(value);
+    level.endCoords.x = static_cast<float>(value);
     file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-    Level::mEndCoords.y = static_cast<float>(value);
+    level.endCoords.y = static_cast<float>(value);
 
     uint8_t count = 0;
     vec2 pos;
@@ -78,7 +81,7 @@ bool LevelLoader::loadNextLevel() {
         pos.x = static_cast<float>(value);
         file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
         pos.y = static_cast<float>(value);
-        Level::mEnemies.push_back(Enemy(pos, EnemyConfig::Type::SLIME));
+        level.enemies.push_back(Enemy(pos, EnemyConfig::Type::SLIME));
     }
 
     file.read(reinterpret_cast<char*>(&count), sizeof(uint8_t));
@@ -87,7 +90,7 @@ bool LevelLoader::loadNextLevel() {
         pos.x = static_cast<float>(value);
         file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
         pos.y = static_cast<float>(value);
-        Level::mEnemies.push_back(Enemy(pos, EnemyConfig::Type::BUG));
+        level.enemies.push_back(Enemy(pos, EnemyConfig::Type::BUG));
     }
 
     file.read(reinterpret_cast<char*>(&count), sizeof(uint8_t));
@@ -96,12 +99,12 @@ bool LevelLoader::loadNextLevel() {
         pos.x = static_cast<float>(value);
         file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
         pos.y = static_cast<float>(value);
-        Level::mPickups.push_back(Pickup(pos, 50, 0));
+        level.pickups.push_back(Pickup(pos, 50, 0));
     }
 
     file.close();
-
-    return true;
+    Serial.println("leveloader::loadlevel");
+    return level;
 }
 
 bool LevelLoader::writeCurrentLevelIndex() {

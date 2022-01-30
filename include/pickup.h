@@ -7,6 +7,7 @@
 
 
 class Graphics;
+struct Level;
 
 class Pickup {
 public:
@@ -14,6 +15,7 @@ public:
     Pickup(const vec2& pos, uint8_t tile, uint8_t flip);
     ~Pickup();
 
+    void cleanPrevDraw(Level& level, Graphics& graphics);
     void draw(Graphics& graphics);
 
     const vec2& getPos();
