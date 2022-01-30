@@ -123,7 +123,7 @@ bool Enemy::hit(int8_t dmg, int8_t force) {
     mVelocity.y -= 2.0f;
     mHealth -= dmg;
 
-    return configs[mConfigIndex].mHp > 0;
+    return mHealth > 0;
 }
 
 void Enemy::checkCollision(Level& level) {

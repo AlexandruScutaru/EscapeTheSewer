@@ -1,12 +1,18 @@
 #include "level_utils.h"
-#include "graphics.h"
 #include "player.h"
 
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
+    #include "graphics.h"
+
     #define GET_TILE_ROW(level, tileIndex, rowIndex) (Level::tile_row_t { .packed = pgm_read_dword_near(&level.tiles[tileIndex][rowIndex]) })
     #define GET_COLOR(level, index) (pgm_read_dword_near(&level.colors[index]))
 #else
+    #include "../pc_version/pc_version/graphics_pc.h"
+
+    #define min(a,b) ((a)<(b)?(a):(b))
+    #define max(a,b) ((a)>(b)?(a):(b))
+
     #define GET_TILE_ROW(level, tileIndex, rowIndex) (level.tiles[tileIndex][rowIndex])
     #define GET_COLOR(level, index) (level.colors[index])
 #endif
@@ -116,7 +122,7 @@ bool LevelUtils::collideWithLevel(Level& level, vec2& pos, const vec2& oldPos, v
 }
 
 void LevelUtils::collideWithPickups(Level& level, Graphics& graphics, Player& player) {
-    for (size_t i = 0; i < level.pickups.size(); i++) {
+    for (uint8_t i = 0; i < level.pickups.size(); i++) {
        if (aabb(level.pickups[i].getPos(), player.getPos())) {
            player.incHp(30); //hardcoded way of doing it, to be updated
            removePickup(level, graphics, i);
@@ -125,7 +131,7 @@ void LevelUtils::collideWithPickups(Level& level, Graphics& graphics, Player& pl
 }
 
 bool LevelUtils::collideWithEnemies(Level& level, Player& player) {
-    for (size_t i = 0; i < level.enemies.size(); i++) {
+    for (uint8_t i = 0; i < level.enemies.size(); i++) {
        if (aabb(level.enemies[i].getPos(), player.getPos())) {
            if (!player.hit(level.enemies[i].getDmg())) {
                //player died
@@ -136,18 +142,18 @@ bool LevelUtils::collideWithEnemies(Level& level, Player& player) {
     return false;
 }
 
-void LevelUtils::removeEnemy(Level& level, Graphics& graphics, size_t idx) {
+void LevelUtils::removeEnemy(Level& level, Graphics& graphics, uint8_t idx) {
     level.enemies[idx].cleanPrevDraw(level, graphics);
     level.enemies.erase(idx);
 }
 
-void LevelUtils::removePickup(Level& level, Graphics& graphics, size_t idx) {
+void LevelUtils::removePickup(Level& level, Graphics& graphics, uint8_t idx) {
     level.pickups[idx].cleanPrevDraw(level, graphics);
     level.pickups.erase(idx);
 }
 
 bool LevelUtils::hitEnemy(Level& level, Graphics& graphics, const vec2& pos, float dmg, float force) {
-    size_t i = 0;
+    uint8_t i = 0;
     bool res = false;
     while (i < level.enemies.size()) {
        if (aabb(level.enemies[i].getPos(), pos)) {

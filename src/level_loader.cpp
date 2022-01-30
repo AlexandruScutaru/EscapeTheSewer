@@ -17,8 +17,6 @@ LevelLoader::LevelLoader() {
     rootDir.openRoot(volume);
     char name[] = "levels.bin";
     file.open(rootDir, name);
-
-    Serial.println("levelloader::levelloader");
 }
 
 LevelLoader::~LevelLoader() {
@@ -54,7 +52,7 @@ Level LevelLoader::loadLevel(uint8_t index) {
     file.read(reinterpret_cast<char*>(&level.levelW), sizeof(uint8_t));
     file.read(reinterpret_cast<char*>(&level.levelH), sizeof(uint8_t));
 
-    Serial.print("w: "); Serial.print(level.levelW); Serial.print(" h: "); Serial.println(level.levelH);
+    //Serial.print("w: "); Serial.print(level.levelW); Serial.print(" h: "); Serial.println(level.levelH);
 
     for (int i = 0; i < level.levelH; i++) {
         for (int j = 0; j < level.levelW; j++) {
@@ -103,7 +101,7 @@ Level LevelLoader::loadLevel(uint8_t index) {
     }
 
     file.close();
-    Serial.println("leveloader::loadlevel");
+
     return level;
 }
 

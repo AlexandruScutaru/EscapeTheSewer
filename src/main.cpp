@@ -3,7 +3,7 @@
 #include "game_runner.h"
 
 void  setup() {
-    Serial.begin(115200);
+    //Serial.begin(115200);
     GameRunner runner;
     runner.run();
 }

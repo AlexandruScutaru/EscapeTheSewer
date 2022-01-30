@@ -69,7 +69,7 @@ struct Level {
     operator bool();
 
 
-    tile_index_t levelData[LEVEL_MAX_H][LEVEL_MAX_W] = {0};
+    tile_index_t levelData[LEVEL_MAX_H][LEVEL_MAX_W] = {};
     const static uint16_t colors[PALETTE_COUNT] PROGMEM;
     const static tile_t tiles[] PROGMEM;
 

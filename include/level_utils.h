@@ -16,8 +16,8 @@ namespace LevelUtils {
     void collideWithPickups(Level& level, Graphics& graphics, Player& player);
     bool collideWithEnemies(Level& level, Player& player);
 
-    void removeEnemy(Level& level, Graphics& graphics, size_t idx);
-    void removePickup(Level& level, Graphics& graphics, size_t idx);
+    void removeEnemy(Level& level, Graphics& graphics, uint8_t idx);
+    void removePickup(Level& level, Graphics& graphics, uint8_t idx);
     bool hitEnemy(Level& level, Graphics& graphics, const vec2& pos, float dmg, float force);
 
     void drawEntireLevel(Level& level, Graphics& graphics);

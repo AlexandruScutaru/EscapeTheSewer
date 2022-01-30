@@ -8,7 +8,7 @@
 
 
 class Graphics;
-class Level;
+struct Level;
 
 class Enemy {
 public:

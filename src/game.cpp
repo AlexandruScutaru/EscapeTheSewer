@@ -33,7 +33,6 @@ Game::Game(Level& level)
     : mLevel(level)
     , mGraphics(mLevel)
 {
-    Serial.println("game::game");
     init();
     mGraphics.registerEvent(Event<StatusBar>(&mStatusBar));
 }
@@ -55,8 +54,6 @@ void Game::init() {
     LevelUtils::drawEntireLevel(mLevel, mGraphics);
     mStatusBar.draw(mGraphics, true);
     END_DRAW
-
-    Serial.println("game::init");
 }
 
 //the game loop seems a bit meh, works for now
@@ -93,17 +90,17 @@ void Game::draw() {
     BEGIN_DRAW
     
     //clean prev draws
-    for (size_t i = 0; i < mLevel.enemies.size(); i++) {
+    for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
        mLevel.enemies[i].cleanPrevDraw(mLevel, mGraphics);
     }
 
     mPlayer.cleanPrevDraw(mLevel, mGraphics);
 
     //draw special objects
-    for (size_t i = 0; i < mLevel.pickups.size(); i++) {
+    for (uint8_t i = 0; i < mLevel.pickups.size(); i++) {
        mLevel.pickups[i].draw(mGraphics);
     }
-    for (size_t i = 0; i < mLevel.enemies.size(); i++) {
+    for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
        mLevel.enemies[i].draw(mGraphics);
     }
     mPlayer.draw(mGraphics);
@@ -113,7 +110,7 @@ void Game::draw() {
 }
 
 void Game::update(float dt) {
-    for (size_t i = 0; i < mLevel.enemies.size(); i++) {
+    for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
        mLevel.enemies[i].update(mLevel, mGraphics, dt);
     }
 

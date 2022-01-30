@@ -146,9 +146,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\enemy.cpp" />
-    <ClCompile Include="..\..\src\enemy_config.cpp" />
+    <ClCompile Include="..\..\src\game.cpp" />
+    <ClCompile Include="..\..\src\game_runner.cpp" />
     <ClCompile Include="..\..\src\level.cpp" />
-    <ClCompile Include="..\..\src\main_game.cpp" />
+    <ClCompile Include="..\..\src\level_utils.cpp" />
     <ClCompile Include="..\..\src\pickup.cpp" />
     <ClCompile Include="..\..\src\player.cpp" />
     <ClCompile Include="..\..\src\status_bar.cpp" />
@@ -163,8 +164,10 @@
     <ClInclude Include="..\..\include\enemy.h" />
     <ClInclude Include="..\..\include\enemy_config.h" />
     <ClInclude Include="..\..\include\event.h" />
+    <ClInclude Include="..\..\include\game.h" />
+    <ClInclude Include="..\..\include\game_runner.h" />
     <ClInclude Include="..\..\include\level.h" />
-    <ClInclude Include="..\..\include\main_game.h" />
+    <ClInclude Include="..\..\include\level_utils.h" />
     <ClInclude Include="..\..\include\pickup.h" />
     <ClInclude Include="..\..\include\player.h" />
     <ClInclude Include="..\..\include\status_bar.h" />

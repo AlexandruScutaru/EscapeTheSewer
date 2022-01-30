@@ -81,7 +81,8 @@ void Player::incHp(uint8_t val) {
 }
 
 bool Player::hit(int8_t dmg) {
-    return (hp -= dmg) > 0;
+    hp -= dmg;
+    return hp > 0;
 }
 
 void Player::update(InputManager& input, Level& level, Graphics& graphics, float dt) {
@@ -131,8 +132,6 @@ void Player::update(InputManager& input, Level& level, Graphics& graphics, float
 
     checkCollision(level, graphics);
     updateAnimation();
-
-    //Serial.println(pos.x);
 }
 
 void Player::cleanPrevDraw(Level& level, Graphics& graphics) {

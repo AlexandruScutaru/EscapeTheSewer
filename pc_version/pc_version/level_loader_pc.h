@@ -1,9 +1,10 @@
 #pragma once
 
+#include "level.h"
 
 class LevelLoader {
 public:
-	bool loadNextLevel();
+	Level loadLevel(uint8_t index);
 	bool writeCurrentLevelIndex();
 
 };

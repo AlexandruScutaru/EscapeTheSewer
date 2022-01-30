@@ -14,16 +14,14 @@
 const int16_t Graphics::max_game_area = 160 - UNSCROLLABLE_AMOUNT;
 Graphics::Camera Graphics::camera = Graphics::Camera{0, Graphics::max_game_area >> 3};
 
-Graphics::Graphics(Level& level) 
+Graphics::Graphics(Level& level)
     : mTFT(TFT_ST7735(TFT_CS, TFT_DC, TFT_RST))
     , mLevel(level)
     , scrollAmount(UNSCROLLABLE_AMOUNT)
 {
-    Serial.println("graphics::graphics");
     pinMode(4, OUTPUT);
     digitalWrite(4, HIGH);
     SPI.begin();
-    //reset();
 }
 
 Graphics::~Graphics() {}

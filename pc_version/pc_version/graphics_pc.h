@@ -13,11 +13,12 @@
 
 using RenderWindowPtr = std::shared_ptr<sf::RenderWindow>;
 
+struct Level;
 class StatusBar;
 
 class Graphics {
 public:
-    Graphics();
+    Graphics(Level& level);
     ~Graphics();
 
     void clear();
@@ -65,6 +66,7 @@ private:
     static sf::Clock clock;
 
     Event<StatusBar> event;
+    Level& mLevel;
 };
 
 #endif // GRAPHICS_PC_H
