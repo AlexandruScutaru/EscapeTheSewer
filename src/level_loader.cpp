@@ -1,108 +1,99 @@
 #include "level_loader.h"
 #include "level.h"
 #include "vec2.inl"
+#include "eeprom_utils.h"
+#include "level.h"
 
 #include <Arduino.h>
-#include <SPI.h>
 
-#define SD_CS 4
-
-
-LevelLoader::LevelLoader() {
-    pinMode(PIN_SPI_SS, OUTPUT);
-    digitalWrite(PIN_SPI_SS, HIGH);
-
-    card.init(SD_CS, 0);
-    volume.init(card);
-    rootDir.openRoot(volume);
-    char name[] = "levels.bin";
-    file.open(rootDir, name);
+static uint16_t readWord(int& address) {
+    uint8_t wordValue = 0;
+    uint16_t outValue = 0;
+    wordValue = EepromUtils::readFromAddress(address++); outValue |= (uint32_t)wordValue <<  0;
+    wordValue = EepromUtils::readFromAddress(address++); outValue |= (uint32_t)wordValue <<  8;
+    return outValue;
 }
 
-LevelLoader::~LevelLoader() {
-    file.close();
-    rootDir.close();
-    SPI.end();
-    pinMode(SD_CS, OUTPUT);
-    digitalWrite(SD_CS, HIGH);
+static uint32_t readDWord(int& address) {
+    uint8_t wordValue = 0;
+    uint32_t outValue = 0;
+    wordValue = EepromUtils::readFromAddress(address++); outValue |= (uint32_t)wordValue <<  0;
+    wordValue = EepromUtils::readFromAddress(address++); outValue |= (uint32_t)wordValue <<  8;
+    wordValue = EepromUtils::readFromAddress(address++); outValue |= (uint32_t)wordValue << 16;
+    wordValue = EepromUtils::readFromAddress(address++); outValue |= (uint32_t)wordValue << 24;
+    return outValue;
 }
 
-Level LevelLoader::loadLevel(uint8_t index) {
-    Level level;
-    uint8_t currLevel = 0;
-    file.read(reinterpret_cast<char*>(&currLevel), sizeof(uint8_t));
-    uint8_t num_levels = 0;
-    file.read(reinterpret_cast<char*>(&num_levels), sizeof(uint8_t));
+
+bool LevelLoader::loadLevel(uint8_t index, Level& level) {
+    Serial.println("loadLevel");
+    EepromUtils::beginWire();
+
+    int currentAddress = 0;
+    uint8_t currLevel = EepromUtils::readFromAddress(currentAddress++);
+    uint8_t num_levels = EepromUtils::readFromAddress(currentAddress++);
+    
+    Serial.println(index);
+    Serial.println(num_levels);
 
     if (index >= num_levels) {
-        return {};
+        Serial.println("not possible");
+        EepromUtils::endWire();
+        return false;
     }
 
     uint32_t offsetToLevelData = 0;
     for (int i = 0; i < index; i++) {
-        uint32_t size = 0;
-        file.read(reinterpret_cast<char*>(&size), sizeof(uint32_t));
-        offsetToLevelData += size;
+        offsetToLevelData += readDWord(currentAddress);
     }
 
-    //skip next level sizes and past levels
-    uint32_t seek = sizeof(uint32_t) * (num_levels - index) + offsetToLevelData;
-    file.seekSet(file.readPosition() + seek);
+    //skip next level sizes and past levels if applicable
+    currentAddress += sizeof(uint32_t) * (num_levels - index) + offsetToLevelData;
 
-    file.read(reinterpret_cast<char*>(&level.levelW), sizeof(uint8_t));
-    file.read(reinterpret_cast<char*>(&level.levelH), sizeof(uint8_t));
+    level.levelW = EepromUtils::readFromAddress(currentAddress++);
+    level.levelH = EepromUtils::readFromAddress(currentAddress++);
 
-    //Serial.print("w: "); Serial.print(level.levelW); Serial.print(" h: "); Serial.println(level.levelH);
+    Serial.print("w: "); Serial.print(level.levelW); Serial.print(" h: "); Serial.println(level.levelH);
 
     for (int i = 0; i < level.levelH; i++) {
         for (int j = 0; j < level.levelW; j++) {
-            file.read(reinterpret_cast<char*>(&level.levelData[i][j]), sizeof(uint8_t));
+            level.levelData[i][j].packed = EepromUtils::readFromAddress(currentAddress++);
         }
     }
 
-    uint16_t value;
-    file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-    level.startCoords.x = static_cast<float>(value);
-    file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-    level.startCoords.y = static_cast<float>(value);
+    level.startCoords.x = static_cast<float>(readWord(currentAddress));
+    level.startCoords.y = static_cast<float>(readWord(currentAddress));
 
-    file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-    level.endCoords.x = static_cast<float>(value);
-    file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-    level.endCoords.y = static_cast<float>(value);
+    level.endCoords.x = static_cast<float>(readWord(currentAddress));
+    level.endCoords.y = static_cast<float>(readWord(currentAddress));
 
     uint8_t count = 0;
     vec2 pos;
-    file.read(reinterpret_cast<char*>(&count), sizeof(uint8_t));
+    count = EepromUtils::readFromAddress(currentAddress++);
     for (int i = 0; i < count; i++) {
-        file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-        pos.x = static_cast<float>(value);
-        file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-        pos.y = static_cast<float>(value);
+        pos.x = static_cast<float>(readWord(currentAddress));
+        pos.y = static_cast<float>(readWord(currentAddress));
         level.enemies.push_back(Enemy(pos, EnemyConfig::Type::SLIME));
     }
 
-    file.read(reinterpret_cast<char*>(&count), sizeof(uint8_t));
+    count = EepromUtils::readFromAddress(currentAddress++);
     for (int i = 0; i < count; i++) {
-        file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-        pos.x = static_cast<float>(value);
-        file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-        pos.y = static_cast<float>(value);
+        pos.x = static_cast<float>(readWord(currentAddress));
+        pos.y = static_cast<float>(readWord(currentAddress));
         level.enemies.push_back(Enemy(pos, EnemyConfig::Type::BUG));
     }
 
-    file.read(reinterpret_cast<char*>(&count), sizeof(uint8_t));
+    count = EepromUtils::readFromAddress(currentAddress++);
     for (int i = 0; i < count; i++) {
-        file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-        pos.x = static_cast<float>(value);
-        file.read(reinterpret_cast<char*>(&value), sizeof(uint16_t));
-        pos.y = static_cast<float>(value);
+        pos.x = static_cast<float>(readWord(currentAddress));
+        pos.y = static_cast<float>(readWord(currentAddress));
         level.pickups.push_back(Pickup(pos, 50, 0));
     }
 
-    file.close();
+    Serial.println(count);
+    EepromUtils::endWire();
 
-    return level;
+    return true;
 }
 
 bool LevelLoader::writeCurrentLevelIndex() {

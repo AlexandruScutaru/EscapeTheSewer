@@ -10,7 +10,7 @@ public:
     void run();
 
 private:
-    Level loadNextLevel();
+    bool loadNextLevel(Level& level);
     uint8_t mCurrentLevel = 0;
 };
 

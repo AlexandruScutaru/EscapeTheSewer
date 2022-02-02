@@ -45,7 +45,8 @@ void Game::run() {
 }
 
 void Game::init() {
-    //Audio::Init();
+    Serial.println("init game");
+    Audio::Init();
 
     mPlayer.setPos(mLevel.startCoords);
 
@@ -60,6 +61,7 @@ void Game::init() {
 //maybe implement a more proper one, handle multiple "physics steps" before redrawing again
 //not sure if a fixed timestep is really needed but could be a nice experiment
 void Game::loop() {
+    Serial.println("game loop");
     uint32_t targetFrameTicks = 1000 / 24;
     uint32_t prevTicks = 0;
     uint32_t newTicks = 0;

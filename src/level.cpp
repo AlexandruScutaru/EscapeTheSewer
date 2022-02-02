@@ -11,8 +11,3 @@ const uint16_t Level::colors[16] PROGMEM = {
     COLOR_GREEN_LIGHT     ,COLOR_MUSTARD      ,COLOR_BLUE_DARK    ,COLOR_CYAN,
     COLOR_RED             ,COLOR_ORANGE       ,COLOR_YELLOW       ,COLOR_WHITISH
 };
-
-
-Level::operator bool() {
-    return levelH && levelW;
-}

@@ -1,6 +1,7 @@
 #include "game_runner.h"
 #include "game.h"
 #include "level.h"
+#include "vec2.inl"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
 #include "level_loader.h"
@@ -10,7 +11,10 @@
 
 
 void GameRunner::run() {
-    while (auto level = loadNextLevel()) {
+    Serial.println("run game");
+    Level level;
+    while (loadNextLevel(level)) {
+        Serial.println("level loaded");
         Game game(level);
         game.run();
         mCurrentLevel++;
@@ -18,7 +22,8 @@ void GameRunner::run() {
     //done with all the levels, do some celebration or something if space allows
 }
 
-Level GameRunner::loadNextLevel() {
+bool GameRunner::loadNextLevel(Level& level) {
+    Serial.println("loadNextLevel");
     LevelLoader loader;
-    return loader.loadLevel(mCurrentLevel);
+    return loader.loadLevel(mCurrentLevel, level);
 }

@@ -18,11 +18,7 @@ Graphics::Graphics(Level& level)
     : mTFT(TFT_ST7735(TFT_CS, TFT_DC, TFT_RST))
     , mLevel(level)
     , scrollAmount(UNSCROLLABLE_AMOUNT)
-{
-    pinMode(4, OUTPUT);
-    digitalWrite(4, HIGH);
-    SPI.begin();
-}
+{}
 
 Graphics::~Graphics() {}
 

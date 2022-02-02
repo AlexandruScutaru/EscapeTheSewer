@@ -1,8 +1,8 @@
 """
-Generate a binary file with level data based on Tiled json map export.
+Generate a C++ byte array to be uploaded to the EEPROM storing the levels.
 
 The format is described in the levels_kaitai_format.ksy.
-To visualize it, navitage to https://ide.kaitai.io/ and drag and drop the levels.bin and levels_kaitai_format.ksy in the ide's Local Storage to explore it.
+To visualize it, navigate to https://ide.kaitai.io/ and drag and drop the levels.bin and levels_kaitai_format.ksy in the ide's Local Storage to explore it.
 """
 
 import json

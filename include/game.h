@@ -37,7 +37,7 @@ private:
 
     LevelState mState = LevelState::IN_PROGRESS;
 
-    Level mLevel;
+    Level& mLevel;
     InputManager mInputManager;
     Graphics mGraphics;
     Player mPlayer;
