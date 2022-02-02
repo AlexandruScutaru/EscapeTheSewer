@@ -8,17 +8,24 @@
 #define TFT_RST    8
 #define TFT_DC     9
 
-#define UNSCROLLABLE_AMOUNT 0
+#define DISPLAY_TFA                      0
+#define DISPLAY_BFA                      0
+#define DISPLAY_INTERNAL_BUFFER_HEIGHT 160
+
 #define TOP_OFFSET TILE_SIZE
 
-const int16_t Graphics::max_game_area = 160 - UNSCROLLABLE_AMOUNT;
+const int16_t Graphics::max_game_area = DISPLAY_WIDTH - DISPLAY_BFA;
 Graphics::Camera Graphics::camera = Graphics::Camera{0, Graphics::max_game_area >> 3};
 
 Graphics::Graphics(Level& level)
     : mTFT(TFT_ST7735(TFT_CS, TFT_DC, TFT_RST))
     , mLevel(level)
-    , scrollAmount(UNSCROLLABLE_AMOUNT)
-{}
+{
+    mTFT.begin();
+    mTFT.setRotation(0);
+    mTFT.defineScrollArea(DISPLAY_TFA, DISPLAY_BFA, DISPLAY_INTERNAL_BUFFER_HEIGHT);
+    scrollAmount = mTFT.getScrollTop();
+}
 
 Graphics::~Graphics() {}
 
@@ -32,23 +39,23 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
         return;
 
     y += TOP_OFFSET;
-    x %= 160;
+    x %= DISPLAY_WIDTH;
     //guess in the end it is faster to do this check
     //maybe find a better place where it is checked a little less often
     if(index == TILE_EMPTY) {
-        mTFT.fillRect(y, 160-x-size, size, size, BG_COLOR);
+        mTFT.fillRect(y, DISPLAY_WIDTH-x-size, size, size, BG_COLOR);
         return;
     }
 
     //check the case when we need to draw right over the seam of the hardware scrolling
     //draw first sprite reagardles of it being cropped (still losing some time on SPI pushing all colors, but ok for now)
-    pushColors(index, y, 160-x-size, y+size-1, 159-x, size, flip, 0, size);
+    pushColors(index, y, DISPLAY_WIDTH-x-size, y+size-1, DISPLAY_WIDTH-1-x, size, flip, 0, size);
 
     //get the amount of cropped tile and push the rest over scroll seam
-    int16_t offset = size - (160 - x);
+    int16_t offset = size - (DISPLAY_WIDTH - x);
     if (offset > 0){
         //mTFT.fillRect(y, 152+(size-offset), size, offset, COLOR_CYAN);
-        pushColors(index, y, 160 - offset, y+size-1, 159, size, flip, 0, offset);
+        pushColors(index, y, DISPLAY_WIDTH - offset, y+size-1, DISPLAY_WIDTH-1, size, flip, 0, offset);
     }
 }
 
@@ -73,13 +80,13 @@ void Graphics::pushColors(uint8_t index, uint16_t x0, uint16_t y0, uint16_t x1, 
 
 void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
     y += TOP_OFFSET;
-    x %= 160;
-    mTFT.fillRect(y, 160-x-w, h, w, color);
+    x %= DISPLAY_WIDTH;
+    mTFT.fillRect(y, DISPLAY_WIDTH-x-w, h, w, color);
 
     //get the amount of cropped rect and push the rest over scroll seam
-    int16_t offset = w - (160 - x);
+    int16_t offset = w - (DISPLAY_WIDTH - x);
     if (offset > 0) {
-        mTFT.fillRect(y, 160-offset, h, offset, color);
+        mTFT.fillRect(y, DISPLAY_WIDTH-offset, h, offset, color);
     }
 }
 
@@ -90,8 +97,8 @@ bool Graphics::scroll(bool direction) {
         }
 
         scrollAmount -= TILE_SIZE;
-        if (scrollAmount < UNSCROLLABLE_AMOUNT) {
-            scrollAmount = 152;
+        if (scrollAmount < mTFT.getScrollTop()) {
+            scrollAmount = mTFT.getScrollBottom() - 8;
         }
 
         mTFT.scroll(scrollAmount);
@@ -113,8 +120,8 @@ bool Graphics::scroll(bool direction) {
         }
 
         scrollAmount += TILE_SIZE;
-        if (scrollAmount > 159) {
-            scrollAmount = UNSCROLLABLE_AMOUNT;
+        if (scrollAmount >= mTFT.getScrollBottom()) {
+            scrollAmount = mTFT.getScrollTop();
         }
 
         camera.x1--;

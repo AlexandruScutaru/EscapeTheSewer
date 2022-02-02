@@ -15,6 +15,8 @@ public:
         B     =  0x20
     };
 
+    InputManager();
+
     void processInput();
     bool isButtonPressed(Button button);
     bool isButtonHeldDown(Button button);

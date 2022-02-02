@@ -5,7 +5,7 @@
     #include "graphics.h"
     #include <Arduino.h>
 
-    #define BATTERY_PIN       A6
+    #define BATTERY_PIN       A3
     #define VOLTAGE_EPSILON   0.2      /*should be empirically determined*/
     #define MAX_ANALOG_VALUE  1024.0f
 
@@ -29,7 +29,7 @@ bool FloatEquality(float a, float b, float epsilon) {
 #define BATTERY_IND_ORANGE    0xFCA0
 #define BATTERY_IND_RED       0xF800
 #define BATTERY_IND_SIZE      30
-#define BATTERY_IND_POS       (157 - BATTERY_IND_SIZE)
+#define BATTERY_IND_POS       (DISPLAY_WIDTH - 3 - BATTERY_IND_SIZE)
 
 #define HP_IND_RED            0xF800
 #define HP_IND_SIZE           50
@@ -55,7 +55,7 @@ void StatusBar::draw(Graphics& graphics, bool forceRedraw) {
     //need something better than a bool
     //like an also an event when there was a scroll
     if(drawRequired || forceRedraw) {
-        graphics.drawFillRect(0, -8, 160, 8, STATUS_BAR_BG);
+        graphics.drawFillRect(0, -8, DISPLAY_WIDTH, 8, STATUS_BAR_BG);
 
         drawPlayerHpIndicator(graphics);
         drawBatteryIndicator(graphics);
@@ -79,15 +79,17 @@ bool StatusBar::readBatteryLevel() {
     float oldVal = batteryLevel;
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
-    //seems arduino reports ~950 on a full battery charge
-    float voltage = (5 * analogRead(BATTERY_PIN) / MAX_ANALOG_VALUE) + VOLTAGE_EPSILON;
+    // //seems arduino reports ~950 on a full battery charge
+    // float voltage = (5 * analogRead(BATTERY_PIN) / MAX_ANALOG_VALUE) + VOLTAGE_EPSILON;
+    // //map current voltage from max-min voltage to 100-10 percent charge
+    // //not accurate, but at least there is an indication on when charging is required
+    // batteryLevel = min( ((voltage - 3.6f) / (4.2f - 3.6f) * (1.0f - 0.1f) + 0.1f), 1.0f );
 
-    //map current voltage from max-min voltage to 100-10 percent charge
-    //not accurate, but at least there is an indication on when charging is required
-    batteryLevel = min( ((voltage - 3.6f) / (4.2f - 3.6f) * (1.0f - 0.1f) + 0.1f), 1.0f );
+    //connected the battery pin input to a potentiometer to test it with different values
+    batteryLevel = analogRead(BATTERY_PIN) / 1024.0f;
 
-    if (batteryLevel <= 0.0f)
-        batteryLevel = 0.1f;
+    if (batteryLevel < 0.0f)
+        batteryLevel = 0.0f;
 #else
     batteryLevel -= 0.1f;
     if (batteryLevel < 0.0f)
