@@ -12,10 +12,7 @@
     #define BEGIN_DRAW
     #define END_DRAW
     #define POLL_EVENTS
-
-    #define LOG(msg)
 #else
-    #include "../pc_version/pc_version/logging.h"
     #include "../pc_version/pc_version/audio_pc.h"
 
     #define LOOP_CONDITION (mGraphics.getWindow()->isOpen() && mState == LevelState::IN_PROGRESS)
@@ -45,7 +42,6 @@ void Game::run() {
 }
 
 void Game::init() {
-    Serial.println("init game");
     Audio::Init();
 
     mPlayer.setPos(mLevel.startCoords);
@@ -61,7 +57,6 @@ void Game::init() {
 //maybe implement a more proper one, handle multiple "physics steps" before redrawing again
 //not sure if a fixed timestep is really needed but could be a nice experiment
 void Game::loop() {
-    Serial.println("game loop");
     uint32_t targetFrameTicks = 1000 / 24;
     uint32_t prevTicks = 0;
     uint32_t newTicks = 0;

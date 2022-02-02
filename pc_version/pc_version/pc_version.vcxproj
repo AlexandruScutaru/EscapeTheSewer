@@ -168,6 +168,7 @@
     <ClInclude Include="..\..\include\game_runner.h" />
     <ClInclude Include="..\..\include\level.h" />
     <ClInclude Include="..\..\include\level_utils.h" />
+    <ClInclude Include="..\..\include\logger.h" />
     <ClInclude Include="..\..\include\pickup.h" />
     <ClInclude Include="..\..\include\player.h" />
     <ClInclude Include="..\..\include\status_bar.h" />
@@ -178,7 +179,6 @@
     <ClInclude Include="graphics_pc.h" />
     <ClInclude Include="input_manager_pc.h" />
     <ClInclude Include="level_loader_pc.h" />
-    <ClInclude Include="logging.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\include\vec2.inl" />

@@ -26,18 +26,13 @@ static uint32_t readDWord(int& address) {
 
 
 bool LevelLoader::loadLevel(uint8_t index, Level& level) {
-    Serial.println("loadLevel");
     EepromUtils::beginWire();
 
     int currentAddress = 0;
-    uint8_t currLevel = EepromUtils::readFromAddress(currentAddress++);
+    EepromUtils::readFromAddress(currentAddress++);
     uint8_t num_levels = EepromUtils::readFromAddress(currentAddress++);
-    
-    Serial.println(index);
-    Serial.println(num_levels);
 
     if (index >= num_levels) {
-        Serial.println("not possible");
         EepromUtils::endWire();
         return false;
     }
@@ -53,7 +48,7 @@ bool LevelLoader::loadLevel(uint8_t index, Level& level) {
     level.levelW = EepromUtils::readFromAddress(currentAddress++);
     level.levelH = EepromUtils::readFromAddress(currentAddress++);
 
-    Serial.print("w: "); Serial.print(level.levelW); Serial.print(" h: "); Serial.println(level.levelH);
+    //Serial.print("w: "); Serial.print(level.levelW); Serial.print(" h: "); Serial.println(level.levelH);
 
     for (int i = 0; i < level.levelH; i++) {
         for (int j = 0; j < level.levelW; j++) {
@@ -90,28 +85,11 @@ bool LevelLoader::loadLevel(uint8_t index, Level& level) {
         level.pickups.push_back(Pickup(pos, 50, 0));
     }
 
-    Serial.println(count);
     EepromUtils::endWire();
 
     return true;
 }
 
 bool LevelLoader::writeCurrentLevelIndex() {
-    //SdFat SD;
-    //if (!SD.begin(SD_CS)) {
-    //    while (1);
-    //}
-    //
-    //File file;
-    //file = SD.open("levels.bin", O_WRITE | O_READ | O_CREAT);
-    //2x
-    //if (!file) {
-    //    return false;
-    //}
-    //
-    //file.seek(0);
-    //file.write(reinterpret_cast<char*>(&mCurrentLevel), sizeof(uint8_t));
-    //file.close();
-
-    return true;
+    return false;
 }

@@ -7,7 +7,6 @@
     #include <Arduino.h>
 #else
     #include "../pc_version/pc_version/graphics_pc.h"
-    #include "../pc_version/pc_version/logging.h"
 
     #define min(a,b) ((a)<(b)?(a):(b))
     #define max(a,b) ((a)>(b)?(a):(b))

@@ -11,10 +11,8 @@
 
 
 void GameRunner::run() {
-    Serial.println("run game");
     Level level;
     while (loadNextLevel(level)) {
-        Serial.println("level loaded");
         Game game(level);
         game.run();
         mCurrentLevel++;
@@ -23,7 +21,6 @@ void GameRunner::run() {
 }
 
 bool GameRunner::loadNextLevel(Level& level) {
-    Serial.println("loadNextLevel");
     LevelLoader loader;
     return loader.loadLevel(mCurrentLevel, level);
 }

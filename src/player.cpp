@@ -6,12 +6,9 @@
     #include "input_manager.h"
     #include "graphics.h"
     #include <Arduino.h>
-
-    #define LOG(msg)
 #else
     #include "../pc_version/pc_version/input_manager_pc.h"
     #include "../pc_version/pc_version/graphics_pc.h"
-    #include "../pc_version/pc_version/logging.h"
 
     #define min(a,b) ((a)<(b)?(a):(b))
     #define max(a,b) ((a)>(b)?(a):(b))

@@ -7,9 +7,10 @@
 #endif
 
 void  setup() {
+#if defined(SHOULD_LOG)
     Serial.begin(115200);
     while (!Serial);
-    Serial.println("setup");
+#endif
 
 #if defined(WRITE_LEVELS)
     WriteLevel();

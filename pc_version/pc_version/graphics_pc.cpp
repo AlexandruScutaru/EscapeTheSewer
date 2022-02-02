@@ -1,6 +1,5 @@
 #include "graphics_pc.h"
 #include "input_manager_pc.h"
-#include "logging.h"
 
 #include <level_utils.h>
 #include <status_bar.h>

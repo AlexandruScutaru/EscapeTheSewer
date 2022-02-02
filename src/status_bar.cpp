@@ -8,14 +8,12 @@
     #define BATTERY_PIN       A3
     #define VOLTAGE_EPSILON   0.2      /*should be empirically determined*/
     #define MAX_ANALOG_VALUE  1024.0f
-
-    #define LOG(x)
 #else
     #include "../pc_version/pc_version/graphics_pc.h"
-    #include "../pc_version/pc_version/logging.h"
 
     #define millis() Graphics::getElapsedTime()
 #endif
+
 
 bool FloatEquality(float a, float b, float epsilon) {
    return fabs(a - b) < epsilon;

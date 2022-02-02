@@ -6,10 +6,10 @@
 #include <string>
 
 
-Level LevelLoader::loadLevel(uint8_t index) {
+bool LevelLoader::loadLevel(uint8_t index, Level& level) {
     std::ifstream ifs{ "../../resources/levels.bin", std::ios::binary };
     if (!ifs) {
-        return {};
+        return false;
     }
 
     uint8_t currentLevel = 0;
@@ -18,7 +18,7 @@ Level LevelLoader::loadLevel(uint8_t index) {
     ifs.read(reinterpret_cast<char*>(&num_levels), sizeof(uint8_t));
 
     if (index >= num_levels) {
-        return {};
+        return false;
     }
 
     uint32_t offsetToLevelData = 0;
@@ -33,8 +33,6 @@ Level LevelLoader::loadLevel(uint8_t index) {
     ifs.seekg(seek, std::ios_base::cur); //static analizer complained that the result may overflow before eventual casting to 8 bytes
 
     auto _ = ifs.tellg();
-
-    Level level;
 
     ifs.read(reinterpret_cast<char*>(&level.levelW), sizeof(uint8_t));
     ifs.read(reinterpret_cast<char*>(&level.levelH), sizeof(uint8_t));
@@ -87,7 +85,7 @@ Level LevelLoader::loadLevel(uint8_t index) {
 
     ifs.close();
 
-    return level;
+    return true;
 }
 
 bool LevelLoader::writeCurrentLevelIndex() {

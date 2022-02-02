@@ -1,5 +1,3 @@
-#include "logging.h"
-
 #include <game_runner.h>
 
 

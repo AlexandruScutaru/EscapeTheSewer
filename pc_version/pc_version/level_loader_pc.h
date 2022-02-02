@@ -1,10 +1,12 @@
 #pragma once
 
-#include "level.h"
+#include <stdint.h>
+
+struct Level;
 
 class LevelLoader {
 public:
-	Level loadLevel(uint8_t index);
+	bool loadLevel(uint8_t index, Level& level);
 	bool writeCurrentLevelIndex();
 
 };
