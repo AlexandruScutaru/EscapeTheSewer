@@ -1,9 +1,9 @@
-#include <game_runner.h>
+#include <game.h>
 
 
 int main() {
-    GameRunner runner;
-    runner.run();
+    Game game;
+    game.run();
 
     return 0;
 }

@@ -3,7 +3,7 @@
 #if defined (WRITE_LEVELS)
 #include "level_writer.h"
 #else
-#include "game_runner.h"
+#include "game.h"
 #endif
 
 void  setup() {
@@ -15,8 +15,8 @@ void  setup() {
 #if defined(WRITE_LEVELS)
     WriteLevel();
 #else
-    GameRunner runner;
-    runner.run();
+    Game game;
+    game.run();
 #endif
 }
 

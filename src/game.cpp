@@ -1,11 +1,12 @@
 #include "game.h"
-#include "game_runner.h"
 #include "level.h"
 #include "level_utils.h"
 #include "event.h"
+#include  "vec2.inl"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "audio.h"
+    #include "level_loader.h"
 
     #define LOOP_CONDITION (mState != LevelState::PLAYER_DIED && mState != LevelState::FINISHED)
 
@@ -14,6 +15,7 @@
     #define POLL_EVENTS
 #else
     #include "../pc_version/pc_version/audio_pc.h"
+    #include "../pc_version/pc_version/level_loader_pc.h"
 
     #define LOOP_CONDITION (mGraphics.getWindow()->isOpen() && mState == LevelState::IN_PROGRESS)
  
@@ -26,22 +28,17 @@
 #endif
 
 
-Game::Game(Level& level)
-    : mLevel(level)
-    , mGraphics(mLevel)
+Game::Game()
+    : mGraphics(mLevel)
 {
-    init();
     mGraphics.registerEvent(Event<StatusBar>(&mStatusBar));
 }
 
 Game::~Game() {}
 
-
-void Game::run() {
-    loop();
-}
-
 void Game::init() {
+    mState = LevelState::IN_PROGRESS;
+    mGraphics.reset();
     Audio::Init();
 
     mPlayer.setPos(mLevel.startCoords);
@@ -51,6 +48,14 @@ void Game::init() {
     LevelUtils::drawEntireLevel(mLevel, mGraphics);
     mStatusBar.draw(mGraphics, true);
     END_DRAW
+}
+
+void Game::run() {
+    while (LevelLoader::LoadLevel(mCurrentLevel, mLevel)) {
+        init();
+        loop();
+        mCurrentLevel++;
+    }
 }
 
 //the game loop seems a bit meh, works for now

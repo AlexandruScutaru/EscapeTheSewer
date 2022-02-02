@@ -15,7 +15,7 @@
 #define TOP_OFFSET TILE_SIZE
 
 const int16_t Graphics::max_game_area = DISPLAY_WIDTH - DISPLAY_BFA;
-Graphics::Camera Graphics::camera = Graphics::Camera{0, Graphics::max_game_area >> 3};
+Graphics::Camera Graphics::camera = Graphics::Camera{ 0, Graphics::max_game_area >> 3 };
 
 Graphics::Graphics(Level& level)
     : mTFT(TFT_ST7735(TFT_CS, TFT_DC, TFT_RST))
@@ -29,6 +29,12 @@ Graphics::Graphics(Level& level)
 
 Graphics::~Graphics() {}
 
+void Graphics::reset() {
+    scrollAmount = mTFT.getScrollTop();
+    mTFT.scroll(scrollAmount);
+    camera =  Graphics::Camera{ 0, Graphics::max_game_area >> 3 };
+    scrollPivotRow = 0;
+}
 
 void Graphics::fillScreen(uint16_t color) {
     mTFT.fillScreen(color);

@@ -16,7 +16,7 @@
 
 class Game {
 public:
-    Game(Level& level);
+    Game();
     Game(const Game& other) = delete;
     ~Game();
 
@@ -35,13 +35,14 @@ private:
     void update(float dt);
     void handleCollision();
 
-    LevelState mState = LevelState::IN_PROGRESS;
-
-    Level& mLevel;
+    Level mLevel;
     InputManager mInputManager;
     Graphics mGraphics;
     Player mPlayer;
     StatusBar mStatusBar;
+    
+    LevelState mState = LevelState::IN_PROGRESS;
+    uint8_t mCurrentLevel = 0;
 
 };
 

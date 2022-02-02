@@ -32,7 +32,7 @@
 #define TOP_OFFSET TILE_SIZE
 
 const int Graphics::max_game_area = DISPLAY_WIDTH - UNSCROLLABLE_AMOUNT;
-Graphics::Camera Graphics::camera = Graphics::Camera{0, Graphics::max_game_area >> 3};
+Graphics::Camera Graphics::camera = Graphics::Camera{ 0, Graphics::max_game_area >> 3 };
 sf::Clock Graphics::clock;
 
 Graphics::Graphics(Level& level) 
@@ -52,6 +52,14 @@ Graphics::Graphics(Level& level)
 
 Graphics::~Graphics() {}
 
+void Graphics::reset() {
+    scrollPivotRow = 0;
+    currentOutputRow = 0;
+    scrollAmount = UNSCROLLABLE_AMOUNT;
+    scrollTop = UNSCROLLABLE_AMOUNT;
+    camera = Graphics::Camera { 0, Graphics::max_game_area >> 3 };
+    fillScreen();
+}
 
 void Graphics::fillScreen(uint16_t color) {
     for (int i = 0; i < screen_height; i++) {
@@ -219,14 +227,4 @@ int Graphics::getScrollPivot() {
 
 void Graphics::registerEvent(Event<StatusBar> e) {
     event = e;
-}
-
-void Graphics::reset() {
-    camera = Graphics::Camera{ 0, Graphics::max_game_area >> 3 };
-    scrollAmount = UNSCROLLABLE_AMOUNT;
-    scrollTop = UNSCROLLABLE_AMOUNT;
-    scrollPivotRow = 0;
-    currentOutputRow = 0;
-
-    fillScreen();
 }

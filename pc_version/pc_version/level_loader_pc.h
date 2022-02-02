@@ -4,9 +4,7 @@
 
 struct Level;
 
-class LevelLoader {
-public:
-	bool loadLevel(uint8_t index, Level& level);
-	bool writeCurrentLevelIndex();
-
+namespace LevelLoader {
+	bool LoadLevel(uint8_t index, Level& level);
+	bool WriteCurrentLevelIndex();
 };

@@ -147,7 +147,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\enemy.cpp" />
     <ClCompile Include="..\..\src\game.cpp" />
-    <ClCompile Include="..\..\src\game_runner.cpp" />
     <ClCompile Include="..\..\src\level.cpp" />
     <ClCompile Include="..\..\src\level_utils.cpp" />
     <ClCompile Include="..\..\src\pickup.cpp" />
@@ -165,7 +164,6 @@
     <ClInclude Include="..\..\include\enemy_config.h" />
     <ClInclude Include="..\..\include\event.h" />
     <ClInclude Include="..\..\include\game.h" />
-    <ClInclude Include="..\..\include\game_runner.h" />
     <ClInclude Include="..\..\include\level.h" />
     <ClInclude Include="..\..\include\level_utils.h" />
     <ClInclude Include="..\..\include\logger.h" />
