@@ -10,6 +10,8 @@
 #include <memory>
 #include <vector>
 
+#define DISPLAY_HEIGHT  128
+#define DISPLAY_WIDTH   128
 
 using RenderWindowPtr = std::shared_ptr<sf::RenderWindow>;
 
@@ -51,14 +53,17 @@ private:
 
     int scrollAmount;
     int scrollTop;
-    int scrollBottom = 160;
+    int scrollBottom = DISPLAY_WIDTH;
     int scrollPivotRow = 0;
     int currentOutputRow = 0;
 
-    const int win_width = 640;
-    const int win_height = 512;
-    const int screen_width = 128;
-    const int screen_height = 160;
+    const int win_width = DISPLAY_WIDTH * 4;
+    const int win_height = DISPLAY_HEIGHT * 4;
+    // these are swapped because of the way I transpose the data plotted on the physical display
+    // in order to take advantage of vertical hardware scrolling while in landscape orientation
+    // I may need to revisit these, they are getting cloudy even for me lately
+    const int screen_width = DISPLAY_HEIGHT;
+    const int screen_height = DISPLAY_WIDTH;
     RenderWindowPtr window;
     std::vector<std::vector<uint16_t>> screen;
     static sf::Clock clock;

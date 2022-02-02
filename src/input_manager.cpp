@@ -3,21 +3,30 @@
 #include <Arduino.h>
 
 
+InputManager::InputManager() {
+    pinMode( 2, INPUT_PULLUP);
+    pinMode( 3, INPUT_PULLUP);
+    pinMode( 4, INPUT_PULLUP);
+    pinMode( 5, INPUT_PULLUP);
+    pinMode(A0, INPUT_PULLUP);
+    pinMode(A1, INPUT_PULLUP);
+}
+
 void InputManager::processInput() {
     mPrevMask = mMask;
     mMask = 0;
     //arduino nano's A0-A5 pins can be used also as digital pins
-    if(digitalRead(A0))
+    if(!digitalRead(4))
         mMask |= Button::LEFT;
-    if(digitalRead(A1))
+    if(!digitalRead(5))
         mMask |= Button::DOWN;
-    if(digitalRead(A2))
+    if(!digitalRead(2))
         mMask |= Button::UP;
-    if(digitalRead(A3))
+    if(!digitalRead(3))
         mMask |= Button::RIGHT;
-    if(digitalRead(A4))
+    if(!digitalRead(A0))
         mMask |= Button::A;
-    if(digitalRead(A5))
+    if(!digitalRead(A1))
         mMask |= Button::B;
 }
 

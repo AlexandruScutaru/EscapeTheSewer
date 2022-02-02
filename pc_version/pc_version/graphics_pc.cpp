@@ -32,7 +32,7 @@
 #define UNSCROLLABLE_AMOUNT 0
 #define TOP_OFFSET TILE_SIZE
 
-const int Graphics::max_game_area = 160 - UNSCROLLABLE_AMOUNT;
+const int Graphics::max_game_area = DISPLAY_WIDTH - UNSCROLLABLE_AMOUNT;
 Graphics::Camera Graphics::camera = Graphics::Camera{0, Graphics::max_game_area >> 3};
 sf::Clock Graphics::clock;
 
@@ -79,9 +79,9 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
         }
 
         if (flip & (1 << 1)) {
-            DRAW_ROW_FLIP((x + i)%160, y)
+            DRAW_ROW_FLIP((x + i) % DISPLAY_WIDTH, y)
         } else {
-            DRAW_ROW((x + i)%160, y)
+            DRAW_ROW((x + i) % DISPLAY_WIDTH, y)
         }
     }
 }
@@ -90,7 +90,7 @@ void Graphics::drawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t
     y += TOP_OFFSET;
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
-            screen[(x + j)%160][y + i] = color;
+            screen[(x + j) % DISPLAY_WIDTH][y + i] = color;
         }
     }
 }
@@ -113,7 +113,7 @@ void Graphics::display() {
     currentOutputRow = 0;
     int top = scrollTop - UNSCROLLABLE_AMOUNT;
     int bottom = scrollBottom - UNSCROLLABLE_AMOUNT;
-    int amount = 160 - scrollAmount;
+    int amount = DISPLAY_WIDTH - scrollAmount;
 
     for (int i = 0; i < top; i++) {
         printRow(screen[i]);
@@ -175,7 +175,7 @@ bool Graphics::scroll(bool direction) {
 
         scrollAmount -= TILE_SIZE;
         if (scrollAmount < UNSCROLLABLE_AMOUNT)
-            scrollAmount = 152;
+            scrollAmount = DISPLAY_WIDTH - 8;
 
         for (uint8_t i = 0; i < Level::levelH; i++) {
             const auto& tile_index = Level::getTileByIndex(i, camera.x2);
@@ -193,7 +193,7 @@ bool Graphics::scroll(bool direction) {
             return false;
 
         scrollAmount += TILE_SIZE;
-        if (scrollAmount > 159)
+        if (scrollAmount > DISPLAY_WIDTH - 1)
             scrollAmount = UNSCROLLABLE_AMOUNT;
 
         camera.x1--;

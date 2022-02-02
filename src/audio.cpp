@@ -1,6 +1,6 @@
 #include "audio.h"
 
-#define BUZZER 7
+#define BUZZER 6
 
 #define NOTE_E4  330
 #define NOTE_FS4 370
