@@ -31,7 +31,7 @@
 Game::Game()
     : mGraphics(mLevel)
 {
-    mGraphics.registerEvent(Event<StatusBar>(&mStatusBar));
+    //mGraphics.registerEvent(Event<StatusBar>(&mStatusBar));
 }
 
 Game::~Game() {}
@@ -39,14 +39,14 @@ Game::~Game() {}
 void Game::init() {
     mState = LevelState::IN_PROGRESS;
     mGraphics.reset();
-    Audio::Init();
+    //Audio::Init();
 
     mPlayer.setPos(mLevel.startCoords);
 
     BEGIN_DRAW
     mGraphics.fillScreen();
     LevelUtils::drawEntireLevel(mLevel, mGraphics);
-    mStatusBar.draw(mGraphics, true);
+    //mStatusBar.draw(mGraphics, true);
     END_DRAW
 }
 
@@ -92,34 +92,34 @@ void Game::draw() {
     BEGIN_DRAW
     
     //clean prev draws
-    for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
-       mLevel.enemies[i].cleanPrevDraw(mLevel, mGraphics);
-    }
+    //for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
+    //   mLevel.enemies[i].cleanPrevDraw(mLevel, mGraphics);
+    //}
 
     mPlayer.cleanPrevDraw(mLevel, mGraphics);
 
     //draw special objects
-    for (uint8_t i = 0; i < mLevel.pickups.size(); i++) {
-       mLevel.pickups[i].draw(mGraphics);
-    }
-    for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
-       mLevel.enemies[i].draw(mGraphics);
-    }
+    //for (uint8_t i = 0; i < mLevel.pickups.size(); i++) {
+    //   mLevel.pickups[i].draw(mGraphics);
+    //}
+    //for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
+    //   mLevel.enemies[i].draw(mGraphics);
+    //}
     mPlayer.draw(mGraphics);
     
-    mStatusBar.draw(mGraphics);
+    //mStatusBar.draw(mGraphics);
     END_DRAW
 }
 
 void Game::update(float dt) {
-    for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
-       mLevel.enemies[i].update(mLevel, mGraphics, dt);
-    }
+    //for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
+    //   mLevel.enemies[i].update(mLevel, mGraphics, dt);
+    //}
 
     mPlayer.update(mInputManager, mLevel, mGraphics, dt);
-    mStatusBar.update(dt);
 
-    mStatusBar.setPlayerHp(mPlayer.getHp());
+    //mStatusBar.update(dt);
+    //mStatusBar.setPlayerHp(mPlayer.getHp());
 }
 
 void Game::handleCollision() {

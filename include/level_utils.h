@@ -3,6 +3,7 @@
 
 #include "level.h"
 
+class Graphics;
 class Player;
 
 namespace LevelUtils {

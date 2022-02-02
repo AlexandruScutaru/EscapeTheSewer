@@ -6,25 +6,25 @@
 
 #include <algorithm>
 
-#define ROW(x, y, i, j)  screen[x][y + (j-1)] = Level::colors[r.row[i]];
+#define ROW(level, x, y, i, j)  screen[x][y + (j-1)] = LevelUtils::getColor(level, r.row[i]);
 
-#define DRAW_ROW(x, y) ROW(x, y, 1, 1)\
-                       ROW(x, y, 2, 2)\
-                       ROW(x, y, 3, 3)\
-                       ROW(x, y, 4, 4)\
-                       ROW(x, y, 5, 5)\
-                       ROW(x, y, 6, 6)\
-                       ROW(x, y, 7, 7)\
-                       ROW(x, y, 8, 8)
+#define DRAW_ROW(level, x, y) ROW(level, x, y, 1, 1)\
+                              ROW(level, x, y, 2, 2)\
+                              ROW(level, x, y, 3, 3)\
+                              ROW(level, x, y, 4, 4)\
+                              ROW(level, x, y, 5, 5)\
+                              ROW(level, x, y, 6, 6)\
+                              ROW(level, x, y, 7, 7)\
+                              ROW(level, x, y, 8, 8)
 
-#define DRAW_ROW_FLIP(x, y) ROW(x, y, 8, 1)\
-                            ROW(x, y, 7, 2)\
-                            ROW(x, y, 6, 3)\
-                            ROW(x, y, 5, 4)\
-                            ROW(x, y, 4, 5)\
-                            ROW(x, y, 3, 6)\
-                            ROW(x, y, 2, 7)\
-                            ROW(x, y, 1, 8)
+#define DRAW_ROW_FLIP(level, x, y) ROW(level, x, y, 8, 1)\
+                                   ROW(level, x, y, 7, 2)\
+                                   ROW(level, x, y, 6, 3)\
+                                   ROW(level, x, y, 5, 4)\
+                                   ROW(level, x, y, 4, 5)\
+                                   ROW(level, x, y, 3, 6)\
+                                   ROW(level, x, y, 2, 7)\
+                                   ROW(level, x, y, 1, 8)
 
 #define modulo(a, b) ((a)%(b)) < 0 ? (a)%(b) + (b) : (a)%(b)
 
@@ -88,9 +88,9 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
         }
 
         if (flip & (1 << 1)) {
-            DRAW_ROW_FLIP((x + i) % DISPLAY_WIDTH, y)
+            DRAW_ROW_FLIP(mLevel, (x + i) % DISPLAY_WIDTH, y)
         } else {
-            DRAW_ROW((x + i) % DISPLAY_WIDTH, y)
+            DRAW_ROW(mLevel, (x + i) % DISPLAY_WIDTH, y)
         }
     }
 }

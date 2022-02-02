@@ -65,29 +65,29 @@ namespace LevelLoader {
         level.endCoords.x = static_cast<float>(readWord(currentAddress));
         level.endCoords.y = static_cast<float>(readWord(currentAddress));
 
-        level.enemies.clear();
-        level.pickups.clear();
+        //level.enemies.clear();
+        //level.pickups.clear();
         uint8_t count = 0;
         vec2 pos;
         count = EepromUtils::readFromAddress(currentAddress++);
         for (int i = 0; i < count; i++) {
             pos.x = static_cast<float>(readWord(currentAddress));
             pos.y = static_cast<float>(readWord(currentAddress));
-            level.enemies.push_back(Enemy(pos, EnemyConfig::Type::SLIME));
+            //level.enemies.push_back(Enemy(pos, EnemyConfig::Type::SLIME));
         }
 
         count = EepromUtils::readFromAddress(currentAddress++);
         for (int i = 0; i < count; i++) {
             pos.x = static_cast<float>(readWord(currentAddress));
             pos.y = static_cast<float>(readWord(currentAddress));
-            level.enemies.push_back(Enemy(pos, EnemyConfig::Type::BUG));
+            //level.enemies.push_back(Enemy(pos, EnemyConfig::Type::BUG));
         }
 
         count = EepromUtils::readFromAddress(currentAddress++);
         for (int i = 0; i < count; i++) {
             pos.x = static_cast<float>(readWord(currentAddress));
             pos.y = static_cast<float>(readWord(currentAddress));
-            level.pickups.push_back(Pickup(pos, 50, 0));
+            //level.pickups.push_back(Pickup(pos, 50, 0));
         }
 
         EepromUtils::endWire();

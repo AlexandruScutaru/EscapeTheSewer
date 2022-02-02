@@ -77,10 +77,10 @@ void Graphics::pushColors(uint8_t index, uint16_t x0, uint16_t y0, uint16_t x1, 
 
         if (flip & (1 << 1))
             for (size_t col = 8; col > 0; col--)
-                mTFT.pushColor(Level::colors[r.row[col]]);
+                mTFT.pushColor(LevelUtils::getColor(mLevel, r.row[col]));
         else
             for (size_t col = 1; col <= 8; col++)
-                mTFT.pushColor(Level::colors[r.row[col]]);
+                mTFT.pushColor(LevelUtils::getColor(mLevel, r.row[col]));
     }
 }
 

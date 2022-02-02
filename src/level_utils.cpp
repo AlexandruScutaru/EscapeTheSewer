@@ -122,51 +122,51 @@ bool LevelUtils::collideWithLevel(Level& level, vec2& pos, const vec2& oldPos, v
 }
 
 void LevelUtils::collideWithPickups(Level& level, Graphics& graphics, Player& player) {
-    for (uint8_t i = 0; i < level.pickups.size(); i++) {
-       if (aabb(level.pickups[i].getPos(), player.getPos())) {
-           player.incHp(30); //hardcoded way of doing it, to be updated
-           removePickup(level, graphics, i);
-       }
-    }
+    //for (uint8_t i = 0; i < level.pickups.size(); i++) {
+    //   if (aabb(level.pickups[i].getPos(), player.getPos())) {
+    //       player.incHp(30); //hardcoded way of doing it, to be updated
+    //       removePickup(level, graphics, i);
+    //   }
+    //}
 }
 
 bool LevelUtils::collideWithEnemies(Level& level, Player& player) {
-    for (uint8_t i = 0; i < level.enemies.size(); i++) {
-       if (aabb(level.enemies[i].getPos(), player.getPos())) {
-           if (!player.hit(level.enemies[i].getDmg())) {
-               //player died
-               return true;
-           }
-       }
-    }
+    //for (uint8_t i = 0; i < level.enemies.size(); i++) {
+    //   if (aabb(level.enemies[i].getPos(), player.getPos())) {
+    //       if (!player.hit(level.enemies[i].getDmg())) {
+    //           //player died
+    //           return true;
+    //       }
+    //   }
+    //}
     return false;
 }
 
 void LevelUtils::removeEnemy(Level& level, Graphics& graphics, uint8_t idx) {
-    level.enemies[idx].cleanPrevDraw(level, graphics);
-    level.enemies.erase(idx);
+    //level.enemies[idx].cleanPrevDraw(level, graphics);
+    //level.enemies.erase(idx);
 }
 
 void LevelUtils::removePickup(Level& level, Graphics& graphics, uint8_t idx) {
-    level.pickups[idx].cleanPrevDraw(level, graphics);
-    level.pickups.erase(idx);
+    //level.pickups[idx].cleanPrevDraw(level, graphics);
+    //level.pickups.erase(idx);
 }
 
 bool LevelUtils::hitEnemy(Level& level, Graphics& graphics, const vec2& pos, float dmg, float force) {
     uint8_t i = 0;
     bool res = false;
-    while (i < level.enemies.size()) {
-       if (aabb(level.enemies[i].getPos(), pos)) {
-           if (!level.enemies[i].hit(static_cast<int8_t>(dmg), static_cast<int8_t>(force))) {
-               removeEnemy(level, graphics, i);
-               res = true;
-           } else {
-               i++;
-           }
-       } else {
-           i++;
-       }
-    }
+    //while (i < level.enemies.size()) {
+    //   if (aabb(level.enemies[i].getPos(), pos)) {
+    //       if (!level.enemies[i].hit(static_cast<int8_t>(dmg), static_cast<int8_t>(force))) {
+    //           removeEnemy(level, graphics, i);
+    //           res = true;
+    //       } else {
+    //           i++;
+    //       }
+    //   } else {
+    //       i++;
+    //   }
+    //}
 
     return res;
 }
