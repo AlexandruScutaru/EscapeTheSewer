@@ -1,0 +1,4 @@
+[submodule "lib/TFT_ST7735"]
+	path = lib/TFT_ST7735
+	url = https://github.com/AlexandruScutaru/TFT_ST7735.git
+	branch = small-black-pcb
