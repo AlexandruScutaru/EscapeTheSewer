@@ -60,7 +60,6 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
     //get the amount of cropped tile and push the rest over scroll seam
     int16_t offset = size - (DISPLAY_WIDTH - x);
     if (offset > 0){
-        //mTFT.fillRect(y, 152+(size-offset), size, offset, COLOR_CYAN);
         pushColors(index, y, DISPLAY_WIDTH - offset, y+size-1, DISPLAY_WIDTH-1, size, flip, 0, offset);
     }
 }
@@ -118,7 +117,7 @@ bool Graphics::scroll(bool direction) {
         camera.x2++;
         scrollPivotRow += TILE_SIZE;
 
-        if (event) event();
+        if (redrawEvent) redrawEvent.emit();
         return true;
     } else {
         if (camera.x1 == 0) {
@@ -142,7 +141,7 @@ bool Graphics::scroll(bool direction) {
 
         scrollPivotRow -= TILE_SIZE;
 
-        if (event) event();
+        if (redrawEvent) redrawEvent.emit();
         return true;
     }
 
@@ -154,5 +153,5 @@ int16_t Graphics::getScrollPivot() {
 }
 
 void Graphics::registerEvent(Event<StatusBar> e) {
-    event = e;
+    redrawEvent = e;
 }

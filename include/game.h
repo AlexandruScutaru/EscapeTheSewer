@@ -3,7 +3,7 @@
 
 #include "level.h"
 #include "player.h"
-//#include "status_bar.h"
+#include "status_bar.h"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "input_manager.h"
@@ -39,7 +39,7 @@ private:
     InputManager mInputManager;
     Graphics mGraphics;
     Player mPlayer;
-    //StatusBar mStatusBar;
+    StatusBar mStatusBar;
 
     LevelState mState = LevelState::IN_PROGRESS;
     uint8_t mCurrentLevel = 0;

@@ -3,20 +3,27 @@
 
 template<typename T>
 class Event {
-    public:
-        Event() {}
-        Event(T* obj) : mObj(obj) {}
+public:
+    typedef void (T::*Func)(void);
 
-        operator bool() const {
-            return mObj != nullptr;
-        }
+    Event() {}
+    Event(T* obj, Func func)
+        : mObj(obj)
+        , mFunc(func)
+    {}
 
-        void operator() () {
-            if (mObj) mObj->fire();
-        }
+    operator bool() const {
+        return mObj != nullptr;
+    }
 
-    private:
-        T* mObj = nullptr;
+    void emit() {
+        if (mObj && mFunc)
+            (mObj->*mFunc)();
+    }
+
+private:
+    T* mObj{ nullptr };
+    Func mFunc{ nullptr };
 
 };
 

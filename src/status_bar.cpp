@@ -69,7 +69,7 @@ void StatusBar::setPlayerHp(int8_t hp) {
     }
 }
 
-void StatusBar::fire() {
+void StatusBar::onRedraw() {
     drawRequired = true;
 }
 

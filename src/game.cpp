@@ -31,7 +31,7 @@
 Game::Game()
     : mGraphics(mLevel)
 {
-    //mGraphics.registerEvent(Event<StatusBar>(&mStatusBar));
+    mGraphics.registerEvent(Event<StatusBar>(&mStatusBar, &StatusBar::onRedraw));
 }
 
 Game::~Game() {}
@@ -39,14 +39,14 @@ Game::~Game() {}
 void Game::init() {
     mState = LevelState::IN_PROGRESS;
     mGraphics.reset();
-    //Audio::Init();
+    Audio::Init();
 
     mPlayer.setPos(mLevel.startCoords);
 
     BEGIN_DRAW
     mGraphics.fillScreen();
     LevelUtils::drawEntireLevel(mLevel, mGraphics);
-    //mStatusBar.draw(mGraphics, true);
+    mStatusBar.draw(mGraphics, true);
     END_DRAW
 }
 
@@ -105,9 +105,9 @@ void Game::draw() {
     //for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
     //   mLevel.enemies[i].draw(mGraphics);
     //}
+
     mPlayer.draw(mGraphics);
-    
-    //mStatusBar.draw(mGraphics);
+    mStatusBar.draw(mGraphics);
     END_DRAW
 }
 
@@ -118,8 +118,8 @@ void Game::update(float dt) {
 
     mPlayer.update(mInputManager, mLevel, mGraphics, dt);
 
-    //mStatusBar.update(dt);
-    //mStatusBar.setPlayerHp(mPlayer.getHp());
+    mStatusBar.update(dt);
+    mStatusBar.setPlayerHp(mPlayer.getHp());
 }
 
 void Game::handleCollision() {

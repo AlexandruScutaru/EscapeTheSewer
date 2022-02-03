@@ -70,7 +70,7 @@ private:
     std::vector<std::vector<uint16_t>> screen;
     static sf::Clock clock;
 
-    Event<StatusBar> event;
+    Event<StatusBar> redrawEvent;
     Level& mLevel;
 };
 

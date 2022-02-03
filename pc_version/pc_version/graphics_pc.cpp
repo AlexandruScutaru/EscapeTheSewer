@@ -195,7 +195,7 @@ bool Graphics::scroll(bool direction) {
         camera.x2++;
         scrollPivotRow += TILE_SIZE;
 
-        if (event) event();
+        if (redrawEvent) redrawEvent.emit();
         return true;
     } else {
         if (camera.x1 == 0)
@@ -215,7 +215,7 @@ bool Graphics::scroll(bool direction) {
 
         scrollPivotRow -= TILE_SIZE;
 
-        if (event) event();
+        if (redrawEvent) redrawEvent.emit();
         return true;
     }
     return false;
@@ -226,5 +226,5 @@ int Graphics::getScrollPivot() {
 }
 
 void Graphics::registerEvent(Event<StatusBar> e) {
-    event = e;
+    redrawEvent = e;
 }

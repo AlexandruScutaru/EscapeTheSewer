@@ -44,7 +44,7 @@ private:
 
     TFT_ST7735 mTFT;
 
-    Event<StatusBar> event;
+    Event<StatusBar> redrawEvent;
     Level& mLevel;
     int16_t scrollAmount;
     int16_t scrollPivotRow = 0;

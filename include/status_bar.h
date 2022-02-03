@@ -14,7 +14,7 @@ public:
     void draw(Graphics& graphics, bool forceRedraw = false);
 
     void setPlayerHp(int8_t hp);
-    void fire(); //this is not the best name, but eh
+    void onRedraw();
 
 private:
     bool readBatteryLevel();
