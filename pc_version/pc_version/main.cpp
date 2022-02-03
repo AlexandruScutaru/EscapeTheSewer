@@ -1,10 +1,8 @@
-#include "logging.h"
-
-#include <main_game.h>
+#include <game.h>
 
 
 int main() {
-    MainGame game;
+    Game game;
     game.run();
 
     return 0;

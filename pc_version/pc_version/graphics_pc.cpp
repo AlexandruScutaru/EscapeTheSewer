@@ -1,31 +1,30 @@
 #include "graphics_pc.h"
 #include "input_manager_pc.h"
-#include "logging.h"
 
-#include <level.h>
+#include <level_utils.h>
 #include <status_bar.h>
 
 #include <algorithm>
 
-#define ROW(x, y, i, j)  screen[x][y + (j-1)] = Level::colors[r.row[i]];
+#define ROW(level, x, y, i, j)  screen[x][y + (j-1)] = LevelUtils::getColor(level, r.row[i]);
 
-#define DRAW_ROW(x, y) ROW(x, y, 1, 1)\
-                       ROW(x, y, 2, 2)\
-                       ROW(x, y, 3, 3)\
-                       ROW(x, y, 4, 4)\
-                       ROW(x, y, 5, 5)\
-                       ROW(x, y, 6, 6)\
-                       ROW(x, y, 7, 7)\
-                       ROW(x, y, 8, 8)
+#define DRAW_ROW(level, x, y) ROW(level, x, y, 1, 1)\
+                              ROW(level, x, y, 2, 2)\
+                              ROW(level, x, y, 3, 3)\
+                              ROW(level, x, y, 4, 4)\
+                              ROW(level, x, y, 5, 5)\
+                              ROW(level, x, y, 6, 6)\
+                              ROW(level, x, y, 7, 7)\
+                              ROW(level, x, y, 8, 8)
 
-#define DRAW_ROW_FLIP(x, y) ROW(x, y, 8, 1)\
-                            ROW(x, y, 7, 2)\
-                            ROW(x, y, 6, 3)\
-                            ROW(x, y, 5, 4)\
-                            ROW(x, y, 4, 5)\
-                            ROW(x, y, 3, 6)\
-                            ROW(x, y, 2, 7)\
-                            ROW(x, y, 1, 8)
+#define DRAW_ROW_FLIP(level, x, y) ROW(level, x, y, 8, 1)\
+                                   ROW(level, x, y, 7, 2)\
+                                   ROW(level, x, y, 6, 3)\
+                                   ROW(level, x, y, 5, 4)\
+                                   ROW(level, x, y, 4, 5)\
+                                   ROW(level, x, y, 3, 6)\
+                                   ROW(level, x, y, 2, 7)\
+                                   ROW(level, x, y, 1, 8)
 
 #define modulo(a, b) ((a)%(b)) < 0 ? (a)%(b) + (b) : (a)%(b)
 
@@ -33,15 +32,17 @@
 #define TOP_OFFSET TILE_SIZE
 
 const int Graphics::max_game_area = DISPLAY_WIDTH - UNSCROLLABLE_AMOUNT;
-Graphics::Camera Graphics::camera = Graphics::Camera{0, Graphics::max_game_area >> 3};
+Graphics::Camera Graphics::camera = Graphics::Camera{ 0, Graphics::max_game_area >> 3 };
 sf::Clock Graphics::clock;
 
-Graphics::Graphics() 
+Graphics::Graphics(Level& level) 
     : window(std::shared_ptr<sf::RenderWindow>(new sf::RenderWindow(sf::VideoMode(win_width, win_height), "Escape The Sewer")))
     , screen(std::vector<std::vector<uint16_t>>(screen_height, std::vector<uint16_t>(screen_width)))
     , scrollAmount(UNSCROLLABLE_AMOUNT)
     , scrollTop(UNSCROLLABLE_AMOUNT)
+    , mLevel(level)
 {
+    camera = Graphics::Camera {0, Graphics::max_game_area >> 3};
     sf::View view(sf::FloatRect(0.0f, 0.0f, static_cast<float>(screen_height), static_cast<float>(screen_width)));
     view.zoom(1.0);
     window->setView(view);
@@ -51,11 +52,19 @@ Graphics::Graphics()
 
 Graphics::~Graphics() {}
 
+void Graphics::reset() {
+    scrollPivotRow = 0;
+    currentOutputRow = 0;
+    scrollAmount = UNSCROLLABLE_AMOUNT;
+    scrollTop = UNSCROLLABLE_AMOUNT;
+    camera = Graphics::Camera { 0, Graphics::max_game_area >> 3 };
+    fillScreen();
+}
 
 void Graphics::fillScreen(uint16_t color) {
     for (int i = 0; i < screen_height; i++) {
         for (int j = 0; j < screen_width; j++) {
-            screen[i][j] = BG_COLOR;
+            screen[i][j] = color;
         }
     }
 }
@@ -73,15 +82,15 @@ void Graphics::drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uin
     for (int i = 0; i < 8; i++) {
         Level::tile_row_t r;
         if (flip & 1) {
-            r = Level::getTileRow(index, 7-i);
+            r = LevelUtils::getTileRow(mLevel, index, 7-i);
         } else {
-            r = Level::getTileRow(index, i);
+            r = LevelUtils::getTileRow(mLevel, index, i);
         }
 
         if (flip & (1 << 1)) {
-            DRAW_ROW_FLIP((x + i) % DISPLAY_WIDTH, y)
+            DRAW_ROW_FLIP(mLevel, (x + i) % DISPLAY_WIDTH, y)
         } else {
-            DRAW_ROW((x + i) % DISPLAY_WIDTH, y)
+            DRAW_ROW(mLevel, (x + i) % DISPLAY_WIDTH, y)
         }
     }
 }
@@ -170,15 +179,15 @@ void Graphics::pollEvents() {
 
 bool Graphics::scroll(bool direction) {
     if (direction) {
-        if (camera.x2 + 1 > Level::levelW)
+        if (camera.x2 + 1 > mLevel.levelW)
             return false;
 
         scrollAmount -= TILE_SIZE;
         if (scrollAmount < UNSCROLLABLE_AMOUNT)
             scrollAmount = DISPLAY_WIDTH - 8;
 
-        for (uint8_t i = 0; i < Level::levelH; i++) {
-            const auto& tile_index = Level::getTileByIndex(i, camera.x2);
+        for (uint8_t i = 0; i < mLevel.levelH; i++) {
+            const auto& tile_index = LevelUtils::getTileByIndex(mLevel, i, camera.x2);
             drawTile(tile_index.tile_index.index, scrollPivotRow, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
         }
 
@@ -199,8 +208,8 @@ bool Graphics::scroll(bool direction) {
         camera.x1--;
         camera.x2--;
 
-        for (uint8_t i = 0; i < Level::levelH; i++) {
-            const auto& tile_index = Level::getTileByIndex(i, camera.x1);
+        for (uint8_t i = 0; i < mLevel.levelH; i++) {
+            const auto& tile_index = LevelUtils::getTileByIndex(mLevel, i, camera.x1);
             drawTile(tile_index.tile_index.index, scrollPivotRow-TILE_SIZE, i*TILE_SIZE, TILE_SIZE, tile_index.tile_index.flip);
         }
 

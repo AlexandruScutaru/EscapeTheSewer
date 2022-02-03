@@ -8,14 +8,12 @@
     #define BATTERY_PIN       A3
     #define VOLTAGE_EPSILON   0.2      /*should be empirically determined*/
     #define MAX_ANALOG_VALUE  1024.0f
-
-    #define LOG(x)
 #else
     #include "../pc_version/pc_version/graphics_pc.h"
-    #include "../pc_version/pc_version/logging.h"
 
     #define millis() Graphics::getElapsedTime()
 #endif
+
 
 bool FloatEquality(float a, float b, float epsilon) {
    return fabs(a - b) < epsilon;
@@ -51,10 +49,10 @@ void StatusBar::update(float dt) {
     }
 }
 
-void StatusBar::draw(Graphics& graphics) {
+void StatusBar::draw(Graphics& graphics, bool forceRedraw) {
     //need something better than a bool
     //like an also an event when there was a scroll
-    if(drawRequired) {
+    if(drawRequired || forceRedraw) {
         graphics.drawFillRect(0, -8, DISPLAY_WIDTH, 8, STATUS_BAR_BG);
 
         drawPlayerHpIndicator(graphics);

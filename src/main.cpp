@@ -1,14 +1,23 @@
 #include <Arduino.h>
 
-#include "main_game.h"
-
+#if defined (WRITE_LEVELS)
+#include "level_writer.h"
+#else
+#include "game.h"
+#endif
 
 void  setup() {
-    //Serial.begin(115200);
-    MainGame game;
+#if defined(SHOULD_LOG)
+    Serial.begin(115200);
+    while (!Serial);
+#endif
+
+#if defined(WRITE_LEVELS)
+    WriteLevel();
+#else
+    Game game;
     game.run();
+#endif
 }
 
-void loop() {
-
-}
+void loop() {}

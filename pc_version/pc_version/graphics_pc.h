@@ -15,15 +15,17 @@
 
 using RenderWindowPtr = std::shared_ptr<sf::RenderWindow>;
 
+struct Level;
 class StatusBar;
 
 class Graphics {
 public:
-    Graphics();
+    Graphics(Level& level);
     ~Graphics();
 
     void clear();
     void display();
+    void reset();
 
     void fillScreen(uint16_t color = BG_COLOR);
     void drawTile(uint8_t index, uint16_t x, uint16_t y, uint8_t size, uint8_t flip = 0);
@@ -69,6 +71,7 @@ private:
     static sf::Clock clock;
 
     Event<StatusBar> event;
+    Level& mLevel;
 };
 
 #endif // GRAPHICS_PC_H

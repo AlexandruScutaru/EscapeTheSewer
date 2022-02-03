@@ -1,62 +1,50 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
+#include "enemy_config.h"
 #include "vec2.h"
 
 #include <stdint.h>
 
 
 class Graphics;
-
-enum class EnemyType : int8_t {
-    SLIME,
-    BUG,
-};
+struct Level;
 
 class Enemy {
 public:
     Enemy();
-    Enemy(const vec2& pos, EnemyType type);
+    Enemy(const vec2& pos, EnemyConfig::Type type);
     ~Enemy();
 
-    void update(float dt);
-    void cleanPrevDraw(Graphics& graphics);
+    void update(Level& level, Graphics& graphics, float dt);
+    void cleanPrevDraw(Level& level, Graphics& graphics);
     void draw(Graphics& graphics);
 
     const vec2& getPos();
-    EnemyType getType();
+    EnemyConfig::Type getType();
     int8_t getDmg();
 
     bool hit(int8_t dmg,  int8_t force);
 
 private:
-    void checkCollision();
+    void checkCollision(Level& level);
 
     vec2 mPos;
     vec2 mOldPos;
     vec2 mVelocity;
 
-    float mWalkSpeed;
-    float mJumpForce;
-    float mGravity;
-
     uint32_t mLastFrameUpdate = 0;
-    uint32_t mLastSleepTime = 0;
-    
-    EnemyType mType;
+    uint32_t mLastSleepTime = 0; 
 
     uint8_t mAnimFrameCurrent = 0;
-    uint8_t mAnimFrameStart;
-    uint8_t mAnimFramesCount;
-    uint8_t mAnimFrameTime;
-    int8_t mHp;
-    int8_t mDmg;
-    
-    bool mFlipSprite = false;
-    bool mSleeps = false;
-    bool mOnGround = false;
-    bool mCanJump = false;
-    bool mCanSleep = false;
+    uint8_t mConfigIndex = 0;
+    int8_t mHealth = 0;
+
+    struct flags_t {
+        uint8_t flipSprite  : 1;
+        uint8_t sleeps      : 1;
+        uint8_t onGround    : 1;
+    } mFlags;
 
 };
 

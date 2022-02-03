@@ -1,17 +1,14 @@
 #include "player.h"
-#include "level.h"
+#include "level_utils.h"
 #include "vec2.inl"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "input_manager.h"
     #include "graphics.h"
     #include <Arduino.h>
-
-    #define LOG(msg)
 #else
     #include "../pc_version/pc_version/input_manager_pc.h"
     #include "../pc_version/pc_version/graphics_pc.h"
-    #include "../pc_version/pc_version/logging.h"
 
     #define min(a,b) ((a)<(b)?(a):(b))
     #define max(a,b) ((a)>(b)?(a):(b))
@@ -23,6 +20,19 @@
 #define CLIMB_SPEED      0.7f
 #define GRAVITY          0.9f
 #define JUMP_FORCE       7.0f
+
+#define ANIM_WALK_START   32
+#define ANIM_WALK_FRAMES   4
+#define ANIM_IDLE_START   36
+#define ANIM_IDLE_FRAMES   4
+#define ANIM_FALL_START   40
+#define ANIM_FALL_FRAMES   2
+#define ANIM_JUMP_START   42
+#define ANIM_JUMP_FRAMES   2
+#define ANIM_CLIMB_START  44
+#define ANIM_CLIMB_FRAMES  2
+#define ANIM_ATTACK_START 46
+#define ANIM_ATTACK_FRAMES 2
 
 #define ANIM_FRAME_TIME  100
 
@@ -63,11 +73,16 @@ int8_t Player::getHp() const {
     return hp;
 }
 
-bool Player::hit(int8_t dmg) {
-    return (hp -= dmg) > 0;
+void Player::incHp(uint8_t val) {
+    hp = min(100, hp + val);
 }
 
-void Player::update(InputManager& input, float dt) {
+bool Player::hit(int8_t dmg) {
+    hp -= dmg;
+    return hp > 0;
+}
+
+void Player::update(InputManager& input, Level& level, Graphics& graphics, float dt) {
     oldPos = pos;
 
     if(input.wasButtonPressedNow(InputManager::Button::A) && onGround) {
@@ -104,22 +119,20 @@ void Player::update(InputManager& input, float dt) {
     }
 
     //pos.x = min(max(Graphics::camera.x1 << 3, pos.x + velocity.x * dt), (Graphics::camera.x2 << 3) - TILE_SIZE);
-    pos.x = min(max(0, pos.x + velocity.x * dt), (Level::levelW << 3) - TILE_SIZE);
+    pos.x = min(max(0, pos.x + velocity.x * dt), (level.levelW << 3) - TILE_SIZE);
     pos.y += velocity.y * dt;
     if(pos.y <= 0.0f) {
         velocity.y = 0.0f;
         pos.y = 0.0f;
     }
-    pos.y = min(pos.y, (Level::levelH << 3) - TILE_SIZE);
+    pos.y = min(pos.y, (level.levelH << 3) - TILE_SIZE);
 
-    checkCollision();
+    checkCollision(level, graphics);
     updateAnimation();
-
-    //Serial.println(pos.x);
 }
 
-void Player::cleanPrevDraw(Graphics& graphics) {
-    Level::cleanPrevDraw(oldPos);
+void Player::cleanPrevDraw(Level& level, Graphics& graphics) {
+    LevelUtils::cleanPrevDraw(level, graphics, oldPos);
 }
 
 void Player::draw(Graphics& graphics) {
@@ -146,8 +159,8 @@ void Player::draw(Graphics& graphics) {
     }
 }
 
-void Player::checkCollision() {
-    bool collidedWithLadder = Level::collideWithLevel(pos, oldPos, velocity, vec2(0.0f), nullptr, &onGround, &ladderXpos);
+void Player::checkCollision(Level& level, Graphics& graphics) {
+    bool collidedWithLadder = LevelUtils::collideWithLevel(level, pos, oldPos, velocity, vec2(0.0f), nullptr, &onGround, &ladderXpos);
 
     if (collidedWithLadder) {
         if(mAnimState != AnimState::CLIMBING && mAnimState != AnimState::CLIMB_IDLE) {
@@ -159,7 +172,7 @@ void Player::checkCollision() {
 
     if (mAnimState == AnimState::ATTACK && !attackSuccesful) 
     {
-        attackSuccesful = Level::hitEnemy(vec2(flipSprite ? pos.x - SWORD_REACH : pos.x + SWORD_REACH, pos.y), SWORD_DMG, flipSprite ? -SWORD_KNOCKBACK_FORCE : SWORD_KNOCKBACK_FORCE);
+        attackSuccesful = LevelUtils::hitEnemy(level, graphics, vec2(flipSprite ? pos.x - SWORD_REACH : pos.x + SWORD_REACH, pos.y), SWORD_DMG, flipSprite ? -SWORD_KNOCKBACK_FORCE : SWORD_KNOCKBACK_FORCE);
     }
 }
 

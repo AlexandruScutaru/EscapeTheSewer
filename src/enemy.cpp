@@ -1,5 +1,5 @@
 #include "enemy.h"
-#include "level.h"
+#include "level_utils.h"
 #include "vec2.inl"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
@@ -7,7 +7,6 @@
     #include <Arduino.h>
 #else
     #include "../pc_version/pc_version/graphics_pc.h"
-    #include "../pc_version/pc_version/logging.h"
 
     #define min(a,b) ((a)<(b)?(a):(b))
     #define max(a,b) ((a)>(b)?(a):(b))
@@ -17,88 +16,66 @@
 
 #define VELOCITY_RECOVERY 0.2f
 
+using namespace EnemyConfig;
+
 
 Enemy::Enemy() {}
 
-Enemy::Enemy(const vec2& mPos, EnemyType type) 
+Enemy::Enemy(const vec2& mPos, Type type)
     : mPos(mPos)
     , mOldPos(mPos)
     , mVelocity(vec2(0.0f))
-    , mType(type)
+    , mConfigIndex(static_cast<uint8_t>(type))
 {
-    switch (mType)
-    {
-        case EnemyType::SLIME:
-            mWalkSpeed = 0.5f;
-            mJumpForce = 4.0f;
-            mGravity = 0.7f;
-            mAnimFrameStart = 23;
-            mAnimFramesCount = 4;
-            mAnimFrameTime =  120;
-            mHp = 10;
-            mDmg = 1;
-            mCanJump = true;
-            break;
-        case EnemyType::BUG:
-            mWalkSpeed = 0.35f;
-            mJumpForce = 0.0f;
-            mGravity = 1.2f;
-            mAnimFrameStart = 27;
-            mAnimFramesCount = 2;
-            mAnimFrameTime =  150;
-            mHp = 20;
-            mDmg = 2;
-            mCanSleep = true;
-            break;
-        default:
-            //assert or something
-            break;
-    }
+    mHealth = configs[mConfigIndex].mHp;
+    mFlags.flipSprite = false;
+    mFlags.sleeps = false;
+    mFlags.onGround = false;
 }
 
 Enemy::~Enemy() {}
 
 
-void Enemy::update(float dt) {
+void Enemy::update(Level& level, Graphics& graphics, float dt) {
     mOldPos = mPos;
 
-    if (mCanSleep) {
+    if (configs[mConfigIndex].mFlags.canSleep) {
         if(mLastSleepTime + 3000 <= millis()) {
             mAnimFrameCurrent = 2;
             mLastSleepTime = millis();
-            mSleeps = true;
+            mFlags.sleeps = true;
         }
 
-        if(mSleeps  && mLastSleepTime + 1000 <= millis()) {
+        if(mFlags.sleeps  && mLastSleepTime + 1000 <= millis()) {
             mAnimFrameCurrent = 0;
             mLastFrameUpdate = millis();
-            mSleeps = false;
+            mFlags.sleeps = false;
         }
     }
 
-    if (!mSleeps) {
+    if (!mFlags.sleeps) {
         //I need to update this a mathematically smarter way to deal with impulses
-        if (mFlipSprite) {
-            if (mVelocity.x + mWalkSpeed > 0.01f)
+        if (mFlags.flipSprite) {
+            if (mVelocity.x + configs[mConfigIndex].mWalkSpeed > 0.01f)
                 mVelocity.x -= VELOCITY_RECOVERY * dt;
-            else if (mVelocity.x + mWalkSpeed < -0.01f)
+            else if (mVelocity.x + configs[mConfigIndex].mWalkSpeed < -0.01f)
                 mVelocity.x += VELOCITY_RECOVERY * dt;
         } else {
-            if (mVelocity.x - mWalkSpeed > 0.01f)
+            if (mVelocity.x - configs[mConfigIndex].mWalkSpeed > 0.01f)
                 mVelocity.x -= VELOCITY_RECOVERY * dt;
-            else if (mVelocity.x - mWalkSpeed < -0.01f)
+            else if (mVelocity.x - configs[mConfigIndex].mWalkSpeed < -0.01f)
                 mVelocity.x += VELOCITY_RECOVERY * dt;
         }
 
-        mPos.x = min(max(0, mPos.x + mVelocity.x * dt), (Level::levelW << 3) - TILE_SIZE);
+        mPos.x = min(max(0, mPos.x + mVelocity.x * dt), (level.levelW << 3) - TILE_SIZE);
     }
 
-    if (mCanJump && mOnGround && mAnimFrameCurrent == 1) {
-        mVelocity.y = -mJumpForce;
-        mOnGround = false;
+    if (configs[mConfigIndex].mFlags.canJump && mFlags.onGround && mAnimFrameCurrent == 1) {
+        mVelocity.y = -configs[mConfigIndex].mJumpForce;
+        mFlags.onGround = false;
     }
 
-    mVelocity.y = min(2*mGravity, mVelocity.y + mGravity * dt);
+    mVelocity.y = min(2 * configs[mConfigIndex].mGravity, mVelocity.y + configs[mConfigIndex].mGravity * dt);
     mPos.y += mVelocity.y * dt;
     if(mPos.y <= 0.0f) {
         mVelocity.y = 0.0f;
@@ -106,21 +83,21 @@ void Enemy::update(float dt) {
     }
     mPos.y = min(mPos.y, 120);
 
-    checkCollision();
+    checkCollision(level);
 }
 
-void Enemy::cleanPrevDraw(Graphics& graphics) {
-    Level::cleanPrevDraw(mOldPos);
+void Enemy::cleanPrevDraw(Level& level, Graphics& graphics) {
+    LevelUtils::cleanPrevDraw(level, graphics, mOldPos);
 }
 
 void Enemy::draw(Graphics& graphics) {
     if (mPos.x < graphics.camera.x1 << 3 || mPos.x + TILE_SIZE >= graphics.camera.x2 << 3)
         return;
 
-    graphics.drawTile(mAnimFrameCurrent + mAnimFrameStart, static_cast<uint16_t>(mPos.x), static_cast<uint16_t>(mPos.y), TILE_SIZE, mFlipSprite);
+    graphics.drawTile(mAnimFrameCurrent + configs[mConfigIndex].mAnimFrameStart, static_cast<uint16_t>(mPos.x), static_cast<uint16_t>(mPos.y), TILE_SIZE, mFlags.flipSprite);
 
-    if(mLastFrameUpdate + mAnimFrameTime <= millis() && !mSleeps) {
-        mAnimFrameCurrent = mAnimFrameCurrent + 1 == mAnimFramesCount ? 0 : mAnimFrameCurrent + 1;
+    if(mLastFrameUpdate + configs[mConfigIndex].mAnimFrameTime <= millis() && !mFlags.sleeps) {
+        mAnimFrameCurrent = mAnimFrameCurrent + 1 == configs[mConfigIndex].mAnimFramesCount ? 0 : mAnimFrameCurrent + 1;
         mLastFrameUpdate = millis();
     }
 }
@@ -129,25 +106,30 @@ const vec2& Enemy::getPos() {
     return mPos;
 }
 
-EnemyType Enemy::getType() {
-    return mType;
+Type Enemy::getType() {
+    return static_cast<Type>(mConfigIndex);
 }
 
 int8_t Enemy::getDmg() {
-    return mDmg;
+    return configs[mConfigIndex].mDamage;
 }
 
 bool Enemy::hit(int8_t dmg, int8_t force) {
-    if (mSleeps)
+    if (mFlags.sleeps)
         return true;
 
     mVelocity.x = force;
     mVelocity.y -= 2.0f;
-    mHp -= dmg;
+    mHealth -= dmg;
 
-    return mHp > 0;
+    return mHealth > 0;
 }
 
-void Enemy::checkCollision() {
-    Level::collideWithLevel(mPos, mOldPos, mVelocity, vec2(mWalkSpeed, 0.0f), &mFlipSprite, &mOnGround);
+void Enemy::checkCollision(Level& level) {
+    //not looking nice, but at least the memory footprint is reduced if adding more flags
+    bool flip = mFlags.flipSprite;
+    bool onGround = mFlags.onGround;
+    LevelUtils::collideWithLevel(level, mPos, mOldPos, mVelocity, vec2(configs[mConfigIndex].mWalkSpeed, 0.0f), &flip, &onGround);
+    mFlags.flipSprite = flip;
+    mFlags.onGround = onGround;
 }
