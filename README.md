@@ -67,18 +67,24 @@ struct tile_index_t {
     uint8_t flip  : 2;
 };
 
-const Level::tile_index_t Level::level[levelH][levelW] PROGMEM =  {
+Level::tile_index_t Level::level[15][50] =  {
     { {11, 0}, {11, 0}, ... },
     ...
 };
 ```
 Same as the tiles array, it is quite tedious to define the levels by hand.\
-Best option would be to procedurally create the levels, didn't do that yet, but it is there in the to do list.\
-For now they are created using [Tiled](https://www.mapeditor.org/).
+Best option would be to procedurally create the levels, but I am already reaching the flash limit of the board.\
+So they are manually created using [Tiled](https://www.mapeditor.org/).
 
 <img src="https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/tiled.png" alt="tiled.png" width="100%"/>
 
-I created another [python script](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/level_generator.py) to take care of the level based on the tiled export.
+I other scripts [level_generator_byte_array.py](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/level_generator_byte_array.py) and [level_generator_binary_file.py](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/level_generator_binary_file.py) to take care of the levels based on the tiled exports.
+
+The binary file is used by the pc_version.\
+To visualize it the format I wrote this file [levels_kaitai_format.ksy](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/resources/levels_kaitai_format.ksy). Navigate to [ide.kaitai.io](https://ide.kaitai.io/) and drag and drop the `levels.bin` and `levels_kaitai_format.ksy` from [resources](https://github.com/AlexandruScutaru/EscapeTheSewer/tree/master/resources) directory in the ide's `Local Storage` to explore it.
+
+For Arduino I generate a header file containing the same contents as a byte array. With this litle [helper](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/include/level_writer.h) I save it to an [Atmel AT24C128 EEPROM](https://ww1.microchip.com/downloads/en/DeviceDoc/doc0670.pdf). It has a storage of 128k bits (16KB), plenty enough for several levels.\
+Everytime arduino starts it loads the first level, when end is reached it tries to read the next one until all of them have been read.
 
 ## Audio
 Everything in the game happens sequentially, as no multi-threading can be leveraged on an arduino (there is though something called protothreading, but that is another subject).\
@@ -91,28 +97,15 @@ The melodies themselves are being defined in the same manner the tiles are.
 # Getting it running
 ## On Arduino
 I created the project using [PlatformIO](https://platformio.org/) for VS Code.\
-It is straight forward to get it on the board. Compile and linking is done directly by PlatformIO, but the `upload_port` property from [platformio.ini](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/platformio.ini) must be updated accordingly so it finds the board to upload the code to.
+It is straight forward to get it on the board. Clone the repo and init and update the ST7735 display library submodule. Compile, linking and uploading are handled directly by PlatformIO, given the `upload_port` property from [platformio.ini](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/platformio.ini) is set accordingly so it finds the board to upload the code to.
 
 ## On PC
-To render the game I used [SFML](https://www.sfml-dev.org/).\
-Get the corresponding SFML for your the platform/compiler. I structure the files in this manner:
-```
-pc_version
-└───deps
-    └───include
-    │   └───SDML
-    │       └───include files
-    └───lib
-    │   └───lib files
-    └───runtime
-        └───dll files
-```
-I have msvc and I wrote a simple [batch script](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/pc_version/build.bat) to get the job done quickly.
-
+To render the game I used [SFML](https://www.sfml-dev.org/). And I created a small Visual Studio project.\
+TODO: change to a plain cmake project and use it to generate VS solution if needed etc.
 
 ### Why the PC version
-The so called _PC version_ is just the same game logic-wise (it just uses other display/input _strategies_.) that is loaded by `pc_version/main.cpp`.\
-I opted to load those _strategies_ statically using `#if defined` macro operator, eg in [main_game.h](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/include/main_game.h):
+The so called _PC version_ is just the same game logic-wise (it just uses other display/input _strategies_.).\
+I opted to load those _strategies_ statically using `#if defined` macro operator, eg in [game.h](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/include/game.h):
 ```cpp
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "input_manager.h"
@@ -122,29 +115,11 @@ I opted to load those _strategies_ statically using `#if defined` macro operator
     #include "../pc_version/graphics_pc.h"
 #endif
 ```
-It was done to my work easier.\
-I _simulated_ to some extent the 1.8 in LCD display. and due to the fact the logic was common for both this was particularly helpful in being able to debug properly while developing.
-
-I did this by creating a matrix of pixels `std::vector<std::vector<uint16_t>> screen;` (initially I was trying to do something with `std::rotate` over `std::vector`s for the scrolling part, but ended up doing something similar manually. TODO: change it to a `uint16_t screen[][]`).\
-Then every action coming from the `common` logic will be applied on a per pixel basis to the screen matrix, which will end up diplayed by SFML.
+It was done to make the development easier without the need to always upload the code and use Serial instrumentation to get an idea of what's going wrong.\
+I also tried to _simulate_ the LCD display to some extent to be closer to the real thing. Every action coming from the _common_ logic will be applied on a per pixel basis to the screen matrix, which will end up diplayed by SFML.
 
 # Hardware
-The handheld itself is a revision of a previous project of mine.\
-I created a 1:1 printable pcb design, you can find a pdf of it [here](https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/pcb_design.pdf).
-
-The best I could do for now for a schematic is this:\
-<img src="https://github.com/AlexandruScutaru/EscapeTheSewer/blob/master/readme_resources/schematic.png" alt="schematic.png" width="100%"/>
-
-You can imagine the schematic as being the components laid down on a _see-through etched board_ seen from the top side.
-* 6 resistors (10k ohms) used for pulling down the buttons
-* 1.8 in TFT LCD screen (11-pin version: VCC, GNG, GND, NC, NC, NC, CLK, SDA, RS, RST, CS, like [this one](https://www.banggood.com/1_8-Inch-TFT-LCD-Display-Module-Color-Screen-SPI-Serial-Port-128+160-p-1566669.html?cur_warehouse=CN))
-* the sound comes through an active buzzer. I also connected a resistor (forgot what value, perhaps 220 ohm) to limit the volume a bit
-* microSD card reader but it is unused for this project.\
-I don't even know if it works together with the LCD due to the way the particular ST7735 driver handles high speed SPI communication)
-* the blue lines are simple jumpers on the top side
-
-The unit is powered by a Li-ion battery. The charger is a `TP4056` module and 5v voltage is supplied by a mini dc step up [module](https://www.banggood.com/5pcs-3V-or-3_7V-To-5V-1A-Lithium-Battery-Step-Up-Module-Board-Mini-Mobile-Power-Boost-Charger-Module-With-Undervoltage-Indication-p-1428332.html?cur_warehouse=CN).
-As the schematic shows, there's a trace that goes into Arduino pin `A6`. That is coming directly from the battery, before the voltage booster module in order to read the current battery level.
+WIP
 
 # Credits
 What made this project doable on an Arduino Nano is the fast ST7735 lcd driver written by [sumotoy](https://github.com/sumotoy/TFT_ST7735/tree/1.0p1).
