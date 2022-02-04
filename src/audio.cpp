@@ -1,15 +1,7 @@
 #include "audio.h"
+#include "musical_notes.h"
 
-#define BUZZER 6
-
-#define NOTE_E4  330
-#define NOTE_FS4 370
-#define NOTE_G4  392
-#define NOTE_A4  440
-#define NOTE_B4  494
-#define NOTE_C5  523
-#define NOTE_D5  587
-#define NOTE_E5  659
+#define BUZZER_PIN 6
 
 #define E4  0
 #define B4  1
@@ -23,6 +15,7 @@
 
 const int16_t Audio::notes[] = {NOTE_E4, NOTE_B4, NOTE_C5, NOTE_A4, NOTE_G4, NOTE_FS4, NOTE_D5, NOTE_E5};
 
+//find a way to make the melody without reapeading the bars in teh array, taht is if the memory gain is positive
 const Audio::note_t Audio::melody[] /*PROGMEM*/ = {
     {E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {A4 , 2}, {B4, 2}, {E4 , 2}, {G4, 2},
     {A4, 2}, {E4, 2}, {FS4, 2}, {G4, 2}, {E4 , 2}, {G4, 2}, {A4 , 4},
@@ -37,17 +30,6 @@ const Audio::note_t Audio::melody[] /*PROGMEM*/ = {
     {D5, 2}, {E4, 2}, {D5 , 2}, {E5, 2}, {E4 , 2}, {B4, 2}, {C5 , 4},
     {E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {B4 , 2}, {C5, 2}, {E4 , 2}, {A4, 2},
     {B4, 2}, {E4, 2}, {G4 , 2}, {A4, 2}, {E4 , 2}, {A4, 2}, {B4 , 4},
-    //
-    //{E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {A4 , 2}, {B4, 2}, {E4 , 2}, {G4, 2},
-    //{A4, 2}, {E4, 2}, {FS4, 2}, {G4, 2}, {E4 , 2}, {G4, 2}, {A4 , 4},
-    //{E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {A4 , 2}, {B4, 2}, {E4 , 2}, {G4, 2},
-    //{A4, 2}, {E4, 2}, {FS4, 2}, {G4, 2}, {A4 , 2}, {G4, 2}, {FS4, 4},
-    //{E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {A4 , 2}, {B4, 2}, {E4 , 2}, {G4, 2},
-    //{A4, 2}, {E4, 2}, {FS4, 2}, {G4, 2}, {E4 , 2}, {G4, 2}, {A4 , 4},
-    //{E4, 2}, {B4, 2}, {C5 , 2}, {E4, 2}, {A4 , 2}, {B4, 2}, {E4 , 2}, {G4, 2},
-    //{A4, 2}, {E4, 2}, {FS4, 2}, {G4, 2}, {FS4, 4}, {G4, 4},
-    //
-    //{0, 4},
 };
 
 uint8_t Audio::note;
@@ -94,7 +76,7 @@ void Audio::OnTimerInterrupt() {
         note = (note+1) % notesNb;
         subDivision = 0;
         int16_t noteDuration = melody[note].duration * msPerSixteenthNote * TEMPO_SCALE * 0.9;
-        tone(BUZZER, notes[melody[note].frequency], noteDuration);
+        tone(BUZZER_PIN, notes[melody[note].frequency], noteDuration);
     }
     subDivision++;
 }

@@ -41,13 +41,7 @@
 #define SWORD_KNOCKBACK_FORCE 2.0f
 
 
-Player::Player() 
-    : pos(vec2(0.0f, 16.0f))
-    , oldPos(vec2(0.0f, 16.0f))
-    , velocity(vec2(0.0f))
-{
-    changeAnimation(AnimState::IDLE);
-}
+Player::Player() : Player(0.0f, 16.0f) {}
 
 Player::Player(float x, float y)
     : pos(vec2(x, y))
@@ -99,7 +93,7 @@ void Player::update(InputManager& input, Level& level, Graphics& graphics, float
         velocity.x = 0.0f;
     }
 
-    if (input.wasButtonPressedNow(InputManager::Button::B) && (mAnimState == AnimState::IDLE || mAnimState == AnimState::WALK || mAnimState == AnimState::JUMP || mAnimState == AnimState::FALL)) {
+    if (input.wasButtonPressedNow(InputManager::Button::B) && (mAnimState != AnimState::ATTACK && mAnimState != AnimState::CLIMB_IDLE && mAnimState != AnimState::CLIMBING)) {
         changeAnimation(AnimState::ATTACK);
         attackSuccesful = false;
     }
@@ -118,7 +112,6 @@ void Player::update(InputManager& input, Level& level, Graphics& graphics, float
         velocity.y = min(2*GRAVITY, velocity.y + GRAVITY * dt);
     }
 
-    //pos.x = min(max(Graphics::camera.x1 << 3, pos.x + velocity.x * dt), (Graphics::camera.x2 << 3) - TILE_SIZE);
     pos.x = min(max(0, pos.x + velocity.x * dt), (level.levelW << 3) - TILE_SIZE);
     pos.y += velocity.y * dt;
     if(pos.y <= 0.0f) {

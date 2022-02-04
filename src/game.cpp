@@ -92,19 +92,19 @@ void Game::draw() {
     BEGIN_DRAW
     
     //clean prev draws
-    //for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
-    //   mLevel.enemies[i].cleanPrevDraw(mLevel, mGraphics);
-    //}
+    for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
+      mLevel.enemies[i].cleanPrevDraw(mLevel, mGraphics);
+    }
 
     mPlayer.cleanPrevDraw(mLevel, mGraphics);
 
     //draw special objects
-    //for (uint8_t i = 0; i < mLevel.pickups.size(); i++) {
-    //   mLevel.pickups[i].draw(mGraphics);
-    //}
-    //for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
-    //   mLevel.enemies[i].draw(mGraphics);
-    //}
+    for (uint8_t i = 0; i < mLevel.pickups.size(); i++) {
+      mLevel.pickups[i].draw(mGraphics);
+    }
+    for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
+      mLevel.enemies[i].draw(mGraphics);
+    }
 
     mPlayer.draw(mGraphics);
     mStatusBar.draw(mGraphics);
@@ -112,9 +112,9 @@ void Game::draw() {
 }
 
 void Game::update(float dt) {
-    //for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
-    //   mLevel.enemies[i].update(mLevel, mGraphics, dt);
-    //}
+    for (uint8_t i = 0; i < mLevel.enemies.size(); i++) {
+      mLevel.enemies[i].update(mLevel, mGraphics, dt);
+    }
 
     mPlayer.update(mInputManager, mLevel, mGraphics, dt);
 

@@ -1,9 +1,9 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
-//#include "array.h"
-//#include "enemy.h"
-//#include "pickup.h"
+#include "array.h"
+#include "enemy.h"
+#include "pickup.h"
 #include "vec2.h"
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
@@ -72,8 +72,8 @@ struct Level {
     const static tile_t tiles[] PROGMEM;
 
     //I haven't tried making these polymorphic, not sure if I want to add vtable overhead on arduino
-    //array<Enemy, ENEMIES_PER_LEVEL> enemies;
-    //array<Pickup, PICKUPS_PER_LEVEL> pickups;
+    array<Enemy, ENEMIES_PER_LEVEL> enemies;
+    array<Pickup, PICKUPS_PER_LEVEL> pickups;
     vec2 startCoords;
     vec2 endCoords;
     uint8_t levelW = 0;

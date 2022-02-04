@@ -14,6 +14,11 @@
 
 #define TOP_OFFSET TILE_SIZE
 
+// all tha weird calculations are necesseray because the display's hardware scrolling can happen only in vertical orientation,
+// meaning the rotation of display must be in portrait. But the game itself is designed in landscape.
+// so for this I needed to resort to this transposing of the display which adds quite a bit of complexity
+// TODO: maybe I was in a hurry to get it working and overlooked a simpler/cleaner way.. recheck it
+
 const int16_t Graphics::max_game_area = DISPLAY_WIDTH - DISPLAY_BFA;
 Graphics::Camera Graphics::camera = Graphics::Camera{ 0, Graphics::max_game_area >> 3 };
 
