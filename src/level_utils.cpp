@@ -6,7 +6,8 @@
     #include "graphics.h"
 
     #define GET_TILE_ROW(level, tileIndex, rowIndex) (Level::tile_row_t { .packed = pgm_read_dword_near(&level.tiles[tileIndex][rowIndex]) })
-    #define GET_COLOR(level, index) (pgm_read_dword_near(&level.colors[index]))
+    //#define GET_COLOR(level, index) (pgm_read_dword_near(&level.colors[index]))
+    #define GET_COLOR(level, index) (level.colors[index])
 #else
     #include "../pc_version/pc_version/graphics_pc.h"
 

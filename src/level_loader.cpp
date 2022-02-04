@@ -92,9 +92,4 @@ namespace LevelLoader {
 
         return true;
     }
-
-    bool writeCurrentLevelIndex() {
-        return false;
-    }
-
 }

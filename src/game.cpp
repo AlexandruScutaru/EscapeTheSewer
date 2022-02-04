@@ -2,13 +2,15 @@
 #include "level.h"
 #include "level_utils.h"
 #include "event.h"
-#include  "vec2.inl"
+#include "vec2.inl"
+
 
 #if defined (ARDUINO) || defined (__AVR_ATmega328P__)
     #include "audio.h"
     #include "level_loader.h"
+    #include <avr/wdt.h>
 
-    #define LOOP_CONDITION (mState != LevelState::PLAYER_DIED && mState != LevelState::FINISHED)
+    #define LOOP_CONDITION (mState != LevelState::FINISHED)
 
     #define BEGIN_DRAW
     #define END_DRAW
@@ -56,6 +58,20 @@ void Game::run() {
         loop();
         mCurrentLevel++;
     }
+
+
+#if defined (ARDUINO) || defined (__AVR_ATmega328P__)
+    // the "screensaver" made a reappearence
+    Audio::Disable();
+    uint16_t color = 0x38A6;
+    for(;;) {
+        mGraphics.fillScreen(color);
+        mStatusBar.update(0.0f);
+        mStatusBar.draw(mGraphics, true);
+        color += 0x045A;
+        delay(1000);
+    }
+#endif
 }
 
 //the game loop seems a bit meh, works for now
@@ -131,6 +147,8 @@ void Game::handleCollision() {
     }
 
     if (LevelUtils::collideWithEnemies(mLevel, mPlayer)) {
-        mState = LevelState::PLAYER_DIED;
+        // if player died, sadly no nmore space to add message to the screen, just restart :)
+        wdt_enable(WDTO_15MS);
+        for(;;);
     }
 }

@@ -25,7 +25,6 @@ public:
 private:
     enum class LevelState : int8_t {
         IN_PROGRESS,
-        PLAYER_DIED,
         FINISHED
     };
 

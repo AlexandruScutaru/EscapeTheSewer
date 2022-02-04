@@ -68,7 +68,7 @@ struct Level {
     };
 
     tile_index_t levelData[LEVEL_MAX_H][LEVEL_MAX_W] = {};
-    const static uint16_t colors[PALETTE_COUNT] PROGMEM;
+    const static uint16_t colors[PALETTE_COUNT] /*PROGMEM*/;
     const static tile_t tiles[] PROGMEM;
 
     //I haven't tried making these polymorphic, not sure if I want to add vtable overhead on arduino
