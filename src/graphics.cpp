@@ -23,11 +23,9 @@ const int16_t Graphics::max_game_area = DISPLAY_WIDTH - DISPLAY_BFA;
 Graphics::Camera Graphics::camera = Graphics::Camera{ 0, Graphics::max_game_area >> 3 };
 
 Graphics::Graphics(Level& level)
-    : mTFT(TFT_ST7735(TFT_CS, TFT_DC, TFT_RST))
-    , mLevel(level)
+    : mLevel(level)
 {
     mTFT.begin();
-    mTFT.setRotation(0);
     mTFT.defineScrollArea(DISPLAY_TFA, DISPLAY_BFA, DISPLAY_INTERNAL_BUFFER_HEIGHT);
     scrollAmount = mTFT.getScrollTop();
 }

@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-#include <TFT_ST7735.h>
+#include <ST7735.h>
 
 #define DISPLAY_HEIGHT  128
 #define DISPLAY_WIDTH   128
