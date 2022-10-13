@@ -8,25 +8,25 @@ InputManager::InputManager() {
     pinMode( 3, INPUT_PULLUP);
     pinMode( 4, INPUT_PULLUP);
     pinMode( 5, INPUT_PULLUP);
-    pinMode(A0, INPUT_PULLUP);
-    pinMode(A1, INPUT_PULLUP);
+    pinMode(A2, INPUT_PULLUP);
+    pinMode( 7, INPUT_PULLUP);
 }
 
 void InputManager::processInput() {
     mPrevMask = mMask;
     mMask = 0;
     //arduino nano's A0-A5 pins can be used also as digital pins
-    if(!digitalRead(4))
-        mMask |= Button::LEFT;
-    if(!digitalRead(5))
-        mMask |= Button::DOWN;
     if(!digitalRead(2))
-        mMask |= Button::UP;
+        mMask |= Button::LEFT;
     if(!digitalRead(3))
+        mMask |= Button::DOWN;
+    if(!digitalRead(4))
+        mMask |= Button::UP;
+    if(!digitalRead(A2))
         mMask |= Button::RIGHT;
-    if(!digitalRead(A0))
+    if(!digitalRead(5))
         mMask |= Button::A;
-    if(!digitalRead(A1))
+    if(!digitalRead(7))
         mMask |= Button::B;
 }
 
